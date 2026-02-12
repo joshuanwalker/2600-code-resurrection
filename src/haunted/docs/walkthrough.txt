@@ -1,0 +1,361 @@
+w w w . g a m e - r a v e . c o m      p r e s e n t s
+------=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-/
+=     Haunted House (Atari 2600) Guide               /
+=     Version 1.00                                  /___D_A_N_G_E_R_B_O_Y__
+=------=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-/     By Jason Dvorak
+
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+Copyrights and Stuff                                                    ( C )
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+"Haunted House (Atari 2600) Guide " is copyrighted 2001 by Jason
+Dvorak. Game Rave is copyrighted Jason Dvorak.
+
+All text, images (ascii art), and writings within this guide are the sole
+property of the author. This publication may not be reproduced in any form
+without the express written consent of the author. In other words, ask
+first.=)
+
+E-Mail Contact: jason_dvorak@hotmail.com
+Subject: "Haunted House Guide"
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+Table of Contents                                                      T O C
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+TOC. Table of Contents
+VER. FAQ / Guide Version History
+INT. Introduction
+G E. Guide Explanation
+
+a. Character Files
+b. Items in game
+c. Game Difficulties 
+
+1. House Maps
+2. Credits
+
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+FAQ / Guide Version History                                            V E R
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+-----> April 4, 2002 
+     - Version 1 is worked on.
+         a. Basic walk-through worked on
+
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+INTRODUCTION                                                           I N T
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+Haunted House has alway been a favorite game of mine. That and Kaboom are 
+probably my two favorite Atari games ever. You can imagine the joy I felt
+when I saw there was a call for the FAQ. Undaunted, I jumped back at the 
+game and began the research, and made a pretty crappy discovery:
+
+The items are always random. 
+
+Phooie!
+
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+Guide Explanation                                                      G  E
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+This guide simply provides the mansion room layouts, character descriptions,
+and the 'reversed' mansion on level 9. 
+
+The object is to find all three Urn pieces and get out of the mansion. 
+
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+a. Character Files                                                     C H A
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+___________________
+Googly Eyes (You)  \________________________________________________________
+                                                                           |
+On a dare by Atari, you venture into the old mansion in Spirit Bay. With   |
+the myth and ghost stories of Zachary Graves haunting the house, it'll     |
+take all of your courage to find the 3 pieces of an Ancient Urn and return |
+to the front of the mansion.                                               |
+_______________________                                                    |
+Old Man Graves (Ghost) \___________________________________________________|
+                                                                           |
+The final owner of the house now haunts the manor as a white ghost. Unlike |
+the other creatures, Graves can pass through locked doors and walls. He is |
+the fastest moving creature in the entire game.                            |
+_____________                                                              |
+Vampire Bats \_____________________________________________________________|
+                                                                           |
+These are the weird looking green V things that are flying around the      |
+house. These are a bit slower than Graves, and a lot easier to avoid.      |
+Unlike the owner, these can not pass through objects.                      |
+___________                                                                |
+Tarantulas \_______________________________________________________________|
+                                                                           |
+Think of spiders, but make them really ugly and really hairy. That's what  |
+a tarantulas looks like. Here in the game, they are normally pink. If you  |
+play on the higher difficulties, they will be other colors.                |
+___________________________________________________________________________|
+
+- If any of the creatures touch you, you lose 1 unit of Health. 
+
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+b. Items in Game                                                       I T E
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+----------------------------------------------------------------------
+Urn (Left Piece)  | One of the three pieces you need. Looks like a 4 |
+----------------------------------------------------------------------
+Urn (Center Piece)| One of the three pieces you need. Long crooked I.|
+----------------------------------------------------------------------
+Urn (Right Piece) | One of the three pieces you need. Little squigly |
+----------------------------------------------------------------------
+Urn (Complete)    | What you need to leave the mansion.              |
+----------------------------------------------------------------------
+Master Key        | Used to open locked doors.                       |
+----------------------------------------------------------------------
+Scepter           | Used to thwart the enemies.                      |
+----------------------------------------------------------------------
+Matches           | (Equipped) Press the button to light a match     |
+------------------| which allows you to pick up items.               |
+                  |__________________________________________________|
+
+
+Aside from the Urn pieces, you can only carry one item at a time. Usually
+it's a good idea to look for the scepter first, than locate the pieces.
+One trick is to keep dropping pieces/picking them up in tandem with the 
+scepter, in effect playing leap frog with them. This allows you to be 
+almost invincible while you bring a piece along. 
+
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+c. Game Difficulties                                                   G M E
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+There are a total of nine different house set-ups, along with the A/B option.
+Switching to A will cause the screen to always be dark. Switching to B will
+cause lightning to strike every so often, allowing you to view the mansion
+for a brief second. 
+
+The 9 difficulty settings are as follows:
+Game 1. - Outside always lit.
+        - No doors (so no key)
+        - Three creatures (one of each)
+
+Game 2. - Outside is dark
+        - No *locked* doors
+        - Three Creatures
+
+Game 3. - Like 2 except:
+        - Some doors are locked
+        - Key is in first room
+
+Game 4. - Like 3 except:
+        - Random Key placement
+
+Game 5. - Like 4 except:
+        - More spiders!
+
+Game 6. - All 5 creatures can chase you room to room
+        - Ghost can pass through door
+
+Game 7. - If you're touched by the bat, you drop the item and it moves 
+          somewhere else. 
+
+Game 8. - Like 7, but creatures are faster and ghost is invincible. 
+
+Game 9. - The Ultimate Haunted House! Same as 8 except:
+        - House layout is different
+        - All 5 creatures can chase you room to room...even locked doors!
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+1. House Maps                                                          O N E
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+Overall House Map: Select 1 - 2
+-----------------------------------
+1,2,3,4 = Floor you're going to.
+
+            Floor 1                               Floor 2
+  
+       2             _____                   1               3
+     =====           |   |                 =====           =====
+ ____=====____   ____|   |_____        ____=====____   ____=====_____
+ |           |   |            |        |           |   |            |
+ |           |___|            |        |           |___|            | 
+ |           _____            |        |           _____            |
+ |           |   |            |        |           |   |            | 
+ |___     ___|   |___    _____|        |___     ___|   |___    _____|
+     |   |           |   |                 |   |           |   |  
+ ____|   |___    ____|   |____         ____|   |___    ____|   |____
+ |           |   |            |        |           |   |            |
+_|           |___|            |_      3|           |___|            |_
+                           Start|    ||                               |
+_            _____            __|    ||            _____            __|
+ |           |   |            |        |           |   |            |  
+ |___     ___|   |___    _____|        |___     ___|   |___    _____|
+     |   |           |   |                 |   |           |   |
+ ____|   |___    ____|   |____         ____|   |___    ____|   |____
+ |           |   |            |        |           |   |            |
+ |           |___|            |        |           |___|            |
+ |           _____            |        |           _____            |
+ |           |   |            |        |           |   |            |  
+ |___     ___|   |___     ____|        |___     ___|   |___     ____|
+     |   |           =====                 =====           ===== 
+     |___|           =====                 =====           =====  
+                       2                     3               1
+
+            Floor 3                               Floor 4
+  
+       4               2                     3             _____
+     =====           =====                 =====           |   |
+ ____=====____   ____=====_____        ____=====____   ____|   |_____
+ |           |   |            |        |           |   |            |
+ |           |___|            |        |           |___|            | 
+ |           _____            |        |           _____            |
+ |           |   |            |        |           |   |            | 
+ |___     ___|   |___    _____|        |___     ___|   |___    _____|
+     |   |           |   |                 |   |           |   |  
+ ____|   |___    ____|   |____         ____|   |___    ____|   |____
+ |           |   |            |        |           |   |            |
+2|           |___|            |4      _|           |___|            |3
+||                             ||    |                               ||
+||           _____            _||    |_            _____            _||
+ |           |   |            |        |           |   |            |  
+ |___     ___|   |___    _____|        |___     ___|   |___    _____|
+     |   |           |   |                 |   |           |   |
+ ____|   |___    ____|   |____         ____|   |___    ____|   |____
+ |           |   |            |        |           |   |            |
+ |           |___|            |        |           |___|            |
+ |           _____            |        |           _____            |
+ |           |   |            |        |           |   |            |  
+ |___     ___|   |___     ____|        |___     ___|   |___     ____|
+     =====           =====                 |   |           ===== 
+     =====           =====                 |___|           =====  
+       2               4                                     3
+-----------------------------------
+Overall House Map: Select 3 - 8
+-----------------------------------
+1,2,3,4 = Floor you're going to.
+XXX = Locked Door
+
+            Floor 1                               Floor 2
+  
+       2             _____                   1               3
+     =====           |   |                 =====           =====
+ ____=====____   ____|   |_____        ____=====____   ____=====_____
+ |           |   |            |        |           |   |            |
+ |           |___|            |        |           |___|            | 
+ |           _____            |        |           _XXX__           |
+ |           |   |            |        |           |   |            | 
+ |___     ___|   |___    _____|        |___     ___|   |___    _____|
+     |   |           |   |                 |   |           |   |  
+ ____|XXX|___    ____|   |____         ____|   |___    ____|XXX|____
+ |           |   |            |        |           |   |            |
+_|           |___|            |_      3|           |___|            |_
+               X           Start|    ||                               |
+_            __X__            __|    ||            _____            __|
+ |           |   |            |        |           |   |            |  
+ |___     ___|   |___    _____|        |___     ___|   |___    _____|
+     |   |           |   |                 |   |           |   |
+ ____|   |___    ____|XXX|____         ____|XXX|___    ____|XXX|____
+ |           |   |            |        |           |   |            |
+ |           |___|            |        |           |___|            |
+ |           _____            |        |           _____            |
+ |           |   |            |        |           |   |            |  
+ |___     ___|   |___     ____|        |___     ___|   |___     ____|
+     |   |           =====                 =====           ===== 
+     |___|           =====                 =====           =====  
+                       2                     3               1
+
+            Floor 3                               Floor 4
+  
+       4               2                     3             _____
+     =====           =====                 =====           |   |
+ ____=====____   ____=====_____        ____=====____   ____|   |_____
+ |           |   |            |        |           |   |            |
+ |           |___|            |        |           |___|            | 
+ |           _XXX_            |        |           _____            |
+ |           |   |            |        |           |   |            | 
+ |___     ___|   |___    _____|        |___     ___|   |___    _____|
+     |   |           |   |                 |   |           |   |  
+ ____|   |___    ____|   |____         ____|XXX|___    ____|   |____
+ |           |   |            |        |           |   |            |
+2|           |___|            |4      _|           |___|            |3
+||             X               ||    |               X               ||
+||           __X__            _||    |_            __X__            _||
+ |           |   |            |        |           |   |            |  
+ |___     ___|   |___    _____|        |___     ___|   |___    _____|
+     |XXX|           |   |                 |   |           |   |
+ ____|   |___    ____|   |____         ____|   |___    ____|XXX|____
+ |           |   |            |        |           |   |            |
+ |           |___|            |        |           |___|            |
+ |           _____            |        |           _____            |
+ |           |   |            |        |           |   |            |  
+ |___     ___|   |___     ____|        |___     ___|   |___     ____|
+     =====           =====                 |   |           ===== 
+     =====           =====                 |___|           =====  
+       2               4                                     3
+
+-----------------------------------
+Overall House Map: Select 9
+-----------------------------------
+1,2,3,4 = Floor you're going to.
+XXX = Locked Door
+
+            Floor 1                               Floor 2
+  
+       2             _____                   
+     =====           |   |                 |---|           |---|
+ ____=====____   ____|   |_____        ____|   |____   ____|   |_____
+ |           |   |            |        |           |   |            |
+ |           |___|            |        |           |___|            | 
+ |           _____            |        |           _____            |
+ |           |   |            |        |           |   |            | 
+ |___     ___|   |___    _____|        |___     ___|   |___    _____|
+     |   |           |   |                 |   |           |   |  
+ ____|XXX|___    ____|XXX|____         ____|XXX|___    ____|XXX|____
+ |           |   |            |        |           |   |            |
+2|           |___|            |_      1|           |___|            |3_
+||             X           Start|    ||                              ||
+||           __X__            __|    ||            _____            _||
+ |           |   |            |        |           |   |            |  
+ |___     ___|   |___    _____|        |___     ___|   |___    _____|
+     |   |           |   |                 |   |           |   |
+ ____|XXX|___    ____|   |____         ____|   |___    ____|XXX|____
+ |           |   |            |        |           |   |            |
+ |           |___|            |        |           |___|            |
+ |           _____            |        |           _XXX_            |
+ |           |   |            |        |           |   |            |  
+ |___     ___|   |___     ____|        |___     ___|   |___     ____|
+     =====           |    |                =====           |    | 
+     =====           |____|                =====           |____|
+       2                                     1               
+
+            Floor 3                               Floor 4
+  
+       4               2                     3             _____
+     =====           =====                 =====           |   |
+ ____=====____   ____=====_____        ____=====____   ____|   |_____
+ |           |   |            |        |           |   |            |
+ |           |___|            |        |           |___|            | 
+ |           _____            |        |           _____            |
+ |           |   |            |        |           |   |            | 
+ |___     ___|   |___    _____|        |___     ___|   |___    _____|
+     |   |           |   |                 |   |           |   |  
+ ____|XXX|___    ____|   |____         ____|XXX|___    ____|   |____
+ |           |   |            |        |           |   |            |
+_|           |___|            |2      3|           |___|            |__
+               X               ||    ||                               |
+_            __X__            _||    ||            _____            __|
+ |           |   |            |        |           |   |            |  
+ |___     ___|   |___    _____|        |___     ___|   |___    _____|
+     |   |           |   |                 |   |           |   |
+ ____|   |___    ____|XXX|____         ____|XXX|___    ____|   |____
+ |           |   |            |        |           |   |            |
+ |           |___|            |        |           |___|            |
+ |           _____            |        |           _____            |
+ |           |   |            |        |           |   |            |  
+ |___     ___|   |___     ____|        |___     ___|   |___     ____|
+     |   |           |   |                 =====           |   | 
+     |___|           |___|                 =====           |___|
+                                             3             
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+2. Credits                                                            T W O 
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+Special Thanks:
+- Animallyson = My GF. :) The guide was her idea. ^O^
+- CJayC = For GameFaqs.com
+- Atari Age = Provided text version of manual I needed for reference. 
+- Atari = For providing my childhood with hours of colorful squares. 
+
+Copyright: Jason Dvorak, Game Rave 2002
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=

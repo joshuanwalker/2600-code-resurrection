@@ -1,0 +1,84 @@
+
+
+Space Shuttle Commander Patch Walkthrough.
+V 1.0 by B.L. Timmins AKA Master Higgins on Gamefaqs AKA Dr. Morbis everywhere
+else.
+
+I got the first three rankings quite easily, but the Commander ranking
+absolutely baffled me. No matter what I did, I couldn’t figure out how to land
+with more than about 7200 fuel units after 6+ dockings. So I turned to the net
+for help. To my amazement, there is not one single FAQ or walkthrough on how to
+get the Commander patch, nor is there any mention of anyone ever actually doing
+it. So I set out to accomplish the feat on my own (pic at the bottom) and write
+a short guide for anyone else who is interested in doing it.
+
+Before reading my directions below, know that it assumes you have a good
+understanding of the game and can attain the Pilot rank quite easily. Also, it
+is essential to be able to dock quickly and efficiently, so here are some
+docking tips:
+
+Docking Made Easy:
+
+-After a successful Rendezvous, immediately max your speed out at 25.5. This
+greatly decreases the time it takes for the satellite to settle at X 128
+(saving time = saving fuel). And since you’re going so fast, as soon as the
+satellite has settled you’ll automatically start racing towards it again
+without having to make any speed adjustments.
+
+-At X 128, check Y and adjust to 0 if greater than 20 (Yes, ignore Z. Always
+ignore Z until you have a visual on the satellite. The reason being, after
+about the 4th docking Z always readjusts to approx. -13 every time the
+satellite re-settles. Since you’ll be going at max speed you’ll slowly drift
+down to it and be within 4 [usually within 2] by the time you reach the
+satellite anyway).
+
+-At X 1 or X 2 decrease speed by about 0.8. The satellite should be right in
+front of you and in view.
+
+-At this time, readjust Z to 0 and make small speed adjustments to get X to 0.
+If it is your 4th docking or less, try to line up Y exactly with 0. IMPORTANT
+TIP: From the 5th docking onward, always line up Y BESIDE 0 (at 1 or -1). The
+reason is; the satellite is so erratic that it changes its Y axis every 2
+seconds or less. The trick to later dockings is lining up Y to be one off 0 and
+waiting for the satellite to move on to 0 and stay for the full 2 seconds.
+(there’s a 50% chance it will move farther away along the Y axis so if you are
+at -1 and it moves farther making you at -2, simply move with it to readjust
+back to -1). Getting the hang of this tip makes docking the erratic satellites
+infinitely less difficult.
+
+-Once you’ve mastered docking, you should always have 9900+ fuel units after
+every docking from the 4th one onward. By the way, the satellite doesn’t get
+any more difficult after the 6th docking. If you can dock 6 times with ease,
+you should be able to dock 20 times with ease. To practice, set a goal for
+yourself (ie: 10 dockings) and don’t come down until you’ve accomplished it.
+After mastering docking you’ll be ready for:
+
+My Simple Guide to Attaining the Rank of Commander:
+
+-Standard Launch and Orbit.
+- IGNORE the normal Deorbit Burn instructions and follow these steps instead:
+1.Immediately after your 6th+ docking (and with at least 9500 fuel units), drop
+your speed all the way down to 18.9. Do this quickly. DON’T wait for X 128.
+2.Activate engines.
+3.Set Pitch at +24 and don’t touch the CX40 again until you see the Reentry
+screen.
+4.Switch status to your Altimeter. It should be stuck on a value between 205
+and 215 while it waits for X to hit 128. Once the satellite has settled, your
+altitude will start to drop normally.
+5.Once your altitude is under 210, close the Cargo Bay Doors. (If your altitude
+was already stuck at a value below 210 while you were waiting for the satellite
+to settle, close the Cargo Bay Doors as soon as your altitude starts dropping
+normally).
+6.Wait for the Reentry screen. If it takes longer than 30 seconds, the alarm
+will sound (due to the doors being closed while in orbit). Ignore the alarm, as
+it will stop as soon as the Reentry screen appears (you have 30 full seconds
+and, furthermore, my method only consumes about 1500 fuel units if alarm-free,
+so you have a very large margin for error).
+-Standard Reentry and Final Approach. Good luck!
+
+I’ve gotten this method down to a science and it works for me about 75% of the
+time. About every fourth try there is a Mission Abort, and it is usually
+related to the randomness of the altitude you are at after completing your last
+docking (if your altitude is >215 or <205 when you first switch to your
+altimeter, it might not work).
+
