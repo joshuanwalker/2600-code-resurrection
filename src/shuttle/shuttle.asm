@@ -48,8 +48,8 @@ BEIGE            = $f0
 ;      Bankswitching Constants
 ;-----------------------------------------------------------
 
-BANK0STROBE     = $FFF8
-BANK1STROBE     = $FFF9
+bank0Strobe     = $FFF8
+bank1Strobe     = $FFF9
 
 ;-----------------------------------------------------------
 ;      TIA Registers
@@ -275,711 +275,711 @@ Start           = $f003
     ORG     $0000
     RORG    $f000
 
-Reset_Bank0
-    bit     BANK1STROBE                     ; $f000 (*)
+resetBank0
+    bit     bank1Strobe                     ; $f000 (*)
     
 Start
-    stx     ENAM0                   ;3        
-    stx     ENAM1                   ;3        
-    stx     COLUPF                  ;3        
-    dex                             ;2        
-    stx     PF0                     ;3        
-    sta     RESBL                   ;3        
-    stx     PF1                     ;3        
-    stx     PF2                     ;3        
-    lda     #BLACK|$6               ;2        
-    sta     COLUBK                  ;3        
-    lda     #$c0                    ;2        
-    sta     HMBL                    ;3        
-    sta     ENABL                   ;3        
-    txs                             ;2        
-    inx                             ;2        
-    stx     GRP0                    ;3        
-    lda     #BLUE|$2                ;2        
-    sta     COLUP1                  ;3        
-    lda     #BLUE|$a                ;2        
-    sta     COLUP0                  ;3        
-    stx     NUSIZ0                  ;3        
-    stx     REFP0                   ;3        
-    lda     #$05                    ;2        
-    sta     NUSIZ1                  ;3        
-    stx     PF2                     ;3        
-    sta     HMOVE                   ;3        
-    stx     PF0                     ;3        
-    stx     PF1                     ;3        
-    lda     ram_82                  ;3        
-    sta     HMCLR                   ;3        
-    jsr     $d958                   ;6        
-    lda     ram_83                  ;3        
-    inx                             ;2        
-    jsr     $d958                   ;6        
-    lda     #YELLOW|$8              ;2        
-    sta     COLUPF                  ;3        
-    ldx     #$07                    ;2   = 106
+    stx     ENAM0
+    stx     ENAM1
+    stx     COLUPF
+    dex
+    stx     PF0
+    sta     RESBL
+    stx     PF1
+    stx     PF2
+    lda     #BLACK|$6
+    sta     COLUBK
+    lda     #$c0
+    sta     HMBL
+    sta     ENABL
+    txs
+    inx
+    stx     GRP0
+    lda     #BLUE|$2
+    sta     COLUP1
+    lda     #BLUE|$a
+    sta     COLUP0
+    stx     NUSIZ0
+    stx     REFP0
+    lda     #$05
+    sta     NUSIZ1
+    stx     PF2
+    sta     HMOVE
+    stx     PF0
+    stx     PF1
+    lda     ram_82
+    sta     HMCLR
+    jsr     $d958
+    lda     ram_83
+    inx
+    jsr     $d958
+    lda     #YELLOW|$8
+    sta     COLUPF
+    ldx     #$07
 Lf04b
-    ldy     #$00                    ;2        
-    lda     $d9e8,x                 ;4        
-    sta     WSYNC                   ;3   =   9
+    ldy     #$00
+    lda     $d9e8,x
+    sta     WSYNC
 ;---------------------------------------
-    sta     HMOVE                   ;3        
-    sty     PF0                     ;3        
-    sta     CTRLPF                  ;3        
-    lda     #$7f                    ;2        
-    sta     ENABL                   ;3        
-    sta     PF1                     ;3        
-    dey                             ;2        
-    sty     GRP1                    ;3        
-    lda     $dbfa,x                 ;4        
-    sta     GRP0                    ;3        
-    sty     PF2                     ;3        
-    sta     HMCLR                   ;3        
-    lda     #$c0                    ;2        
-    sta     PF0                     ;3        
-    sty     PF1                     ;3        
-    dex                             ;2        
-    bpl     Lf04b                   ;2/3      
-    sta     WSYNC                   ;3   =  50
+    sta     HMOVE
+    sty     PF0
+    sta     CTRLPF
+    lda     #$7f
+    sta     ENABL
+    sta     PF1
+    dey
+    sty     GRP1
+    lda     $dbfa,x
+    sta     GRP0
+    sty     PF2
+    sta     HMCLR
+    lda     #$c0
+    sta     PF0
+    sty     PF1
+    dex
+    bpl     Lf04b
+    sta     WSYNC
 ;---------------------------------------
-    sta     HMOVE                   ;3        
-    iny                             ;2        
-    sty     PF0                     ;3        
-    sty     PF1                     ;3        
-    sty     PF2                     ;3        
-    sty     ENABL                   ;3        
-    sty     GRP0                    ;3        
-    sty     GRP1                    ;3        
-    nop                             ;2        
-    stx     RESBL                   ;3        
-    ldx     ram_E3                  ;3        
-    cpx     #$04                    ;2        
-    bcc     Lf0a3                   ;2/3      
-    lda     ram_B5                  ;3         *
-    cmp     #$02                    ;2         *
-    bne     Lf0a3                   ;2/3       *
-    lda     ram_C1                  ;3         *
-    and     $debd,x                 ;4         *
-    bne     Lf0a3                   ;2/3       *
-    bit     ram_80                  ;3         *
-    bmi     Lf0a1                   ;2/3       *
-    dec     ram_B2                  ;5         *
+    sta     HMOVE
+    iny
+    sty     PF0
+    sty     PF1
+    sty     PF2
+    sty     ENABL
+    sty     GRP0
+    sty     GRP1
+    nop
+    stx     RESBL
+    ldx     ram_E3
+    cpx     #$04
+    bcc     Lf0a3
+    lda     ram_B5
+    cmp     #$02
+    bne     Lf0a3
+    lda     ram_C1
+    and     $debd,x
+    bne     Lf0a3
+    bit     ram_80
+    bmi     Lf0a1
+    dec     ram_B2
     .byte   $2c ;bit                ;4-5 =  60 *
 Lf0a1
-    inc     ram_B2                  ;5   =   5 *
+    inc     ram_B2
 Lf0a3
-    sta     WSYNC                   ;3   =   3
+    sta     WSYNC
 ;---------------------------------------
-    sta     HMOVE                   ;3        
-    sty     COLUP0                  ;3        
-    sty     COLUP1                  ;3        
-    sty     COLUPF                  ;3        
-    lda     #$01                    ;2        
-    sta     NUSIZ0                  ;3        
-    sta     NUSIZ1                  ;3        
-    sta     CTRLPF                  ;3        
-    ldx     #$05                    ;2        
-    lda     #$02                    ;2        
-    sta     HMCLR                   ;3        
-    sta     ENABL                   ;3        
-    sta     RESP1                   ;3   =  36
+    sta     HMOVE
+    sty     COLUP0
+    sty     COLUP1
+    sty     COLUPF
+    lda     #$01
+    sta     NUSIZ0
+    sta     NUSIZ1
+    sta     CTRLPF
+    ldx     #$05
+    lda     #$02
+    sta     HMCLR
+    sta     ENABL
+    sta     RESP1
 Lf0bf
-    sta     WSYNC                   ;3   =   3
+    sta     WSYNC
 ;---------------------------------------
-    lda     #$30                    ;2        
-    sta     PF0                     ;3        
-    lda     $dafa,x                 ;4        
-    sta     GRP0                    ;3        
-    sta     GRP1                    ;3        
-    nop                             ;2        
-    nop                             ;2        
-    nop                             ;2        
-    sta     RESP0                   ;3        
-    sta.w   RESP1                   ;4        
-    sta.w   RESP0                   ;4        
-    sta.w   RESP1                   ;4        
-    sta.w   RESP0                   ;4        
-    sta.w   RESP1                   ;4        
-    sta.w   RESP0                   ;4        
-    sta.w   RESP1                   ;4        
-    sta.w   RESP0                   ;4        
-    sta.w   RESP1                   ;4        
-    sta.w   RESP0                   ;4        
-    sty     PF0                     ;3        
-    dex                             ;2        
-    bne     Lf0bf                   ;2/3      
-    sta     WSYNC                   ;3   =  74
+    lda     #$30
+    sta     PF0
+    lda     $dafa,x
+    sta     GRP0
+    sta     GRP1
+    nop
+    nop
+    nop
+    sta     RESP0
+    sta.w   RESP1
+    sta.w   RESP0
+    sta.w   RESP1
+    sta.w   RESP0
+    sta.w   RESP1
+    sta.w   RESP0
+    sta.w   RESP1
+    sta.w   RESP0
+    sta.w   RESP1
+    sta.w   RESP0
+    sty     PF0
+    dex
+    bne     Lf0bf
+    sta     WSYNC
 ;---------------------------------------
-    sta     HMOVE                   ;3        
-    stx     GRP0                    ;3        
-    stx     GRP1                    ;3        
-    stx     ENABL                   ;3        
-    stx     NUSIZ0                  ;3        
-    stx     NUSIZ1                  ;3        
-    inx                             ;2        
-    lda     #BLUE|$9                ;2        
-    sta     RESP0                   ;3        
-    stx     CTRLPF                  ;3        
-    sta     COLUPF                  ;3        
-    lda     #YELLOW|$8              ;2        
-    sta     COLUP0                  ;3        
-    ldx     #BLACK|$c               ;2        
-    lda     ram_A1                  ;3        
-    beq     Lf11d                   ;2/3      
-    lda     ram_C1                  ;3        
-    and     #$20                    ;2        
-    beq     Lf11d                   ;2/3      
-    ldx     #$82                    ;2   =  52 *
+    sta     HMOVE
+    stx     GRP0
+    stx     GRP1
+    stx     ENABL
+    stx     NUSIZ0
+    stx     NUSIZ1
+    inx
+    lda     #BLUE|$9
+    sta     RESP0
+    stx     CTRLPF
+    sta     COLUPF
+    lda     #YELLOW|$8
+    sta     COLUP0
+    ldx     #BLACK|$c
+    lda     ram_A1
+    beq     Lf11d
+    lda     ram_C1
+    and     #$20
+    beq     Lf11d
+    ldx     #$82
 Lf11d
-    stx     COLUP1                  ;3        
-    ldx     #$08                    ;2        
-    lda     ram_81                  ;3        
-    sta     WSYNC                   ;3   =  11
+    stx     COLUP1
+    ldx     #$08
+    lda     ram_81
+    sta     WSYNC
 ;---------------------------------------
-    sta     HMOVE                   ;3        
-    sec                             ;2   =   5
+    sta     HMOVE
+    sec
 Lf128
-    sbc     #$0f                    ;2        
-    bcs     Lf128                   ;2/3      
-    eor     #$0f                    ;2        
-    asl                             ;2        
-    asl                             ;2        
-    asl                             ;2        
-    asl                             ;2        
-    adc     #$80                    ;2        
-    sta     COLUBK,x                ;4        
-    sta     HMP1                    ;3   =  23
+    sbc     #$0f
+    bcs     Lf128
+    eor     #$0f
+    asl
+    asl
+    asl
+    asl
+    adc     #$80
+    sta     COLUBK,x
+    sta     HMP1
 Lf138
-    sta     WSYNC                   ;3   =   3
+    sta     WSYNC
 ;---------------------------------------
-    sta     HMOVE                   ;3        
-    lda     $d9ef,x                 ;4        
-    sta     GRP0                    ;3        
-    lda     $dfed,x                 ;4        
-    sta     GRP1                    ;3        
-    sty     PF0                     ;3        
-    lda     #$7f                    ;2        
-    sta     PF1                     ;3        
-    dey                             ;2        
-    sty     PF2                     ;3        
-    sta     HMCLR                   ;3        
-    lda     #$c0                    ;2        
-    sta     PF0                     ;3        
-    sty     PF1                     ;3        
-    iny                             ;2        
-    dex                             ;2        
-    bne     Lf138                   ;2/3      
-    sta     WSYNC                   ;3   =  50
+    sta     HMOVE
+    lda     $d9ef,x
+    sta     GRP0
+    lda     $dfed,x
+    sta     GRP1
+    sty     PF0
+    lda     #$7f
+    sta     PF1
+    dey
+    sty     PF2
+    sta     HMCLR
+    lda     #$c0
+    sta     PF0
+    sty     PF1
+    iny
+    dex
+    bne     Lf138
+    sta     WSYNC
 ;---------------------------------------
-    sta     HMOVE                   ;3        
-    sty     GRP1                    ;3        
-    sty     GRP0                    ;3        
-    sty     GRP1                    ;3        
-    sty     PF0                     ;3        
-    sty     PF1                     ;3        
-    sty     PF2                     ;3        
-    lda     ram_B1                  ;3        
-    sec                             ;2        
-    sbc     ram_B0                  ;3        
-    cmp     #$80                    ;2        
-    bne     Lf180                   ;2/3      
-    ldx     ram_E2                  ;3         *
-    cpx     #$ff                    ;2         *
-    bne     Lf180                   ;2/3       *
-    inc     ram_E2                  ;5         *
-    lda     ram_80                  ;3         *
-    sta     ram_B2                  ;3   =  51 *
+    sta     HMOVE
+    sty     GRP1
+    sty     GRP0
+    sty     GRP1
+    sty     PF0
+    sty     PF1
+    sty     PF2
+    lda     ram_B1
+    sec
+    sbc     ram_B0
+    cmp     #$80
+    bne     Lf180
+    ldx     ram_E2
+    cpx     #$ff
+    bne     Lf180
+    inc     ram_E2
+    lda     ram_80
+    sta     ram_B2
 Lf180
-    ldx     #BLACK|$4               ;2   =   2
+    ldx     #BLACK|$4
 Lf182
-    sta     WSYNC                   ;3   =   3
+    sta     WSYNC
 ;---------------------------------------
-    sta     HMOVE                   ;3        
-    dex                             ;2        
-    bne     Lf182                   ;2/3      
-    stx     COLUBK                  ;3        
-    stx     REFP0                   ;3        
-    stx     REFP1                   ;3        
-    inx                             ;2        
-    stx     VDELP0                  ;3        
-    stx     VDELP1                  ;3        
-    ldx     #$03                    ;2        
-    stx     NUSIZ0                  ;3        
-    stx.w   NUSIZ1                  ;4        
-    ldy     #$a0                    ;2        
-    sta     RESP0                   ;3        
-    ldx     #$10                    ;2        
-    sta     RESP1                   ;3        
-    sty     HMP0                    ;3        
-    stx     HMP1                    ;3        
-    ldy     #BROWN|$6               ;2        
-    sta     RESM0                   ;3        
-    sty     HMM0                    ;3        
-    ldx     #BLUE_CYAN|$2           ;2        
-    lda     ram_9B                  ;3        
-    cmp     #$10                    ;2        
-    sta     WSYNC                   ;3   =  67
+    sta     HMOVE
+    dex
+    bne     Lf182
+    stx     COLUBK
+    stx     REFP0
+    stx     REFP1
+    inx
+    stx     VDELP0
+    stx     VDELP1
+    ldx     #$03
+    stx     NUSIZ0
+    stx.w   NUSIZ1
+    ldy     #$a0
+    sta     RESP0
+    ldx     #$10
+    sta     RESP1
+    sty     HMP0
+    stx     HMP1
+    ldy     #BROWN|$6
+    sta     RESM0
+    sty     HMM0
+    ldx     #BLUE_CYAN|$2
+    lda     ram_9B
+    cmp     #$10
+    sta     WSYNC
 ;---------------------------------------
-    sta     HMOVE                   ;3        
-    sty     COLUBK                  ;3        
-    lda     #$fe                    ;2        
-    sta     PF2                     ;3        
-    bcs     Lf1cd                   ;2/3      
-    lda     ram_C1                  ;3         *
-    and     #$10                    ;2         *
-    beq     Lf1cd                   ;2/3       *
-    ldx     #$86                    ;2         *
-    stx     COLUPF                  ;3         *
-    ldy     #$80                    ;2         *
-    bne     Lf1e1                   ;2/3 =  29 *
+    sta     HMOVE
+    sty     COLUBK
+    lda     #$fe
+    sta     PF2
+    bcs     Lf1cd
+    lda     ram_C1
+    and     #$10
+    beq     Lf1cd
+    ldx     #$86
+    stx     COLUPF
+    ldy     #$80
+    bne     Lf1e1
 Lf1cd
-    stx     COLUPF                  ;3        
-    ldy     #BLACK|$a               ;2        
-    lda     ram_85                  ;3        
-    cmp     #$19                    ;2        
-    bcc     Lf1df                   ;2/3      
-    beq     Lf1e1                   ;2/3      
-    lda     ram_C1                  ;3         *
-    and     #$10                    ;2         *
-    beq     Lf1e1                   ;2/3 =  21 *
+    stx     COLUPF
+    ldy     #BLACK|$a
+    lda     ram_85
+    cmp     #$19
+    bcc     Lf1df
+    beq     Lf1e1
+    lda     ram_C1
+    and     #$10
+    beq     Lf1e1
 Lf1df
-    ldy     #$58                    ;2   =   2 *
+    ldy     #$58
 Lf1e1
-    sty     COLUP0                  ;3        
-    sty     COLUP1                  ;3        
-    sta     HMCLR                   ;3        
-    sta     WSYNC                   ;3   =  12
+    sty     COLUP0
+    sty     COLUP1
+    sta     HMCLR
+    sta     WSYNC
 ;---------------------------------------
-    sta     HMOVE                   ;3        
-    sta     WSYNC                   ;3   =   6
+    sta     HMOVE
+    sta     WSYNC
 ;---------------------------------------
-    sta     HMOVE                   ;3        
-    lda     #$06                    ;2        
-    sta     ram_FA                  ;3        
-    jsr     $d979                   ;6        
-    ldy     #$00                    ;2        
-    sty     GRP0                    ;3        
-    sty     GRP1                    ;3        
-    sta     HMOVE                   ;3        
-    sty     GRP0                    ;3        
-    sty     ram_F4                  ;3        
-    sty     ram_F5                  ;3        
-    sty     NUSIZ0                  ;3        
-    lda     ram_F1                  ;3        
-    bne     Lf217                   ;2/3      
-    lda     ram_85                  ;3        
-    cmp     #$17                    ;2        
-    beq     Lf214                   ;2/3      
-    cmp     #$05                    ;2        
-    bcs     Lf217                   ;2/3 =  53
+    sta     HMOVE
+    lda     #$06
+    sta     ram_FA
+    jsr     $d979
+    ldy     #$00
+    sty     GRP0
+    sty     GRP1
+    sta     HMOVE
+    sty     GRP0
+    sty     ram_F4
+    sty     ram_F5
+    sty     NUSIZ0
+    lda     ram_F1
+    bne     Lf217
+    lda     ram_85
+    cmp     #$17
+    beq     Lf214
+    cmp     #$05
+    bcs     Lf217
 Lf214
-    asl                             ;2         *
-    sta     ENAM0                   ;3   =   5 *
+    asl
+    sta     ENAM0
 Lf217
-    sta     WSYNC                   ;3   =   3
+    sta     WSYNC
 ;---------------------------------------
-    sta     HMOVE                   ;3        
-    ldx     #$03                    ;2        
-    stx     NUSIZ0                  ;3        
-    inx                             ;2        
-    stx     ENAM0                   ;3        
-    lda     ram_AD                  ;3        
-    clc                             ;2        
-    adc     #$38                    ;2        
-    jsr     $d958                   ;6        
-    sty     COLUPF                  ;3        
-    ldx     #CYAN_GREEN|$0          ;2        
-    stx     COLUP0                  ;3        
-    stx     COLUP1                  ;3        
-    ldy     #$18                    ;2        
-    lda     #$d0                    ;2        
-    sta     HMP0                    ;3        
-    sta     HMP1                    ;3        
-    sta     WSYNC                   ;3   =  50
+    sta     HMOVE
+    ldx     #$03
+    stx     NUSIZ0
+    inx
+    stx     ENAM0
+    lda     ram_AD
+    clc
+    adc     #$38
+    jsr     $d958
+    sty     COLUPF
+    ldx     #CYAN_GREEN|$0
+    stx     COLUP0
+    stx     COLUP1
+    ldy     #$18
+    lda     #$d0
+    sta     HMP0
+    sta     HMP1
+    sta     WSYNC
 ;---------------------------------------
-    sta     HMOVE                   ;3        
-    lda     #BLACK|$b               ;2        
-    sta     COLUPF                  ;3        
-    lda     #$17                    ;2        
-    sta     CTRLPF                  ;3        
-    lda     #$d9                    ;2        
-    sta     ram_CD                  ;3        
-    lda     ram_84                  ;3        
-    and     #$01                    ;2        
-    beq     Lf252                   ;2/3      
-    lda     #$7d                    ;2   =  27
+    sta     HMOVE
+    lda     #BLACK|$b
+    sta     COLUPF
+    lda     #$17
+    sta     CTRLPF
+    lda     #$d9
+    sta     ram_CD
+    lda     ram_84
+    and     #$01
+    beq     Lf252
+    lda     #$7d
 Lf252
-    ldx     #$08                    ;2        
-    clc                             ;2        
-    sta     HMCLR                   ;3        
-    sta     WSYNC                   ;3   =  10
+    ldx     #$08
+    clc
+    sta     HMCLR
+    sta     WSYNC
 ;---------------------------------------
-    sta     HMOVE                   ;3   =   3
+    sta     HMOVE
 Lf25b
-    sta     ram_CE,x                ;4        
-    adc     #$19                    ;2        
-    dex                             ;2        
-    dex                             ;2        
-    bpl     Lf25b                   ;2/3      
-    sta     WSYNC                   ;3   =  15
+    sta     ram_CE,x
+    adc     #$19
+    dex
+    dex
+    bpl     Lf25b
+    sta     WSYNC
 ;---------------------------------------
-    sta     HMOVE                   ;3        
-    lda     ram_84                  ;3        
-    lsr                             ;2        
-    clc                             ;2        
-    adc     #$da                    ;2        
-    sta     ram_D7                  ;3        
-    sta     ram_D5                  ;3        
-    sta     ram_D3                  ;3        
-    sta     ram_D1                  ;3        
-    sta     ram_CF                  ;3        
-    lda     ram_C1                  ;3        
-    ldx     ram_84                  ;3        
-    bit     ram_E1                  ;3        
-    bpl     Lf285                   ;2/3      
-    and     #$fc                    ;2         *
-    beq     Lf28a                   ;2/3       *
-    bne     Lf290                   ;2/3 =  44 *
+    sta     HMOVE
+    lda     ram_84
+    lsr
+    clc
+    adc     #$da
+    sta     ram_D7
+    sta     ram_D5
+    sta     ram_D3
+    sta     ram_D1
+    sta     ram_CF
+    lda     ram_C1
+    ldx     ram_84
+    bit     ram_E1
+    bpl     Lf285
+    and     #$fc
+    beq     Lf28a
+    bne     Lf290
 Lf285
-    and     $d9f8,x                 ;4        
-    beq     Lf290                   ;2/3 =   6
+    and     $d9f8,x
+    beq     Lf290
 Lf28a
-    lda     #$e5                    ;2         *
-    sec                             ;2         *
-    sbc     ram_AC                  ;3         *
+    lda     #$e5
+    sec
+    sbc     ram_AC
     .byte   $2c ;bit                ;4-2 =   9 *
 Lf290
-    lda     #$cc                    ;2        
-    sta     ram_CC                  ;3        
-    lda     #$06                    ;2        
-    sta     PF2                     ;3   =  10
+    lda     #$cc
+    sta     ram_CC
+    lda     #$06
+    sta     PF2
 Lf298
-    lda     (ram_CC),y              ;5        
-    sta     ENABL                   ;3        
-    sta     WSYNC                   ;3   =  11
+    lda     (ram_CC),y
+    sta     ENABL
+    sta     WSYNC
 ;---------------------------------------
-    sta     HMOVE                   ;3        
-    sty     ram_FB                  ;3        
-    lda     (ram_D6),y              ;5        
-    sta     GRP0                    ;3        
-    lda     (ram_D4),y              ;5        
-    sta     GRP1                    ;3        
-    lda     (ram_D2),y              ;5        
-    sta     GRP0                    ;3        
-    lda     (ram_D0),y              ;5        
-    tax                             ;2        
-    lda     (ram_CE),y              ;5        
-    ldy     #$00                    ;2        
-    stx     GRP1                    ;3        
-    sta     GRP0                    ;3        
-    sty     GRP1                    ;3        
-    sty     GRP0                    ;3        
-    ldy     ram_FB                  ;3        
-    dey                             ;2        
-    bpl     Lf298                   ;2/3      
-    iny                             ;2        
-    sty     GRP1                    ;3        
-    sty     ENABL                   ;3        
-    sta     WSYNC                   ;3   =  74
+    sta     HMOVE
+    sty     ram_FB
+    lda     (ram_D6),y
+    sta     GRP0
+    lda     (ram_D4),y
+    sta     GRP1
+    lda     (ram_D2),y
+    sta     GRP0
+    lda     (ram_D0),y
+    tax
+    lda     (ram_CE),y
+    ldy     #$00
+    stx     GRP1
+    sta     GRP0
+    sty     GRP1
+    sty     GRP0
+    ldy     ram_FB
+    dey
+    bpl     Lf298
+    iny
+    sty     GRP1
+    sty     ENABL
+    sta     WSYNC
 ;---------------------------------------
-    sta     HMOVE                   ;3        
-    nop                             ;2        
-    lda     #$fe                    ;2        
-    sta     PF2                     ;3        
-    lda     #BLACK|$c               ;2        
-    sta     COLUP0                  ;3        
-    sta     COLUP1                  ;3        
-    ldy     #$07                    ;2        
-    nop                             ;2        
-    ldx     #$40                    ;2        
-    stx     HMP0                    ;3        
-    stx     HMP1                    ;3        
-    lda     ram_C8                  ;3        
-    and     #$1f                    ;2        
-    cmp     #$14                    ;2        
-    stx     HMBL                    ;3        
-    sta     RESBL                   ;3        
-    bcs     Lf2f4                   ;2/3      
-    ldy     #$00                    ;2        
-    cmp     #$0c                    ;2        
-    bcc     Lf2f4                   ;2/3      
-    sbc     #$0c                    ;2        
-    tay                             ;2   =  55
+    sta     HMOVE
+    nop
+    lda     #$fe
+    sta     PF2
+    lda     #BLACK|$c
+    sta     COLUP0
+    sta     COLUP1
+    ldy     #$07
+    nop
+    ldx     #$40
+    stx     HMP0
+    stx     HMP1
+    lda     ram_C8
+    and     #$1f
+    cmp     #$14
+    stx     HMBL
+    sta     RESBL
+    bcs     Lf2f4
+    ldy     #$00
+    cmp     #$0c
+    bcc     Lf2f4
+    sbc     #$0c
+    tay
 Lf2f4
-    sty     ram_FA                  ;3        
-    tya                             ;2        
-    eor     #$07                    ;2        
-    sta     ram_FB                  ;3        
-    lda     #$e8                    ;2        
-    ldx     #$08                    ;2        
-    sta     WSYNC                   ;3   =  17
+    sty     ram_FA
+    tya
+    eor     #$07
+    sta     ram_FB
+    lda     #$e8
+    ldx     #$08
+    sta     WSYNC
 ;---------------------------------------
-    sta     HMOVE                   ;3        
-    sec                             ;2   =   5
+    sta     HMOVE
+    sec
 Lf304
-    sta     ram_CE,x                ;4        
-    sbc     #$08                    ;2        
-    sta     ram_CC,x                ;4        
-    sbc     #$08                    ;2        
-    dex                             ;2        
-    dex                             ;2        
-    dex                             ;2        
-    dex                             ;2        
-    bpl     Lf304                   ;2/3      
-    sta     HMCLR                   ;3        
-    sta     HMOVE                   ;3        
-    ldx     #$00                    ;2        
-    stx     PF2                     ;3        
-    stx     COLUPF                  ;3        
-    lda     #BLACK|$8               ;2        
-    sta     COLUBK                  ;3        
-    lda     #$d8                    ;2        
-    sta     ram_CD                  ;3        
-    sta     ram_CF                  ;3        
-    sta     ram_D1                  ;3        
-    sta     ram_D3                  ;3        
-    sta     ram_D5                  ;3        
-    sta     ram_D7                  ;3        
-    sta     WSYNC                   ;3   =  64
+    sta     ram_CE,x
+    sbc     #$08
+    sta     ram_CC,x
+    sbc     #$08
+    dex
+    dex
+    dex
+    dex
+    bpl     Lf304
+    sta     HMCLR
+    sta     HMOVE
+    ldx     #$00
+    stx     PF2
+    stx     COLUPF
+    lda     #BLACK|$8
+    sta     COLUBK
+    lda     #$d8
+    sta     ram_CD
+    sta     ram_CF
+    sta     ram_D1
+    sta     ram_D3
+    sta     ram_D5
+    sta     ram_D7
+    sta     WSYNC
 ;---------------------------------------
-    stx     COLUBK                  ;3        
-    jsr     $d979                   ;6        
-    lda     #$c0                    ;2        
-    sta     HMP0                    ;3        
-    sta     HMP1                    ;3        
-    sta     HMOVE                   ;3        
-    ldx     #$00                    ;2        
-    stx     GRP0                    ;3        
-    stx     GRP1                    ;3        
-    stx     GRP0                    ;3        
-    dex                             ;2        
-    stx     PF0                     ;3        
-    stx     PF1                     ;3        
-    ldx     #$07                    ;2        
-    stx     PF2                     ;3        
-    lda     #$31                    ;2        
-    sta     CTRLPF                  ;3        
-    lda     #$01                    ;2        
-    sta     NUSIZ1                  ;3        
-    sta     HMCLR                   ;3        
-    lda     #$10                    ;2        
-    sta     HMBL                    ;3        
-    stx     ENABL                   ;3   =  65
+    stx     COLUBK
+    jsr     $d979
+    lda     #$c0
+    sta     HMP0
+    sta     HMP1
+    sta     HMOVE
+    ldx     #$00
+    stx     GRP0
+    stx     GRP1
+    stx     GRP0
+    dex
+    stx     PF0
+    stx     PF1
+    ldx     #$07
+    stx     PF2
+    lda     #$31
+    sta     CTRLPF
+    lda     #$01
+    sta     NUSIZ1
+    sta     HMCLR
+    lda     #$10
+    sta     HMBL
+    stx     ENABL
 Lf35e
-    lda     $d8bb,x                 ;4        
-    sta     WSYNC                   ;3   =   7
+    lda     $d8bb,x
+    sta     WSYNC
 ;---------------------------------------
-    sta     HMOVE                   ;3        
-    tay                             ;2        
-    nop                             ;2        
-    lda     $d89b,x                 ;4        
-    sta     GRP0                    ;3        
-    lda     $d8f0,x                 ;4        
-    sta     COLUPF                  ;3        
-    lda     $d8a3,x                 ;4        
-    sta     GRP1                    ;3        
-    lda     $d8ab,x                 ;4        
-    sta     GRP0                    ;3        
-    lda     $d8b3,x                 ;4        
-    txs                             ;2        
-    ldx     #BLACK|$0               ;2        
-    sta     GRP1                    ;3        
-    sty     GRP0                    ;3        
-    sta     GRP1                    ;3        
-    stx     COLUPF                  ;3        
-    tsx                             ;2        
-    dex                             ;2        
-    dec     ram_FB                  ;5        
-    bpl     Lf35e                   ;2/3      
-    ldx     #$ff                    ;2        
-    txs                             ;2        
-    lda     #$02                    ;2        
-    sta     VBLANK                  ;3        
-    inx                             ;2        
-    stx     GRP0                    ;3        
-    stx     GRP1                    ;3        
-    stx     GRP0                    ;3        
-    stx     NUSIZ1                  ;3        
-    ldx     ram_B4                  ;3        
-    beq     Lf3aa                   ;2/3      
-    lda     ram_C1                  ;3         *
-    and     #$02                    ;2         *
-    bne     Lf3ac                   ;2/3       *
-    inx                             ;2   = 103 *
+    sta     HMOVE
+    tay
+    nop
+    lda     $d89b,x
+    sta     GRP0
+    lda     $d8f0,x
+    sta     COLUPF
+    lda     $d8a3,x
+    sta     GRP1
+    lda     $d8ab,x
+    sta     GRP0
+    lda     $d8b3,x
+    txs
+    ldx     #BLACK|$0
+    sta     GRP1
+    sty     GRP0
+    sta     GRP1
+    stx     COLUPF
+    tsx
+    dex
+    dec     ram_FB
+    bpl     Lf35e
+    ldx     #$ff
+    txs
+    lda     #$02
+    sta     VBLANK
+    inx
+    stx     GRP0
+    stx     GRP1
+    stx     GRP0
+    stx     NUSIZ1
+    ldx     ram_B4
+    beq     Lf3aa
+    lda     ram_C1
+    and     #$02
+    bne     Lf3ac
+    inx
 Lf3aa
-    stx     WSYNC                   ;3   =   3
+    stx     WSYNC
 ;---------------------------------------
 Lf3ac
-    stx     WSYNC                   ;3   =   3
+    stx     WSYNC
 ;---------------------------------------
-    cpx     #$05                    ;2        
-    beq     Lf3b4                   ;2/3      
-    stx     WSYNC                   ;3   =   7
+    cpx     #$05
+    beq     Lf3b4
+    stx     WSYNC
 ;---------------------------------------
 Lf3b4
-    ldx     #$dc                    ;2        
-    stx     TIM8T                   ;4        
-    bit     ram_F9                  ;3        
-    bmi     Lf403                   ;2/3!     
-    lda     ram_B6                  ;3        
-    beq     Lf403                   ;2/3!     
-    lda     ram_A4                  ;3         *
-    beq     Lf403                   ;2/3!      *
-    ldy     ram_84                  ;3         *
-    beq     Lf3cf                   ;2/3       *
-    cpy     #$03                    ;2         *
-    bne     Lf403                   ;2/3!      *
-    adc     #$14                    ;2   =  32 *
+    ldx     #$dc
+    stx     TIM8T
+    bit     ram_F9
+    bmi     Lf403
+    lda     ram_B6
+    beq     Lf403
+    lda     ram_A4
+    beq     Lf403
+    ldy     ram_84
+    beq     Lf3cf
+    cpy     #$03
+    bne     Lf403
+    adc     #$14
 Lf3cf
-    tax                             ;2         *
-    lda     $d868,x                 ;4         *
-    ldx     ram_F8                  ;3         *
-    inx                             ;2         *
-    clc                             ;2         *
-    adc     $dafa,x                 ;4         *
-    cmp     ram_F6                  ;3         *
-    bcc     Lf3e7                   ;2/3       *
-    sbc     $d9e6,x                 ;4         *
-    cmp     ram_F6                  ;3         *
-    bcc     Lf3f9                   ;2/3       *
-    beq     Lf3f9                   ;2/3 =  33 *
+    tax
+    lda     $d868,x
+    ldx     ram_F8
+    inx
+    clc
+    adc     $dafa,x
+    cmp     ram_F6
+    bcc     Lf3e7
+    sbc     $d9e6,x
+    cmp     ram_F6
+    bcc     Lf3f9
+    beq     Lf3f9
 Lf3e7
-    inc     ram_F5                  ;5         *
-    ldx     ram_E3                  ;3         *
-    cpx     #$06                    ;2         *
-    bne     Lf3f1                   ;2/3       *
-    inc     ram_F5                  ;5   =  17 *
+    inc     ram_F5
+    ldx     ram_E3
+    cpx     #$06
+    bne     Lf3f1
+    inc     ram_F5
 Lf3f1
-    lda     #$41                    ;2         *
-    ldx     ram_CA                  ;3         *
-    bne     Lf403                   ;2/3!      *
-    beq     Lf401                   ;2/3!=   9 *
+    lda     #$41
+    ldx     ram_CA
+    bne     Lf403
+    beq     Lf401
 Lf3f9
-    lda     #$00                    ;2         *
-    ldx     ram_CA                  ;3         *
-    cpx     #$41                    ;2         *
-    bne     Lf403                   ;2/3 =   9 *
+    lda     #$00
+    ldx     ram_CA
+    cpx     #$41
+    bne     Lf403
 Lf401
-    sta     ram_CA                  ;3   =   3 *
+    sta     ram_CA
 Lf403
-    ldx     #$00                    ;2        
-    lda     ram_81                  ;3        
-    cmp     ram_83                  ;3        
-    bcc     Lf411                   ;2/3      
-    sbc     #$0b                    ;2        
-    cmp     ram_83                  ;3        
-    bcc     Lf412                   ;2/3 =  17
+    ldx     #$00
+    lda     ram_81
+    cmp     ram_83
+    bcc     Lf411
+    sbc     #$0b
+    cmp     ram_83
+    bcc     Lf412
 Lf411
-    dex                             ;2   =   2 *
+    dex
 Lf412
-    stx     ram_A1                  ;3        
-    lda     SWCHA                   ;4        
-    cmp     #$ff                    ;2        
-    beq     Lf422                   ;2/3      
-    ldx     #$ff                    ;2         *
-    stx     ram_F7                  ;3         *
-    inx                             ;2         *
-    stx     ram_B8                  ;3   =  21 *
+    stx     ram_A1
+    lda     SWCHA
+    cmp     #$ff
+    beq     Lf422
+    ldx     #$ff
+    stx     ram_F7
+    inx
+    stx     ram_B8
 Lf422
-    inc     ram_B9                  ;5        
-    bne     Lf444                   ;2/3      
-    lda     ram_BA                  ;3        
-    cmp     #$0f                    ;2        
-    bcc     Lf430                   ;2/3      
-    ldx     ram_B6                  ;3         *
-    stx     ram_B7                  ;3   =  20 *
+    inc     ram_B9
+    bne     Lf444
+    lda     ram_BA
+    cmp     #$0f
+    bcc     Lf430
+    ldx     ram_B6
+    stx     ram_B7
 Lf430
-    inc     ram_BA                  ;5        
-    bne     Lf444                   ;2/3      
-    inc     ram_B8                  ;5         *
-    lda     ram_B8                  ;3         *
-    and     #$04                    ;2         *
-    beq     Lf444                   ;2/3       *
-    sta     ram_B8                  ;3         *
-    lda     #$00                    ;2         *
-    sta     ram_B6                  ;3         *
-    sta     ram_B7                  ;3   =  30 *
+    inc     ram_BA
+    bne     Lf444
+    inc     ram_B8
+    lda     ram_B8
+    and     #$04
+    beq     Lf444
+    sta     ram_B8
+    lda     #$00
+    sta     ram_B6
+    sta     ram_B7
 Lf444
-    lda     ram_84                  ;3        
-    cmp     #$04                    ;2        
-    bne     Lf45f                   ;2/3      
-    lda     ram_E9                  ;3         *
-    bmi     Lf45f                   ;2/3       *
-    dec     ram_EE                  ;5         *
-    bne     Lf45f                   ;2/3       *
-    asl                             ;2         *
-    ora     #$02                    ;2         *
-    sta     ram_EE                  ;3         *
-    lda     ram_CA                  ;3         *
-    bne     Lf45f                   ;2/3       *
-    lda     #$34                    ;2         *
-    sta     ram_CA                  ;3   =  36 *
+    lda     ram_84
+    cmp     #$04
+    bne     Lf45f
+    lda     ram_E9
+    bmi     Lf45f
+    dec     ram_EE
+    bne     Lf45f
+    asl
+    ora     #$02
+    sta     ram_EE
+    lda     ram_CA
+    bne     Lf45f
+    lda     #$34
+    sta     ram_CA
 Lf45f
-    lda     ram_C1                  ;3        
-    and     #$07                    ;2        
-    bne     Lf48b                   ;2/3      
-    bit     ram_F9                  ;3        
-    bpl     Lf481                   ;2/3      
-    lda     ram_B5                  ;3        
-    cmp     #$02                    ;2        
-    bne     Lf477                   ;2/3      
-    dec     ram_88                  ;5         *
-    bpl     Lf481                   ;2/3 =  26 *
+    lda     ram_C1
+    and     #$07
+    bne     Lf48b
+    bit     ram_F9
+    bpl     Lf481
+    lda     ram_B5
+    cmp     #$02
+    bne     Lf477
+    dec     ram_88
+    bpl     Lf481
 Lf473
-    inc     ram_88                  ;5         *
-    bpl     Lf481                   ;2/3 =   7 *
+    inc     ram_88
+    bpl     Lf481
 Lf477
-    cmp     #$04                    ;2        
-    beq     Lf481                   ;2/3      
-    lda     ram_88                  ;3        
-    cmp     #$0d                    ;2        
-    bne     Lf473                   ;2/3 =  11
+    cmp     #$04
+    beq     Lf481
+    lda     ram_88
+    cmp     #$0d
+    bne     Lf473
 Lf481
-    lda     ram_B7                  ;3        
-    beq     Lf489                   ;2/3      
-    ldx     #$01                    ;2        
-    stx     ram_C8                  ;3   =  10
+    lda     ram_B7
+    beq     Lf489
+    ldx     #$01
+    stx     ram_C8
 Lf489
-    dec     ram_C8                  ;5   =   5
+    dec     ram_C8
 Lf48b
-    ldx     ram_C9                  ;3        
-    cpx     #$fe                    ;2        
-    bne     Lf495                   ;2/3      
-    stx     ram_CB                  ;3        
-    inc     ram_C9                  ;5   =  15
+    ldx     ram_C9
+    cpx     #$fe
+    bne     Lf495
+    stx     ram_CB
+    inc     ram_C9
 Lf495
-    lda     ram_CA                  ;3        
-    beq     Lf4c8                   ;2/3      
-    sta     AUDC0                   ;3         *
-    jsr     $ddfb                   ;6         *
-    tax                             ;2         *
-    lda     $d94c,x                 ;4         *
-    inc     ram_CB                  ;5         *
-    cmp     ram_CB                  ;3         *
-    bcs     Lf4d0                   ;2/3       *
-    lda     #$00                    ;2         *
-    sta     ram_CB                  ;3         *
-    inc     ram_C9                  ;5         *
-    lda     $d8f7,x                 ;4         *
-    adc     ram_C9                  ;3         *
-    tax                             ;2         *
-    lda     $d903,x                 ;4         *
-    beq     Lf4c8                   ;2/3       *
-    sta     AUDF0                   ;3         *
-    jsr     $ddfb                   ;6         *
-    ldx     ram_B6                  ;3         *
-    bne     Lf4c3                   ;2/3       *
-    txa                             ;2   =  71 *
+    lda     ram_CA
+    beq     Lf4c8
+    sta     AUDC0
+    jsr     $ddfb
+    tax
+    lda     $d94c,x
+    inc     ram_CB
+    cmp     ram_CB
+    bcs     Lf4d0
+    lda     #$00
+    sta     ram_CB
+    inc     ram_C9
+    lda     $d8f7,x
+    adc     ram_C9
+    tax
+    lda     $d903,x
+    beq     Lf4c8
+    sta     AUDF0
+    jsr     $ddfb
+    ldx     ram_B6
+    bne     Lf4c3
+    txa
 Lf4c3
-    sta     AUDV0                   ;3         *
-    jmp     $d4d0                   ;3   =   6 *
+    sta     AUDV0
+    jmp     $d4d0
     
 Lf4c8
-    sta     AUDV0                   ;3        
-    sta     ram_CA                  ;3        
-    ldx     #$fe                    ;2        
-    stx     ram_C9                  ;3   =  11
+    sta     AUDV0
+    sta     ram_CA
+    ldx     #$fe
+    stx     ram_C9
 Lf4d0
-    lda     ram_B6                  ;3        
-    beq     Lf502                   ;2/3!     
+    lda     ram_B6
+    beq     Lf502
     
     .byte   $a9,$03,$85,$1a,$a9,$06,$85,$16 ; $f4d4 (*)
     .byte   $a9,$1f,$85,$18,$a5,$81,$c9,$0f ; $f4dc (*)
@@ -989,16 +989,16 @@ Lf4d0
     .byte   $86,$15,$a2,$0e,$86,$17         ; $f4fc (*)
     
 Lf502
-    sta     AUDV0                   ;3        
-    sta     AUDV1                   ;3        
-    lda     ram_B7                  ;3        
-    beq     Lf52a                   ;2/3      
-    lda     ram_B5                  ;3        
-    bne     Lf514                   ;2/3      
-    jmp     $d728                   ;3   =  24
+    sta     AUDV0
+    sta     AUDV1
+    lda     ram_B7
+    beq     Lf52a
+    lda     ram_B5
+    bne     Lf514
+    jmp     $d728
     
 Lf511
-    jmp     $d647                   ;3   =   3
+    jmp     $d647
     
 Lf514
     .byte   $a5,$b4,$f0,$06,$a9,$02,$85,$ab ; $f514 (*)
@@ -1006,88 +1006,88 @@ Lf514
     .byte   $c9,$df,$b0,$02,$a9,$e0         ; $f524 (*)
     
 Lf52a
-    sbc     #$08                    ;2        
-    eor     #$ff                    ;2        
-    bit     ram_F9                  ;3        
-    bpl     Lf534                   ;2/3      
+    sbc     #$08
+    eor     #$ff
+    bit     ram_F9
+    bpl     Lf534
     
     .byte   $a9,$18                         ; $f532 (*)
     
 Lf534
-    sta     ram_FA                  ;3        
-    ldx     ram_AF                  ;3        
-    beq     Lf53c                   ;2/3      
+    sta     ram_FA
+    ldx     ram_AF
+    beq     Lf53c
     
     .byte   $e6,$be                         ; $f53a (*)
     
 Lf53c
-    inc     ram_BE                  ;5        
-    cmp     ram_BE                  ;3        
-    bcs     Lf511                   ;2/3      
-    lda     #$00                    ;2        
-    sta     ram_BE                  ;3        
-    inc     ram_B1                  ;5        
-    bpl     Lf554                   ;2/3      
+    inc     ram_BE
+    cmp     ram_BE
+    bcs     Lf511
+    lda     #$00
+    sta     ram_BE
+    inc     ram_B1
+    bpl     Lf554
     
     .byte   $a5,$ea,$c9,$08,$f0,$08         ; $f54a (*)
     
 Lf550
-    inc     ram_EA                  ;5        
-    bpl     Lf558                   ;2/3 =  46
+    inc     ram_EA
+    bpl     Lf558
 Lf554
-    dec     ram_EA                  ;5        
-    bmi     Lf550                   ;2/3 =   7
+    dec     ram_EA
+    bmi     Lf550
 Lf558
-    inc     ram_E0                  ;5        
-    lda     ram_B5                  ;3        
-    cmp     #$02                    ;2        
-    bne     Lf564                   ;2/3      
+    inc     ram_E0
+    lda     ram_B5
+    cmp     #$02
+    bne     Lf564
     
     .byte   $24,$f9,$30,$05                 ; $f560 (*)
     
 Lf564
-    lda     ram_E0                  ;3        
-    lsr                             ;2        
-    bcc     Lf56b                   ;2/3      
-    inc     ram_B0                  ;5   =  24
+    lda     ram_E0
+    lsr
+    bcc     Lf56b
+    inc     ram_B0
 Lf56b
-    inc     ram_EF                  ;5        
-    lda     ram_B7                  ;3        
-    beq     Lf577                   ;2/3      
+    inc     ram_EF
+    lda     ram_B7
+    beq     Lf577
     
     .byte   $a5,$ab,$29,$01,$f0,$1d         ; $f571 (*)
     
 Lf577
-    dec     ram_89                  ;5        
-    lda     ram_89                  ;3        
-    cmp     #$0e                    ;2        
-    bne     Lf594                   ;2/3      
-    lda     #$14                    ;2        
-    sta     ram_89                  ;3        
-    ldx     #$0b                    ;2        
-    lda     ram_8A,x                ;4        
-    tay                             ;2        
-    dex                             ;2        
-    bmi     Lf592                   ;2/3      
-    lda     ram_8A,x                ;4        
-    sty     ram_8A,x                ;4        
-    jmp     $d587                   ;3   =  50
+    dec     ram_89
+    lda     ram_89
+    cmp     #$0e
+    bne     Lf594
+    lda     #$14
+    sta     ram_89
+    ldx     #$0b
+    lda     ram_8A,x
+    tay
+    dex
+    bmi     Lf592
+    lda     ram_8A,x
+    sty     ram_8A,x
+    jmp     $d587
     
 Lf592
-    sty     ram_95                  ;3   =   3
+    sty     ram_95
 Lf594
-    lda     ram_AB                  ;3        
-    and     #$08                    ;2        
-    beq     Lf5ab                   ;2/3      
+    lda     ram_AB
+    and     #$08
+    beq     Lf5ab
     
     .byte   $a2,$0b,$d6,$8a,$b5,$8a,$c9,$ff ; $f59a (*)
     .byte   $d0,$04,$a9,$84,$95,$8a,$ca,$10 ; $f5a2 (*)
     .byte   $f1                             ; $f5aa (*)
     
 Lf5ab
-    lda     ram_AB                  ;3        
-    and     #$02                    ;2        
-    beq     Lf5d4                   ;2/3      
+    lda     ram_AB
+    and     #$02
+    beq     Lf5d4
     
     .byte   $e6,$89,$a5,$89,$c9,$15,$d0,$17 ; $f5b1 (*)
     .byte   $a9,$0f,$85,$89,$a2,$00,$b5,$8a ; $f5b9 (*)
@@ -1096,22 +1096,22 @@ Lf5ab
     .byte   $ef,$c6,$ef                     ; $f5d1 (*)
     
 Lf5d4
-    lda     ram_AB                  ;3        
-    and     #$04                    ;2        
-    beq     Lf5eb                   ;2/3      
+    lda     ram_AB
+    and     #$04
+    beq     Lf5eb
     
     .byte   $a2,$0b,$f6,$8a,$b5,$8a,$c9,$85 ; $f5da (*)
     .byte   $90,$04,$a9,$00,$95,$8a,$ca,$10 ; $f5e2 (*)
     .byte   $f1                             ; $f5ea (*)
     
 Lf5eb
-    lda     ram_B7                  ;3        
-    beq     Lf5f5                   ;2/3      
+    lda     ram_B7
+    beq     Lf5f5
     
     .byte   $a5,$b5,$c9,$02,$f0,$03         ; $f5ef (*)
     
 Lf5f5
-    jmp     $d728                   ;3   =  29
+    jmp     $d728
     
     .byte   $a0,$01,$a5,$fa,$a6,$e2,$e0,$ff ; $f5f8 (*)
     .byte   $d0,$02,$a9,$28,$38,$e9,$18,$f0 ; $f600 (*)
@@ -1125,181 +1125,181 @@ Lf5f5
     .byte   $c6,$b2,$2c,$e6,$b2,$84,$f4     ; $f640 (*)
     
 Lf647
-    lda     ram_B0                  ;3        
-    sec                             ;2        
-    sbc     ram_B1                  ;3        
-    cmp     #$10                    ;2        
-    bcc     Lf653                   ;2/3      
-    jmp     $d6d2                   ;3   =  15
+    lda     ram_B0
+    sec
+    sbc     ram_B1
+    cmp     #$10
+    bcc     Lf653
+    jmp     $d6d2
     
 Lf653
-    lsr                             ;2        
-    tax                             ;2        
-    lda     $d893,x                 ;4        
-    sta     NUSIZ0                  ;3        
-    lda     $dfde,x                 ;4        
-    sta     ram_FB                  ;3        
-    lda     $d9c2,x                 ;4        
-    clc                             ;2        
-    adc     ram_EA                  ;3        
-    cmp     #$9f                    ;2        
-    bcc     Lf66b                   ;2/3      
+    lsr
+    tax
+    lda     $d893,x
+    sta     NUSIZ0
+    lda     $dfde,x
+    sta     ram_FB
+    lda     $d9c2,x
+    clc
+    adc     ram_EA
+    cmp     #$9f
+    bcc     Lf66b
     
     .byte   $a9,$9f                         ; $f669 (*)
     
 Lf66b
-    sta     COLUP0                  ;3        
-    ldy     #$00                    ;2        
-    lda     ram_B2                  ;3        
-    clc                             ;2        
-    adc     #$50                    ;2        
-    cmp     #$a0                    ;2        
-    bcs     Lf684                   ;2/3      
-    adc     #$b0                    ;2        
-    bcs     Lf681                   ;2/3      
+    sta     COLUP0
+    ldy     #$00
+    lda     ram_B2
+    clc
+    adc     #$50
+    cmp     #$a0
+    bcs     Lf684
+    adc     #$b0
+    bcs     Lf681
     
     .byte   $c8,$49,$ff,$69,$01             ; $f67c (*)
     
 Lf681
-    cmp     $dfe6,x                 ;4   =  55
+    cmp     $dfe6,x
 Lf684
-    bcs     Lf6d0                   ;2/3      
-    cpx     #$00                    ;2        
-    beq     Lf696                   ;2/3      
+    bcs     Lf6d0
+    cpx     #$00
+    beq     Lf696
     
     .byte   $86,$fc,$e0,$06,$90,$01,$98,$4a ; $f68a (*)
     .byte   $c6,$fc,$d0,$fb                 ; $f692 (*)
     
 Lf696
-    sta     ram_FA                  ;3        
-    lda     ram_B2                  ;3        
-    cpy     #$01                    ;2        
-    beq     Lf6a2                   ;2/3      
-    clc                             ;2        
-    adc     ram_FA                  ;3        
+    sta     ram_FA
+    lda     ram_B2
+    cpy     #$01
+    beq     Lf6a2
+    clc
+    adc     ram_FA
     .byte   $2c ;bit                ;4-3 =  22
 Lf6a2
-    sbc     ram_FA                  ;3        
-    clc                             ;2        
-    adc     #$50                    ;2        
-    cmp     ram_DF                  ;3        
-    beq     Lf6b8                   ;2/3      
-    lda     ram_C1                  ;3        
-    and     #$03                    ;2        
-    bne     Lf6b8                   ;2/3      
-    bcs     Lf6b6                   ;2/3      
+    sbc     ram_FA
+    clc
+    adc     #$50
+    cmp     ram_DF
+    beq     Lf6b8
+    lda     ram_C1
+    and     #$03
+    bne     Lf6b8
+    bcs     Lf6b6
     
     .byte   $c6,$df,$2c                     ; $f6b3 (*)
     
 Lf6b6
-    inc     ram_DF                  ;5   =  26
+    inc     ram_DF
 Lf6b8
-    ldy     ram_DF                  ;3        
-    lda     ram_C1                  ;3        
-    lsr                             ;2        
-    sta     REFP0                   ;3        
-    and     #$08                    ;2        
-    bne     Lf6c7                   ;2/3      
-    txa                             ;2        
-    ora     #$08                    ;2        
-    tax                             ;2   =  21
+    ldy     ram_DF
+    lda     ram_C1
+    lsr
+    sta     REFP0
+    and     #$08
+    bne     Lf6c7
+    txa
+    ora     #$08
+    tax
 Lf6c7
-    sec                             ;2        
-    tya                             ;2        
-    sbc     $d9ca,x                 ;4        
-    bcc     Lf728                   ;2/3!     
+    sec
+    tya
+    sbc     $d9ca,x
+    bcc     Lf728
     
     .byte   $b0,$3b                         ; $f6ce (*)
 Lf6d0
     .byte   $b0,$56                         ; $f6d0 (*)
     
 Lf6d2
-    cmp     #$80                    ;2        
-    bcc     Lf6de                   ;2/3      
-    ldx     #$ce                    ;2        
-    ldy     #$05                    ;2        
-    lda     #BLUE_CYAN|$d           ;2        
-    bcs     Lf6e8                   ;2/3 =  22
+    cmp     #$80
+    bcc     Lf6de
+    ldx     #$ce
+    ldy     #$05
+    lda     #BLUE_CYAN|$d
+    bcs     Lf6e8
     
 Lf6de
     .byte   $c9,$40,$90,$46,$a2,$0e,$a0,$00 ; $f6de (*)
     .byte   $a9,$90                         ; $f6e6 (*)
     
 Lf6e8
-    stx     ram_FB                  ;3        
-    sty     NUSIZ0                  ;3        
-    sta     COLUP0                  ;3        
-    lda     ram_DF                  ;3        
-    beq     Lf728                   ;2/3!     
-    cmp     #$94                    ;2        
-    beq     Lf728                   ;2/3!     
-    lda     #$94                    ;2        
-    ldx     ram_B2                  ;3        
-    cpx     #$80                    ;2        
-    bcc     Lf700                   ;2/3!     
+    stx     ram_FB
+    sty     NUSIZ0
+    sta     COLUP0
+    lda     ram_DF
+    beq     Lf728
+    cmp     #$94
+    beq     Lf728
+    lda     #$94
+    ldx     ram_B2
+    cpx     #$80
+    bcc     Lf700
     
     .byte   $a9,$00                         ; $f6fe (*)
     
 Lf700
-    cmp     ram_DF                  ;3        
-    bcs     Lf707                   ;2/3      
+    cmp     ram_DF
+    bcs     Lf707
     
     .byte   $c6,$df,$2c                     ; $f704 (*)
     
 Lf707
-    inc     ram_DF                  ;5        
-    lda     ram_DF                  ;3        
-    sta     ram_DE                  ;3        
-    lda     ram_B5                  ;3        
-    cmp     #$02                    ;2        
-    bne     Lf728                   ;2/3      
+    inc     ram_DF
+    lda     ram_DF
+    sta     ram_DE
+    lda     ram_B5
+    cmp     #$02
+    bne     Lf728
     
     .byte   $a5,$88,$d0,$11,$a5,$b3,$69,$0f ; $f713 (*)
     .byte   $c9,$21,$b0,$09,$a5,$b7,$f0,$05 ; $f71b (*)
     .byte   $a5,$a5,$e9,$c2,$2c             ; $f723 (*)
     
 Lf728
-    lda     #$6a                    ;2        
-    sta     ram_FA                  ;3        
-    ldx     #$04                    ;2        
-    lda     #$14                    ;2        
-    sec                             ;2        
-    sbc     ram_89                  ;3        
-    adc     ram_FA                  ;3        
-    sec                             ;2        
-    sbc     #$15                    ;2        
-    sta     ram_FA                  ;3        
-    bpl     Lf756                   ;2/3      
+    lda     #$6a
+    sta     ram_FA
+    ldx     #$04
+    lda     #$14
+    sec
+    sbc     ram_89
+    adc     ram_FA
+    sec
+    sbc     #$15
+    sta     ram_FA
+    bpl     Lf756
     
     .byte   $69,$16,$18,$65,$fb,$4c,$58,$d7 ; $f73c (*)
     
 Lf744
-    lda     ram_FA                  ;3        
-    sec                             ;2        
-    sbc     #$12                    ;2        
-    sta     ram_FA                  ;3        
-    bpl     Lf756                   ;2/3      
+    lda     ram_FA
+    sec
+    sbc     #$12
+    sta     ram_FA
+    bpl     Lf756
     
     .byte   $c9,$e2,$90,$05,$69,$15,$4c,$3e ; $f74d (*)
     .byte   $d7                             ; $f755 (*)
     
 Lf756
-    lda     #$04                    ;2        
-    sta     ram_D8,x                ;4        
-    dex                             ;2        
-    bpl     Lf744                   ;2/3      
-    lda     #$ff                    ;2        
-    sta     ram_DD                  ;3        
-    lda     ram_84                  ;3        
-    bne     Lf795                   ;2/3 = 108
+    lda     #$04
+    sta     ram_D8,x
+    dex
+    bpl     Lf744
+    lda     #$ff
+    sta     ram_DD
+    lda     ram_84
+    bne     Lf795
     
 Lf765
     .byte   $20,$da,$d9,$b0,$0f,$a5,$aa,$69 ; $f765 (*)
     .byte   $02,$85,$ad,$85,$f6,$a5,$a4     ; $f76d (*)
     
-BankSwitch_0to1
-    sta     ram_AC                  ;3        
-    bit     BANK1STROBE                   ;4        
+bankSwitch0to1
+    sta     ram_AC
+    bit     bank1Strobe
     
     .byte   $a5,$b2,$69,$03,$10,$02,$a9,$00 ; $f779 (*)
     .byte   $c9,$08,$90,$02,$a9,$06,$69,$02 ; $f781 (*)
@@ -1307,10 +1307,10 @@ BankSwitch_0to1
     .byte   $a9,$07,$d0,$df                 ; $f791 (*)
     
 Lf795
-    cmp     #$03                    ;2        
-    beq     Lf765                   ;2/3      
-    cmp     #$02                    ;2        
-    bne     Lf7ea                   ;2/3      
+    cmp     #$03
+    beq     Lf765
+    cmp     #$02
+    bne     Lf7ea
     
     .byte   $20,$da,$d9,$90,$28,$a5,$b2,$e9 ; $f79d (*)
     .byte   $80,$20,$fb,$dd,$18,$e9,$01,$b0 ; $f7a5 (*)
@@ -1324,8 +1324,8 @@ Lf795
     .byte   $49,$1f,$4a,$10,$57             ; $f7e5 (*)
     
 Lf7ea
-    cmp     #$01                    ;2        
-    bne     Lf808                   ;2/3!     
+    cmp     #$01
+    bne     Lf808
     
     .byte   $20,$a3,$d9,$20,$da,$d9,$a5,$b0 ; $f7ee (*)
     .byte   $b0,$02,$a5,$b1,$4a,$4a,$4a,$aa ; $f7f6 (*)
@@ -1333,8 +1333,8 @@ Lf7ea
     .byte   $d0,$bf                         ; $f806 (*)
     
 Lf808
-    cmp     #$04                    ;2        
-    bne     Lf847                   ;2/3      
+    cmp     #$04
+    bne     Lf847
     
     .byte   $20,$da,$d9,$b0,$14,$a5,$e9,$10 ; $f80c (*)
     .byte   $02,$a9,$00,$4a,$4a,$85,$ad,$a5 ; $f814 (*)
@@ -1345,31 +1345,31 @@ Lf808
     .byte   $49,$0f,$2c,$a9,$10,$18,$69,$03 ; $f83c (*)
     
 Lf844
-    jmp     $d774                   ;3   =  26
+    jmp     $d774
     
 Lf847
-    lda     #$00                    ;2        
-    sta     ram_AD                  ;3        
-    ldx     ram_9B                  ;3        
-    ldy     ram_E3                  ;3        
-    lda     #$03                    ;2        
-    cpx     #$35                    ;2        
-    bcc     Lf85b                   ;2/3      
-    cpy     #$02                    ;2        
-    bcc     Lf85b                   ;2/3      
+    lda     #$00
+    sta     ram_AD
+    ldx     ram_9B
+    ldy     ram_E3
+    lda     #$03
+    cpx     #$35
+    bcc     Lf85b
+    cpy     #$02
+    bcc     Lf85b
     
     .byte   $a9,$09                         ; $f859 (*)
     
 Lf85b
-    cpx     #$45                    ;2        
-    bcc     Lf865                   ;2/3      
-    cpy     #$04                    ;2        
-    bcc     Lf865                   ;2/3      
+    cpx     #$45
+    bcc     Lf865
+    cpy     #$04
+    bcc     Lf865
     
     .byte   $a9,$0f                         ; $f863 (*)
     
 Lf865
-    bne     Lf844                   ;2/3      
+    bne     Lf844
     
     .byte   $00,$04,$04,$04,$04,$04,$05,$05 ; $f867 (*)
     .byte   $06,$07,$08,$0a,$0c,$0e,$11,$14 ; $f86f (*)
@@ -1487,56 +1487,56 @@ Lf865
     .byte   $12,$0a,$04,$08,$03,$05,$02,$12 ; $f950 (*)
     
 Lf958
-    sta     WSYNC                   ;3   =  34
+    sta     WSYNC
 ;---------------------------------------
-    sta     HMOVE                   ;3        
-    sec                             ;2   =   5
+    sta     HMOVE
+    sec
 Lf95d
-    sbc     #$0f                    ;2        
-    bcs     Lf95d                   ;2/3      
-    eor     #$0f                    ;2        
-    asl                             ;2        
-    asl                             ;2        
-    asl                             ;2        
-    nop                             ;2        
-    nop                             ;2        
-    sta     RESP0,x                 ;4        
-    sta     HMCLR                   ;3        
-    sta     WSYNC                   ;3   =  26
+    sbc     #$0f
+    bcs     Lf95d
+    eor     #$0f
+    asl
+    asl
+    asl
+    nop
+    nop
+    sta     RESP0,x
+    sta     HMCLR
+    sta     WSYNC
 ;---------------------------------------
-    sta     HMOVE                   ;3        
-    nop                             ;2        
-    nop                             ;2        
-    nop                             ;2        
-    asl                             ;2        
-    adc     #$80                    ;2        
-    sta     HMP0,x                  ;4        
-    rts                             ;6   =  23
+    sta     HMOVE
+    nop
+    nop
+    nop
+    asl
+    adc     #$80
+    sta     HMP0,x
+    rts
     
 Lf979
-    ldy     ram_FA                  ;3        
-    lda     (ram_CC),y              ;5        
-    sta     ram_FC                  ;3        
-    sta     WSYNC                   ;3   =  14
+    ldy     ram_FA
+    lda     (ram_CC),y
+    sta     ram_FC
+    sta     WSYNC
 ;---------------------------------------
-    sta     HMOVE                   ;3        
-    lda     (ram_D6),y              ;5        
-    sta     GRP0                    ;3        
-    lda     (ram_D4),y              ;5        
-    sta     GRP1                    ;3        
-    lda     (ram_D2),y              ;5        
-    sta     GRP0                    ;3        
-    lda     (ram_D0),y              ;5        
-    tax                             ;2        
-    lda     (ram_CE),y              ;5        
-    ldy     ram_FC                  ;3        
-    stx     GRP1                    ;3        
-    sta     GRP0                    ;3        
-    sty     GRP1                    ;3        
-    sty     GRP0                    ;3        
-    dec     ram_FA                  ;5        
-    bpl     Lf979                   ;2/3      
-    rts                             ;6   =  67
+    sta     HMOVE
+    lda     (ram_D6),y
+    sta     GRP0
+    lda     (ram_D4),y
+    sta     GRP1
+    lda     (ram_D2),y
+    sta     GRP0
+    lda     (ram_D0),y
+    tax
+    lda     (ram_CE),y
+    ldy     ram_FC
+    stx     GRP1
+    sta     GRP0
+    sty     GRP1
+    sty     GRP0
+    dec     ram_FA
+    bpl     Lf979
+    rts
     
     .byte   $a2,$02,$a5,$88,$d0,$13,$a5,$b3 ; $f9a3 (*)
     .byte   $69,$10,$c9,$21,$b0,$0b,$a5,$b0 ; $f9ab (*)
@@ -1947,2085 +1947,2085 @@ BANK1STROBE
     ORG     $1000
     RORG    $f000
 
-Reset_Bank1
-    bit     BANK0STROBE                   ;4        
+resetBank1
+    bit     bank0Strobe
 Start
-    cld                             ;2        
-    ldx     #$ff                    ;2        
-    txs                             ;2        
-    inx                             ;2        
-    txa                             ;2   =  14
+    cld
+    ldx     #$ff
+    txs
+    inx
+    txa
 Lf009
-    sta     VSYNC,x                 ;4        
-    inx                             ;2        
-    bne     Lf009                   ;2/3      
-    jsr     Lfe6e                   ;6   =  14
+    sta     VSYNC,x
+    inx
+    bne     Lf009
+    jsr     Lfe6e
 Lf011
-    ldy     #$29                    ;2        
-    sty     TIM64T                  ;4        
-    lda     ram_80                  ;3        
-    asl                             ;2        
-    asl                             ;2        
-    asl                             ;2        
-    eor     ram_80                  ;3        
-    asl                             ;2        
-    rol     ram_80                  ;5        
-    inc     ram_C1                  ;5        
-    lda     ram_C1                  ;3        
-    tay                             ;2        
-    and     #$3f                    ;2        
-    bne     Lf054                   ;2/3      
-    lda     ram_B5                  ;3        
-    bne     Lf054                   ;2/3      
-    lda     ram_AE                  ;3        
-    beq     Lf054                   ;2/3      
-    inc     ram_AE                  ;5         *
-    cmp     #$09                    ;2         *
-    bne     Lf054                   ;2/3       *
-    sta     ram_AE                  ;3         *
-    lda     ram_B6                  ;3         *
-    bne     Lf054                   ;2/3       *
-    bit     ram_F9                  ;3         *
-    bmi     Lf04a                   ;2/3       *
-    ldx     #$09                    ;2         *
-    lda     ram_C6                  ;3         *
-    lsr                             ;2         *
-    and     #$64                    ;2         *
-    bne     Lf050                   ;2/3 =  82 *
+    ldy     #$29
+    sty     TIM64T
+    lda     ram_80
+    asl
+    asl
+    asl
+    eor     ram_80
+    asl
+    rol     ram_80
+    inc     ram_C1
+    lda     ram_C1
+    tay
+    and     #$3f
+    bne     Lf054
+    lda     ram_B5
+    bne     Lf054
+    lda     ram_AE
+    beq     Lf054
+    inc     ram_AE
+    cmp     #$09
+    bne     Lf054
+    sta     ram_AE
+    lda     ram_B6
+    bne     Lf054
+    bit     ram_F9
+    bmi     Lf04a
+    ldx     #$09
+    lda     ram_C6
+    lsr
+    and     #$64
+    bne     Lf050
 Lf04a
-    dec     ram_B6                  ;5         *
-    sta     ram_84                  ;3         *
-    ldx     #$07                    ;2   =  10 *
+    dec     ram_B6
+    sta     ram_84
+    ldx     #$07
 Lf050
-    sta     ram_9E                  ;3         *
-    stx     ram_85                  ;3   =   6 *
+    sta     ram_9E
+    stx     ram_85
 Lf054
-    lda     ram_F5                  ;3        
-    jsr     Lfcae                   ;6        
-    tya                             ;2        
-    and     #$0f                    ;2        
-    bne     Lf076                   ;2/3      
-    inc     ram_E6                  ;5        
-    lda     ram_B6                  ;3        
-    beq     Lf076                   ;2/3      
-    clc                             ;2         *
-    lda     #$01                    ;2         *
-    ldx     ram_B4                  ;3         *
-    beq     Lf06d                   ;2/3       *
-    adc     #$06                    ;2   =  36 *
+    lda     ram_F5
+    jsr     Lfcae
+    tya
+    and     #$0f
+    bne     Lf076
+    inc     ram_E6
+    lda     ram_B6
+    beq     Lf076
+    clc
+    lda     #$01
+    ldx     ram_B4
+    beq     Lf06d
+    adc     #$06
 Lf06d
-    ldx     ram_A1                  ;3         *
-    beq     Lf073                   ;2/3       *
-    adc     #$02                    ;2   =   7 *
+    ldx     ram_A1
+    beq     Lf073
+    adc     #$02
 Lf073
-    jsr     Lfcae                   ;6   =   6 *
+    jsr     Lfcae
 Lf076
-    bit     ram_F9                  ;3        
-    bpl     Lf084                   ;2/3      
-    lda     ram_A5                  ;3        
-    cmp     #$d2                    ;2        
-    bne     Lf0db                   ;2/3      
-    lda     #$00                    ;2         *
-    beq     Lf08a                   ;2/3 =  16 *
+    bit     ram_F9
+    bpl     Lf084
+    lda     ram_A5
+    cmp     #$d2
+    bne     Lf0db
+    lda     #$00
+    beq     Lf08a
 Lf084
-    lda     ram_C6                  ;3        
-    and     #$48                    ;2        
-    bne     Lf0db                   ;2/3 =   7
+    lda     ram_C6
+    and     #$48
+    bne     Lf0db
 Lf08a
-    sta     ram_B4                  ;3        
-    ldx     ram_B6                  ;3        
-    beq     Lf0db                   ;2/3      
-    ldx     ram_B5                  ;3         *
-    cpx     #$01                    ;2         *
-    bne     Lf0db                   ;2/3       *
-    stx     ram_AB                  ;3         *
-    sta     ram_B1                  ;3         *
-    inc     ram_B5                  ;5         *
-    sta     ram_CA                  ;3         *
-    sta     ram_E6                  ;3         *
-    ldx     #$95                    ;2         *
-    lda     ram_A6                  ;3         *
-    cmp     #$d2                    ;2         *
-    bcc     Lf0b8                   ;2/3       *
-    lda     #$00                    ;2         *
-    bit     ram_F9                  ;3         *
-    bmi     Lf0c3                   ;2/3       *
-    ldx     #$90                    ;2         *
-    lda     #$21                    ;2         *
-    sbc     ram_AA                  ;3         *
-    cmp     #$08                    ;2         *
-    bcc     Lf0bd                   ;2/3 =  59 *
+    sta     ram_B4
+    ldx     ram_B6
+    beq     Lf0db
+    ldx     ram_B5
+    cpx     #$01
+    bne     Lf0db
+    stx     ram_AB
+    sta     ram_B1
+    inc     ram_B5
+    sta     ram_CA
+    sta     ram_E6
+    ldx     #$95
+    lda     ram_A6
+    cmp     #$d2
+    bcc     Lf0b8
+    lda     #$00
+    bit     ram_F9
+    bmi     Lf0c3
+    ldx     #$90
+    lda     #$21
+    sbc     ram_AA
+    cmp     #$08
+    bcc     Lf0bd
 Lf0b8
-    jsr     Lfcc7                   ;6         *
-    bcs     Lf0db                   ;2/3 =   8 *
+    jsr     Lfcc7
+    bcs     Lf0db
 Lf0bd
-    asl                             ;2         *
-    asl                             ;2         *
-    asl                             ;2         *
-    asl                             ;2         *
-    adc     #$40                    ;2   =  10 *
+    asl
+    asl
+    asl
+    asl
+    adc     #$40
 Lf0c3
-    sta     ram_B0                  ;3         *
-    bit     ram_F7                  ;3         *
-    bpl     Lf0cb                   ;2/3       *
-    lda     #$10                    ;2   =  10 *
+    sta     ram_B0
+    bit     ram_F7
+    bpl     Lf0cb
+    lda     #$10
 Lf0cb
-    bit     ram_F9                  ;3         *
-    bmi     Lf0d5                   ;2/3       *
-    lda     ram_B2                  ;3         *
-    asl                             ;2         *
-    asl                             ;2         *
-    asl                             ;2         *
-    asl                             ;2   =  16 *
+    bit     ram_F9
+    bmi     Lf0d5
+    lda     ram_B2
+    asl
+    asl
+    asl
+    asl
 Lf0d5
-    sta     ram_B2                  ;3         *
-    inc     ram_ED                  ;5         *
-    inc     ram_84                  ;5   =  13 *
+    sta     ram_B2
+    inc     ram_ED
+    inc     ram_84
 Lf0db
-    lda     ram_B4                  ;3        
-    beq     Lf0e8                   ;2/3      
-    tya                             ;2         *
-    and     #$02                    ;2         *
-    bne     Lf150                   ;2/3!      *
-    lda     ram_BC                  ;3   =  14 *
+    lda     ram_B4
+    beq     Lf0e8
+    tya
+    and     #$02
+    bne     Lf150
+    lda     ram_BC
 Lf0e6
-    beq     Lf0fd                   ;2/3 =   2 *
+    beq     Lf0fd
 Lf0e8
-    ldx     ram_83                  ;3        
-    lsr                             ;2        
-    bcs     Lf0f5                   ;2/3 =   7
+    ldx     ram_83
+    lsr
+    bcs     Lf0f5
 Lf0ed
-    dec     ram_82                  ;5        
-    dec     ram_83                  ;5        
-    cpx     #$0d                    ;2        
-    bne     Lf0fd                   ;2/3 =  14
+    dec     ram_82
+    dec     ram_83
+    cpx     #$0d
+    bne     Lf0fd
 Lf0f5
-    inc     ram_82                  ;5        
-    inc     ram_83                  ;5        
-    cpx     #$81                    ;2        
-    beq     Lf0ed                   ;2/3 =  14
+    inc     ram_82
+    inc     ram_83
+    cpx     #$81
+    beq     Lf0ed
 Lf0fd
-    lda     ram_B6                  ;3        
-    beq     Lf126                   ;2/3      
-    lda     ram_B4                  ;3         *
-    beq     Lf126                   ;2/3       *
-    bit     ram_F9                  ;3         *
-    bpl     Lf10f                   ;2/3       *
-    lda     ram_BC                  ;3         *
-    beq     Lf14c                   ;2/3       *
-    bpl     Lf123                   ;2/3 =  22 *
+    lda     ram_B6
+    beq     Lf126
+    lda     ram_B4
+    beq     Lf126
+    bit     ram_F9
+    bpl     Lf10f
+    lda     ram_BC
+    beq     Lf14c
+    bpl     Lf123
 Lf10f
-    bit     INPT4                   ;3         *
-    bmi     Lf14c                   ;2/3       *
-    ldx     ram_A9                  ;3         *
-    bne     Lf121                   ;2/3       *
-    inx                             ;2         *
-    lda     ram_82                  ;3         *
-    cmp     ram_81                  ;3         *
-    bcs     Lf11f                   ;2/3       *
-    inx                             ;2   =  22 *
+    bit     INPT4
+    bmi     Lf14c
+    ldx     ram_A9
+    bne     Lf121
+    inx
+    lda     ram_82
+    cmp     ram_81
+    bcs     Lf11f
+    inx
 Lf11f
-    stx     ram_A9                  ;3   =   3 *
+    stx     ram_A9
 Lf121
-    lda     ram_A9                  ;3   =   3 *
+    lda     ram_A9
 Lf123
-    lsr                             ;2         *
-    bcs     Lf129                   ;2/3 =   4 *
+    lsr
+    bcs     Lf129
 Lf126
-    dec     ram_81                  ;5        
+    dec     ram_81
     .byte   $2c ;bit                ;4-5 =   4
 Lf129
-    inc     ram_81                  ;5        
-    lda     ram_81                  ;3        
-    cmp     #$0f                    ;2        
-    bcc     Lf129                   ;2/3      
-    cmp     #$8c                    ;2        
-    beq     Lf126                   ;2/3      
-    bit     INPT4                   ;3        
-    bmi     Lf150                   ;2/3      
-    lda     ram_B4                  ;3        
-    bne     Lf150                   ;2/3      
-    lda     ram_B6                  ;3        
-    beq     Lf150                   ;2/3      
-    lda     ram_B5                  ;3         *
-    bne     Lf150                   ;2/3       *
-    bit     ram_F9                  ;3         *
-    bmi     Lf150                   ;2/3       *
-    jmp     Lf23c                   ;3   =  44 *
+    inc     ram_81
+    lda     ram_81
+    cmp     #$0f
+    bcc     Lf129
+    cmp     #$8c
+    beq     Lf126
+    bit     INPT4
+    bmi     Lf150
+    lda     ram_B4
+    bne     Lf150
+    lda     ram_B6
+    beq     Lf150
+    lda     ram_B5
+    bne     Lf150
+    bit     ram_F9
+    bmi     Lf150
+    jmp     Lf23c
     
 Lf14c
-    lda     #$00                    ;2         *
-    sta     ram_A9                  ;3   =   5 *
+    lda     #$00
+    sta     ram_A9
 Lf150
-    tya                             ;2        
-    and     #$1f                    ;2        
-    bne     Lf16f                   ;2/3      
-    ldx     ram_B4                  ;3        
-    cpx     #$05                    ;2        
-    beq     Lf16f                   ;2/3      
-    ldx     #$9f                    ;2        
-    dec     ram_86                  ;5        
-    lda     ram_86                  ;3        
-    bne     Lf165                   ;2/3      
-    stx     ram_86                  ;3   =  28 *
+    tya
+    and     #$1f
+    bne     Lf16f
+    ldx     ram_B4
+    cpx     #$05
+    beq     Lf16f
+    ldx     #$9f
+    dec     ram_86
+    lda     ram_86
+    bne     Lf165
+    stx     ram_86
 Lf165
-    and     #$03                    ;2        
-    bne     Lf16f                   ;2/3      
-    dec     ram_87                  ;5        
-    bne     Lf16f                   ;2/3      
-    stx     ram_87                  ;3   =  14 *
+    and     #$03
+    bne     Lf16f
+    dec     ram_87
+    bne     Lf16f
+    stx     ram_87
 Lf16f
-    lda     ram_ED                  ;3        
-    beq     Lf180                   ;2/3      
-    inc     ram_ED                  ;5         *
-    bne     Lf180                   ;2/3       *
-    ldx     #$38                    ;2         *
-    jsr     Lfce6                   ;6         *
-    lda     #$05                    ;2         *
-    sta     ram_EC                  ;3   =  25 *
+    lda     ram_ED
+    beq     Lf180
+    inc     ram_ED
+    bne     Lf180
+    ldx     #$38
+    jsr     Lfce6
+    lda     #$05
+    sta     ram_EC
 Lf180
-    lda     SWCHB                   ;4        
-    sta     ram_C6                  ;3        
-    lsr                             ;2        
-    bcs     Lf1c1                   ;2/3      
-    lda     ram_C7                  ;3        
-    ldx     ram_B6                  ;3        
-    beq     Lf196                   ;2/3      
-    inc     ram_C7                  ;5         *
-    cmp     #$7f                    ;2         *
-    bne     Lf20c                   ;2/3!      *
-    beq     Lf19a                   ;2/3 =  30 *
+    lda     SWCHB
+    sta     ram_C6
+    lsr
+    bcs     Lf1c1
+    lda     ram_C7
+    ldx     ram_B6
+    beq     Lf196
+    inc     ram_C7
+    cmp     #$7f
+    bne     Lf20c
+    beq     Lf19a
 Lf196
-    cmp     #$01                    ;2        
-    bne     Lf20c                   ;2/3!=   4
+    cmp     #$01
+    bne     Lf20c
 Lf19a
-    ldx     #$ff                    ;2        
-    ldy     ram_A0                  ;3        
-    cpy     #$02                    ;2        
-    bcs     Lf1a4                   ;2/3      
-    stx     ram_F9                  ;3   =  12
+    ldx     #$ff
+    ldy     ram_A0
+    cpy     #$02
+    bcs     Lf1a4
+    stx     ram_F9
 Lf1a4
-    cpy     #$03                    ;2        
-    bcs     Lf1aa                   ;2/3      
-    stx     ram_F8                  ;3   =   7
+    cpy     #$03
+    bcs     Lf1aa
+    stx     ram_F8
 Lf1aa
-    jsr     Lfe65                   ;6        
-    sty     ram_A0                  ;3        
-    ldy     #$08                    ;2        
-    sty     ram_C7                  ;3        
-    sty     ram_B7                  ;3        
-    ldy     #$00                    ;2        
-    sty     ram_BA                  ;3        
-    sty     ram_B8                  ;3        
-    iny                             ;2        
-    sty     ram_AE                  ;3   =  30
+    jsr     Lfe65
+    sty     ram_A0
+    ldy     #$08
+    sty     ram_C7
+    sty     ram_B7
+    ldy     #$00
+    sty     ram_BA
+    sty     ram_B8
+    iny
+    sty     ram_AE
 Lf1be
-    jmp     Lf7f6                   ;3   =   3
+    jmp     Lf7f6
     
 Lf1c1
-    lsr                             ;2        
-    bcs     Lf208                   ;2/3!     
-    dec     ram_C7                  ;5         *
-    bne     Lf20c                   ;2/3!      *
-    lda     #$30                    ;2         *
-    sta     ram_C7                  ;3         *
-    lda     ram_F1                  ;3         *
-    beq     Lf1d8                   ;2/3       *
-    lda     #$00                    ;2         *
-    sta     ram_F1                  ;3         *
-    sta     ram_9F                  ;3         *
-    beq     Lf1fe                   ;2/3 =  31 *
+    lsr
+    bcs     Lf208
+    dec     ram_C7
+    bne     Lf20c
+    lda     #$30
+    sta     ram_C7
+    lda     ram_F1
+    beq     Lf1d8
+    lda     #$00
+    sta     ram_F1
+    sta     ram_9F
+    beq     Lf1fe
 Lf1d8
-    lda     ram_85                  ;3         *
-    ldx     ram_B7                  ;3         *
-    bne     Lf1f3                   ;2/3       *
-    cmp     #$0b                    ;2         *
-    beq     Lf1e6                   ;2/3       *
-    ldx     #$0b                    ;2         *
-    bne     Lf1fc                   ;2/3 =  16 *
+    lda     ram_85
+    ldx     ram_B7
+    bne     Lf1f3
+    cmp     #$0b
+    beq     Lf1e6
+    ldx     #$0b
+    bne     Lf1fc
 Lf1e6
-    inc     ram_A0                  ;5         *
-    lda     ram_A0                  ;3         *
-    cmp     #$04                    ;2         *
-    bne     Lf1fe                   ;2/3       *
-    inx                             ;2         *
-    stx     ram_A0                  ;3         *
-    bne     Lf1fe                   ;2/3 =  19 *
+    inc     ram_A0
+    lda     ram_A0
+    cmp     #$04
+    bne     Lf1fe
+    inx
+    stx     ram_A0
+    bne     Lf1fe
 Lf1f3
-    adc     #$02                    ;2         *
-    tax                             ;2         *
-    cmp     #$0b                    ;2         *
-    bcc     Lf1fc                   ;2/3       *
-    ldx     #$01                    ;2   =  10 *
+    adc     #$02
+    tax
+    cmp     #$0b
+    bcc     Lf1fc
+    ldx     #$01
 Lf1fc
-    stx     ram_85                  ;3   =   3 *
+    stx     ram_85
 Lf1fe
-    lda     ram_CA                  ;3         *
-    bne     Lf20c                   ;2/3       *
-    lda     #$34                    ;2         *
-    sta     ram_CA                  ;3         *
-    bne     Lf20c                   ;2/3 =  12 *
+    lda     ram_CA
+    bne     Lf20c
+    lda     #$34
+    sta     ram_CA
+    bne     Lf20c
 Lf208
-    lda     #$01                    ;2        
-    sta     ram_C7                  ;3   =   5
+    lda     #$01
+    sta     ram_C7
 Lf20c
-    lda     ram_B6                  ;3        
-    beq     Lf1be                   ;2/3!     
-    dec     ram_C5                  ;5         *
-    bne     Lf286                   ;2/3       *
-    sed                             ;2         *
-    lda     #$3b                    ;2         *
-    sta     ram_C5                  ;3         *
-    lda     ram_9D                  ;3         *
-    cmp     #$a0                    ;2         *
-    bne     Lf250                   ;2/3       *
-    ldx     #$04                    ;2         *
-    jsr     Lfce6                   ;6         *
-    ldx     #$07                    ;2         *
-    lda     ram_9C                  ;3         *
-    sbc     #$01                    ;2         *
-    sta     ram_9C                  ;3         *
-    bne     Lf238                   ;2/3       *
-    ldx     ram_81                  ;3         *
-    cpx     #$75                    ;2         *
-    bcc     Lf23c                   ;2/3       *
-    sta     ram_9D                  ;3         *
-    ldx     #$03                    ;2   =  58 *
+    lda     ram_B6
+    beq     Lf1be
+    dec     ram_C5
+    bne     Lf286
+    sed
+    lda     #$3b
+    sta     ram_C5
+    lda     ram_9D
+    cmp     #$a0
+    bne     Lf250
+    ldx     #$04
+    jsr     Lfce6
+    ldx     #$07
+    lda     ram_9C
+    sbc     #$01
+    sta     ram_9C
+    bne     Lf238
+    ldx     ram_81
+    cpx     #$75
+    bcc     Lf23c
+    sta     ram_9D
+    ldx     #$03
 Lf238
-    stx     ram_85                  ;3         *
-    bne     Lf278                   ;2/3 =   5 *
+    stx     ram_85
+    bne     Lf278
 Lf23c
-    sta     ram_BB                  ;3         *
-    sta     ram_B4                  ;3         *
-    lda     #$b8                    ;2         *
-    sta     ram_C5                  ;3         *
-    ldx     #$16                    ;2         *
-    stx     ram_9C                  ;3         *
-    ldx     #$41                    ;2         *
-    stx     ram_CA                  ;3         *
-    ldx     #$1d                    ;2         *
-    bne     Lf238                   ;2/3 =  25 *
+    sta     ram_BB
+    sta     ram_B4
+    lda     #$b8
+    sta     ram_C5
+    ldx     #$16
+    stx     ram_9C
+    ldx     #$41
+    stx     ram_CA
+    ldx     #$1d
+    bne     Lf238
 Lf250
-    lda     ram_9C                  ;3         *
-    adc     #$01                    ;2         *
-    sta     ram_9C                  ;3         *
-    lda     ram_9D                  ;3         *
-    adc     #$00                    ;2         *
-    sta     ram_9D                  ;3         *
-    bne     Lf278                   ;2/3       *
-    ldx     #$01                    ;2         *
-    lda     ram_9C                  ;3         *
-    cmp     #$25                    ;2         *
-    bne     Lf270                   ;2/3       *
-    lda     #$07                    ;2         *
-    sta     ram_EC                  ;3         *
-    lda     #$68                    ;2         *
-    sta     ram_CA                  ;3         *
-    bne     Lf276                   ;2/3 =  39 *
+    lda     ram_9C
+    adc     #$01
+    sta     ram_9C
+    lda     ram_9D
+    adc     #$00
+    sta     ram_9D
+    bne     Lf278
+    ldx     #$01
+    lda     ram_9C
+    cmp     #$25
+    bne     Lf270
+    lda     #$07
+    sta     ram_EC
+    lda     #$68
+    sta     ram_CA
+    bne     Lf276
 Lf270
-    cmp     #$03                    ;2         *
-    bne     Lf278                   ;2/3       *
-    ldx     #$05                    ;2   =   6 *
+    cmp     #$03
+    bne     Lf278
+    ldx     #$05
 Lf276
-    stx     ram_B4                  ;3   =   3 *
+    stx     ram_B4
 Lf278
-    cld                             ;2         *
-    lda     ram_B5                  ;3         *
-    cmp     #$02                    ;2         *
-    bcs     Lf2a0                   ;2/3       *
-    ldx     ram_BB                  ;3         *
-    lda     Lfeab,x                 ;4         *
-    cmp     ram_9C                  ;3   =  19 *
+    cld
+    lda     ram_B5
+    cmp     #$02
+    bcs     Lf2a0
+    ldx     ram_BB
+    lda     Lfeab,x
+    cmp     ram_9C
 Lf286
-    bne     Lf29a                   ;2/3       *
-    inc     ram_BB                  ;5         *
-    lda     Lfe8d,x                 ;4         *
-    and     #$0f                    ;2         *
-    sta     ram_BC                  ;3         *
-    cpx     #$00                    ;2         *
-    bne     Lf29a                   ;2/3       *
-    inx                             ;2         *
-    stx     ram_B4                  ;3         *
-    inc     ram_81                  ;5   =  30 *
+    bne     Lf29a
+    inc     ram_BB
+    lda     Lfe8d,x
+    and     #$0f
+    sta     ram_BC
+    cpx     #$00
+    bne     Lf29a
+    inx
+    stx     ram_B4
+    inc     ram_81
 Lf29a
-    lda     ram_BB                  ;3         *
-    cmp     #$03                    ;2         *
-    bcs     Lf2a3                   ;2/3 =   7 *
+    lda     ram_BB
+    cmp     #$03
+    bcs     Lf2a3
 Lf2a0
-    jmp     Lf32c                   ;3   =   3 *
+    jmp     Lf32c
     
 Lf2a3
-    lda     ram_81                  ;3         *
-    cmp     #$10                    ;2         *
-    bcs     Lf2ad                   ;2/3       *
-    ldx     ram_B4                  ;3         *
-    beq     Lf2a0                   ;2/3 =  12 *
+    lda     ram_81
+    cmp     #$10
+    bcs     Lf2ad
+    ldx     ram_B4
+    beq     Lf2a0
 Lf2ad
-    lsr                             ;2         *
-    lsr                             ;2         *
-    lsr                             ;2         *
-    lsr                             ;2         *
-    lsr                             ;2         *
-    clc                             ;2         *
-    adc     #$0b                    ;2         *
-    eor     #$0f                    ;2         *
-    adc     #$14                    ;2         *
-    dec     ram_A8                  ;5         *
-    bpl     Lf2c2                   ;2/3       *
-    sta     ram_A8                  ;3         *
-    jsr     Lfed5                   ;6   =  34 *
+    lsr
+    lsr
+    lsr
+    lsr
+    lsr
+    clc
+    adc     #$0b
+    eor     #$0f
+    adc     #$14
+    dec     ram_A8
+    bpl     Lf2c2
+    sta     ram_A8
+    jsr     Lfed5
 Lf2c2
-    ldx     ram_A6                  ;3         *
-    lda     #$05                    ;2         *
-    cpx     #$20                    ;2         *
-    bcc     Lf2cc                   ;2/3       *
-    lda     #$03                    ;2   =  11 *
+    ldx     ram_A6
+    lda     #$05
+    cpx     #$20
+    bcc     Lf2cc
+    lda     #$03
 Lf2cc
-    cpx     #$80                    ;2         *
-    bcc     Lf2d2                   ;2/3       *
-    lda     #$01                    ;2   =   6 *
+    cpx     #$80
+    bcc     Lf2d2
+    lda     #$01
 Lf2d2
-    cpx     #$d8                    ;2         *
-    bcc     Lf2d8                   ;2/3       *
-    lda     #$00                    ;2   =   6 *
+    cpx     #$d8
+    bcc     Lf2d8
+    lda     #$00
 Lf2d8
-    dec     ram_A7                  ;5         *
-    bpl     Lf2f3                   ;2/3       *
-    sta     ram_A7                  ;3         *
-    lda     ram_86                  ;3         *
-    sbc     #$04                    ;2         *
-    bcc     Lf2e6                   ;2/3       *
-    sta     ram_86                  ;3   =  20 *
+    dec     ram_A7
+    bpl     Lf2f3
+    sta     ram_A7
+    lda     ram_86
+    sbc     #$04
+    bcc     Lf2e6
+    sta     ram_86
 Lf2e6
-    lda     ram_87                  ;3         *
-    adc     #$03                    ;2         *
-    cmp     #$a0                    ;2         *
-    bcs     Lf2f0                   ;2/3       *
-    sta     ram_87                  ;3   =  12 *
+    lda     ram_87
+    adc     #$03
+    cmp     #$a0
+    bcs     Lf2f0
+    sta     ram_87
 Lf2f0
-    jsr     Lfd20                   ;6   =   6 *
+    jsr     Lfd20
 Lf2f3
-    lda     ram_C1                  ;3         *
-    and     #$1f                    ;2         *
-    bne     Lf328                   ;2/3!      *
-    lda     ram_80                  ;3         *
-    cmp     #$b0                    ;2         *
-    bcc     Lf307                   ;2/3!      *
-    lsr                             ;2         *
-    bcs     Lf305                   ;2/3       *
-    inc     ram_B2                  ;5         *
+    lda     ram_C1
+    and     #$1f
+    bne     Lf328
+    lda     ram_80
+    cmp     #$b0
+    bcc     Lf307
+    lsr
+    bcs     Lf305
+    inc     ram_B2
     .byte   $2c ;bit                ;4-5 =  22 *
 Lf305
-    dec     ram_B2                  ;5   =   5 *
+    dec     ram_B2
 Lf307
-    lda     SWCHA                   ;4         *
-    asl                             ;2         *
-    bcs     Lf30f                   ;2/3       *
-    inc     ram_B2                  ;5   =  13 *
+    lda     SWCHA
+    asl
+    bcs     Lf30f
+    inc     ram_B2
 Lf30f
-    asl                             ;2         *
-    bcs     Lf314                   ;2/3       *
-    dec     ram_B2                  ;5   =   9 *
+    asl
+    bcs     Lf314
+    dec     ram_B2
 Lf314
-    ldy     ram_AA                  ;3         *
-    asl                             ;2         *
-    bcs     Lf31f                   ;2/3       *
-    cpy     #$21                    ;2         *
-    beq     Lf31f                   ;2/3       *
-    inc     ram_AA                  ;5   =  16 *
+    ldy     ram_AA
+    asl
+    bcs     Lf31f
+    cpy     #$21
+    beq     Lf31f
+    inc     ram_AA
 Lf31f
-    asl                             ;2         *
-    bcs     Lf328                   ;2/3       *
-    cpy     #$00                    ;2         *
-    beq     Lf328                   ;2/3       *
-    dec     ram_AA                  ;5   =  13 *
+    asl
+    bcs     Lf328
+    cpy     #$00
+    beq     Lf328
+    dec     ram_AA
 Lf328
-    cld                             ;2         *
-    jmp     Lf3a7                   ;3   =   5 *
+    cld
+    jmp     Lf3a7
     
 Lf32c
-    lda     ram_B5                  ;3         *
-    cmp     #$03                    ;2         *
-    beq     Lf2f3                   ;2/3!      *
-    cmp     #$04                    ;2         *
-    bne     Lf34d                   ;2/3       *
-    ldx     #$17                    ;2         *
-    bit     INPT4                   ;3         *
-    bmi     Lf33e                   ;2/3       *
-    ldx     #$03                    ;2   =  20 *
+    lda     ram_B5
+    cmp     #$03
+    beq     Lf2f3
+    cmp     #$04
+    bne     Lf34d
+    ldx     #$17
+    bit     INPT4
+    bmi     Lf33e
+    ldx     #$03
 Lf33e
-    stx     ram_85                  ;3         *
-    ldy     #$01                    ;2         *
-    lda     SWCHA                   ;4         *
-    and     #$f0                    ;2         *
-    cmp     #$f0                    ;2         *
-    beq     Lf3a5                   ;2/3       *
-    dec     ram_C0                  ;5   =  20 *
+    stx     ram_85
+    ldy     #$01
+    lda     SWCHA
+    and     #$f0
+    cmp     #$f0
+    beq     Lf3a5
+    dec     ram_C0
 Lf34d
-    bne     Lf3a7                   ;2/3       *
-    ldx     #$04                    ;2         *
-    stx     ram_C0                  ;3         *
-    tax                             ;2         *
-    txa                             ;2         *
-    asl                             ;2         *
-    tax                             ;2         *
-    bcs     Lf36b                   ;2/3       *
-    dec     ram_B2                  ;5         *
-    lda     ram_B2                  ;3         *
-    cmp     #$ff                    ;2         *
-    bne     Lf365                   ;2/3       *
-    lda     #$9f                    ;2         *
-    sta     ram_B2                  ;3   =  34 *
+    bne     Lf3a7
+    ldx     #$04
+    stx     ram_C0
+    tax
+    txa
+    asl
+    tax
+    bcs     Lf36b
+    dec     ram_B2
+    lda     ram_B2
+    cmp     #$ff
+    bne     Lf365
+    lda     #$9f
+    sta     ram_B2
 Lf365
-    cmp     #$4f                    ;2         *
-    bne     Lf36b                   ;2/3       *
-    inc     ram_B2                  ;5   =   9 *
+    cmp     #$4f
+    bne     Lf36b
+    inc     ram_B2
 Lf36b
-    txa                             ;2         *
-    asl                             ;2         *
-    tax                             ;2         *
-    bcs     Lf382                   ;2/3       *
-    inc     ram_B2                  ;5         *
-    lda     ram_B2                  ;3         *
-    cmp     #$a0                    ;2         *
-    bne     Lf37c                   ;2/3       *
-    lda     #$00                    ;2         *
-    sta     ram_B2                  ;3   =  25 *
+    txa
+    asl
+    tax
+    bcs     Lf382
+    inc     ram_B2
+    lda     ram_B2
+    cmp     #$a0
+    bne     Lf37c
+    lda     #$00
+    sta     ram_B2
 Lf37c
-    cmp     #$50                    ;2         *
-    bne     Lf382                   ;2/3       *
-    dec     ram_B2                  ;5   =   9 *
+    cmp     #$50
+    bne     Lf382
+    dec     ram_B2
 Lf382
-    lda     ram_F3                  ;3         *
-    bne     Lf3a7                   ;2/3       *
-    lda     ram_CA                  ;3         *
-    cmp     #$98                    ;2         *
-    beq     Lf3a7                   ;2/3       *
-    txa                             ;2         *
-    asl                             ;2         *
-    tax                             ;2         *
-    bcs     Lf399                   ;2/3       *
-    lda     ram_88                  ;3         *
-    cmp     #$10                    ;2         *
-    beq     Lf3a7                   ;2/3       *
-    inc     ram_88                  ;5   =  32 *
+    lda     ram_F3
+    bne     Lf3a7
+    lda     ram_CA
+    cmp     #$98
+    beq     Lf3a7
+    txa
+    asl
+    tax
+    bcs     Lf399
+    lda     ram_88
+    cmp     #$10
+    beq     Lf3a7
+    inc     ram_88
 Lf399
-    txa                             ;2         *
-    asl                             ;2         *
-    bcs     Lf3a7                   ;2/3       *
-    lda     ram_88                  ;3         *
-    beq     Lf3a7                   ;2/3       *
-    dec     ram_88                  ;5         *
-    bpl     Lf3a7                   ;2/3 =  18 *
+    txa
+    asl
+    bcs     Lf3a7
+    lda     ram_88
+    beq     Lf3a7
+    dec     ram_88
+    bpl     Lf3a7
 Lf3a5
-    sty     ram_C0                  ;3   =   3 *
+    sty     ram_C0
 Lf3a7
-    lda     ram_B2                  ;3         *
-    bne     Lf407                   ;2/3!      *
-    lda     ram_88                  ;3         *
-    bne     Lf407                   ;2/3!      *
-    lda     ram_DE                  ;3         *
-    cmp     #$50                    ;2         *
-    bcs     Lf407                   ;2/3!      *
-    cmp     #$47                    ;2         *
-    bcc     Lf407                   ;2/3!      *
-    lda     ram_B1                  ;3         *
-    sbc     ram_B0                  ;3         *
-    bne     Lf407                   ;2/3!      *
-    lda     ram_A5                  ;3         *
-    cmp     #$d2                    ;2         *
-    bne     Lf407                   ;2/3!=  36 *
+    lda     ram_B2
+    bne     Lf407
+    lda     ram_88
+    bne     Lf407
+    lda     ram_DE
+    cmp     #$50
+    bcs     Lf407
+    cmp     #$47
+    bcc     Lf407
+    lda     ram_B1
+    sbc     ram_B0
+    bne     Lf407
+    lda     ram_A5
+    cmp     #$d2
+    bne     Lf407
 Lf3c5
-    inc     ram_E2                  ;5         *
-    bne     Lf3cb                   ;2/3       *
-    dec     ram_E2                  ;5   =  12 *
+    inc     ram_E2
+    bne     Lf3cb
+    dec     ram_E2
 Lf3cb
-    lda     ram_E2                  ;3         *
-    cmp     #$80                    ;2         *
-    bne     Lf3f5                   ;2/3       *
-    ldx     #$24                    ;2         *
-    stx     ram_CA                  ;3         *
-    dec     ram_B0                  ;5         *
-    ldx     ram_E3                  ;3         *
-    cpx     #$06                    ;2         *
-    beq     Lf3df                   ;2/3       *
-    inc     ram_E3                  ;5   =  29 *
+    lda     ram_E2
+    cmp     #$80
+    bne     Lf3f5
+    ldx     #$24
+    stx     ram_CA
+    dec     ram_B0
+    ldx     ram_E3
+    cpx     #$06
+    beq     Lf3df
+    inc     ram_E3
 Lf3df
-    sed                             ;2         *
-    clc                             ;2         *
-    lda     ram_9E                  ;3         *
-    adc     #$01                    ;2         *
-    sta     ram_9E                  ;3         *
-    lda     ram_9B                  ;3         *
-    adc     Lfdee,x                 ;4         *
-    sta     ram_9B                  ;3         *
-    bcc     Lf3f4                   ;2/3       *
-    lda     #$99                    ;2         *
-    sta     ram_9B                  ;3   =  29 *
+    sed
+    clc
+    lda     ram_9E
+    adc     #$01
+    sta     ram_9E
+    lda     ram_9B
+    adc     Lfdee,x
+    sta     ram_9B
+    bcc     Lf3f4
+    lda     #$99
+    sta     ram_9B
 Lf3f4
-    cld                             ;2   =   2 *
+    cld
 Lf3f5
-    bcc     Lf416                   ;2/3!      *
-    ldx     #$05                    ;2         *
-    cmp     #$fe                    ;2         *
-    beq     Lf403                   ;2/3!      *
-    cmp     #$ff                    ;2         *
-    beq     Lf416                   ;2/3       *
-    ldx     #$1f                    ;2   =  14 *
+    bcc     Lf416
+    ldx     #$05
+    cmp     #$fe
+    beq     Lf403
+    cmp     #$ff
+    beq     Lf416
+    ldx     #$1f
 Lf403
-    stx     ram_85                  ;3         *
-    bne     Lf45c                   ;2/3 =   5 *
+    stx     ram_85
+    bne     Lf45c
 Lf407
-    lda     ram_E2                  ;3         *
-    cmp     #$80                    ;2         *
-    bcc     Lf412                   ;2/3       *
-    cmp     #$ff                    ;2         *
-    bne     Lf3c5                   ;2/3!      *
+    lda     ram_E2
+    cmp     #$80
+    bcc     Lf412
+    cmp     #$ff
+    bne     Lf3c5
     .byte   $2c ;bit                ;4-2 =  13 *
 Lf412
-    lda     #$00                    ;2         *
-    sta     ram_E2                  ;3   =   5 *
+    lda     #$00
+    sta     ram_E2
 Lf416
-    lda     ram_B5                  ;3         *
-    cmp     #$04                    ;2         *
-    bne     Lf44b                   ;2/3       *
-    lda     ram_A5                  ;3         *
-    cmp     #$0b                    ;2         *
-    bcc     Lf44b                   ;2/3       *
-    ldx     ram_F9                  ;3         *
-    bmi     Lf44b                   ;2/3       *
-    lda     SWCHA                   ;4         *
-    cmp     #$cf                    ;2         *
-    bcc     Lf44b                   ;2/3       *
-    ldx     ram_E3                  ;3         *
-    cpx     #$06                    ;2         *
-    beq     Lf435                   ;2/3       *
-    ldx     ram_A0                  ;3   =  37 *
+    lda     ram_B5
+    cmp     #$04
+    bne     Lf44b
+    lda     ram_A5
+    cmp     #$0b
+    bcc     Lf44b
+    ldx     ram_F9
+    bmi     Lf44b
+    lda     SWCHA
+    cmp     #$cf
+    bcc     Lf44b
+    ldx     ram_E3
+    cpx     #$06
+    beq     Lf435
+    ldx     ram_A0
 Lf435
-    lda     ram_C1                  ;3         *
-    and     Lfe39,x                 ;4         *
-    bne     Lf44b                   ;2/3       *
-    lda     ram_B2                  ;3         *
-    cmp     #$51                    ;2         *
-    bcs     Lf449                   ;2/3       *
-    cmp     #$4f                    ;2         *
-    bcs     Lf44b                   ;2/3       *
-    inc     ram_B2                  ;5         *
+    lda     ram_C1
+    and     Lfe39,x
+    bne     Lf44b
+    lda     ram_B2
+    cmp     #$51
+    bcs     Lf449
+    cmp     #$4f
+    bcs     Lf44b
+    inc     ram_B2
     .byte   $2c ;bit                ;4-5 =  24 *
 Lf449
-    dec     ram_B2                  ;5   =   5 *
+    dec     ram_B2
 Lf44b
-    ldx     #$75                    ;2         *
-    lda     ram_A5                  ;3         *
-    cmp     #$ff                    ;2         *
-    beq     Lf46d                   ;2/3       *
-    ldx     ram_B5                  ;3         *
-    cpx     #$02                    ;2         *
-    beq     Lf45f                   ;2/3       *
-    jmp     Lf5c7                   ;3   =  19 *
+    ldx     #$75
+    lda     ram_A5
+    cmp     #$ff
+    beq     Lf46d
+    ldx     ram_B5
+    cpx     #$02
+    beq     Lf45f
+    jmp     Lf5c7
     
 Lf45c
-    jmp     Lf538                   ;3   =   3 *
+    jmp     Lf538
     
 Lf45f
-    ldx     #$70                    ;2         *
-    cmp     #$c3                    ;2         *
-    bcc     Lf46d                   ;2/3       *
-    ldx     #$80                    ;2         *
-    lda     ram_A6                  ;3         *
-    cmp     #$a9                    ;2         *
-    bne     Lf470                   ;2/3 =  15 *
+    ldx     #$70
+    cmp     #$c3
+    bcc     Lf46d
+    ldx     #$80
+    lda     ram_A6
+    cmp     #$a9
+    bne     Lf470
 Lf46d
-    jsr     Lfcc7                   ;6   =   6 *
+    jsr     Lfcc7
 Lf470
-    lda     SWCHA                   ;4         *
-    and     #$f0                    ;2         *
-    cmp     #$f0                    ;2         *
-    beq     Lf45c                   ;2/3       *
-    dec     ram_C0                  ;5         *
-    bne     Lf4f2                   ;2/3       *
-    ldx     #$18                    ;2         *
-    stx     ram_C0                  ;3         *
-    stx     ram_AF                  ;3         *
-    jsr     Lfce6                   ;6         *
-    lsr                             ;2         *
-    lsr                             ;2         *
-    lsr                             ;2         *
-    lsr                             ;2         *
-    eor     #$0f                    ;2         *
-    tax                             ;2         *
-    lda     #$09                    ;2         *
-    ldy     ram_85                  ;3         *
-    cpy     #$15                    ;2         *
-    bne     Lf497                   ;2/3       *
-    lda     #$01                    ;2   =  54 *
+    lda     SWCHA
+    and     #$f0
+    cmp     #$f0
+    beq     Lf45c
+    dec     ram_C0
+    bne     Lf4f2
+    ldx     #$18
+    stx     ram_C0
+    stx     ram_AF
+    jsr     Lfce6
+    lsr
+    lsr
+    lsr
+    lsr
+    eor     #$0f
+    tax
+    lda     #$09
+    ldy     ram_85
+    cpy     #$15
+    bne     Lf497
+    lda     #$01
 Lf497
-    jsr     Lfcae                   ;6         *
-    lda     ram_B6                  ;3         *
-    beq     Lf45c                   ;2/3       *
-    bit     ram_F9                  ;3         *
-    bmi     Lf4a8                   ;2/3       *
-    lda     ram_C6                  ;3         *
-    and     #$48                    ;2         *
-    bne     Lf4f5                   ;2/3 =  23 *
+    jsr     Lfcae
+    lda     ram_B6
+    beq     Lf45c
+    bit     ram_F9
+    bmi     Lf4a8
+    lda     ram_C6
+    and     #$48
+    bne     Lf4f5
 Lf4a8
-    txa                             ;2         *
-    lsr                             ;2         *
-    tay                             ;2         *
-    bcc     Lf4bc                   ;2/3       *
-    bit     INPT4                   ;3         *
-    bmi     Lf4b7                   ;2/3       *
-    jsr     Lfd42                   ;6         *
-    jmp     Lf4cc                   ;3   =  22 *
+    txa
+    lsr
+    tay
+    bcc     Lf4bc
+    bit     INPT4
+    bmi     Lf4b7
+    jsr     Lfd42
+    jmp     Lf4cc
     
 Lf4b7
-    ldx     #$0d                    ;2         *
-    jsr     Lfed5                   ;6   =   8 *
+    ldx     #$0d
+    jsr     Lfed5
 Lf4bc
-    tya                             ;2         *
-    lsr                             ;2         *
-    tay                             ;2         *
-    bcc     Lf4d5                   ;2/3       *
-    lda     #$00                    ;2         *
-    sta     ram_AF                  ;3         *
-    bit     INPT4                   ;3         *
-    bmi     Lf4d0                   ;2/3       *
-    jsr     Lfd20                   ;6   =  24 *
+    tya
+    lsr
+    tay
+    bcc     Lf4d5
+    lda     #$00
+    sta     ram_AF
+    bit     INPT4
+    bmi     Lf4d0
+    jsr     Lfd20
 Lf4cc
-    ldx     #$11                    ;2         *
-    bne     Lf4f0                   ;2/3 =   4 *
+    ldx     #$11
+    bne     Lf4f0
 Lf4d0
-    ldx     #$0d                    ;2         *
-    jsr     Lfeea                   ;6   =   8 *
+    ldx     #$0d
+    jsr     Lfeea
 Lf4d5
-    bit     INPT4                   ;3         *
-    bpl     Lf4f2                   ;2/3       *
-    tya                             ;2         *
-    lsr                             ;2         *
-    tay                             ;2         *
-    bcc     Lf4e5                   ;2/3       *
-    lda     #$04                    ;2         *
-    inc     ram_B2                  ;5         *
-    jsr     Lfd0f                   ;6   =  26 *
+    bit     INPT4
+    bpl     Lf4f2
+    tya
+    lsr
+    tay
+    bcc     Lf4e5
+    lda     #$04
+    inc     ram_B2
+    jsr     Lfd0f
 Lf4e5
-    tya                             ;2         *
-    lsr                             ;2         *
-    bcc     Lf4f0                   ;2/3       *
-    dec     ram_B2                  ;5         *
-    lda     #$08                    ;2         *
-    jsr     Lfd0f                   ;6   =  19 *
+    tya
+    lsr
+    bcc     Lf4f0
+    dec     ram_B2
+    lda     #$08
+    jsr     Lfd0f
 Lf4f0
-    stx     ram_85                  ;3   =   3 *
+    stx     ram_85
 Lf4f2
-    jmp     Lf5c7                   ;3   =   3 *
+    jmp     Lf5c7
     
 Lf4f5
-    txa                             ;2         *
-    lsr                             ;2         *
-    tay                             ;2         *
-    bcc     Lf508                   ;2/3!      *
-    lda     ram_88                  ;3         *
-    dec     ram_88                  ;5         *
-    bpl     Lf502                   ;2/3       *
-    sta     ram_88                  ;3   =  21 *
+    txa
+    lsr
+    tay
+    bcc     Lf508
+    lda     ram_88
+    dec     ram_88
+    bpl     Lf502
+    sta     ram_88
 Lf502
-    ldx     #$01                    ;2   =   2 *
+    ldx     #$01
 Lf504
-    lda     #$13                    ;2         *
-    bne     Lf532                   ;2/3 =   4 *
+    lda     #$13
+    bne     Lf532
 Lf508
-    tya                             ;2         *
-    lsr                             ;2         *
-    tay                             ;2         *
-    bcc     Lf519                   ;2/3       *
-    lda     ram_88                  ;3         *
-    cmp     #$10                    ;2         *
-    beq     Lf515                   ;2/3       *
-    inc     ram_88                  ;5   =  20 *
+    tya
+    lsr
+    tay
+    bcc     Lf519
+    lda     ram_88
+    cmp     #$10
+    beq     Lf515
+    inc     ram_88
 Lf515
-    ldx     #$02                    ;2         *
-    bne     Lf504                   ;2/3 =   4 *
+    ldx     #$02
+    bne     Lf504
 Lf519
-    tya                             ;2         *
-    lsr                             ;2         *
-    tay                             ;2         *
-    bcc     Lf524                   ;2/3       *
-    dec     ram_B3                  ;5         *
-    ldx     #$04                    ;2         *
-    bne     Lf52c                   ;2/3 =  17 *
+    tya
+    lsr
+    tay
+    bcc     Lf524
+    dec     ram_B3
+    ldx     #$04
+    bne     Lf52c
 Lf524
-    tya                             ;2         *
-    lsr                             ;2         *
-    bcc     Lf538                   ;2/3       *
-    inc     ram_B3                  ;5         *
-    ldx     #$08                    ;2   =  13 *
+    tya
+    lsr
+    bcc     Lf538
+    inc     ram_B3
+    ldx     #$08
 Lf52c
-    lda     #$05                    ;2         *
-    sta     ram_C0                  ;3         *
-    lda     #$15                    ;2   =   7 *
+    lda     #$05
+    sta     ram_C0
+    lda     #$15
 Lf532
-    sta     ram_85                  ;3         *
-    stx     ram_AB                  ;3         *
-    bne     Lf577                   ;2/3 =   8 *
+    sta     ram_85
+    stx     ram_AB
+    bne     Lf577
 Lf538
-    lda     ram_B3                  ;3         *
-    clc                             ;2         *
-    adc     #$10                    ;2         *
-    lsr                             ;2         *
-    lsr                             ;2         *
-    lsr                             ;2         *
-    lsr                             ;2         *
-    lsr                             ;2         *
-    tax                             ;2         *
-    lda     ram_CA                  ;3         *
-    cmp     #$58                    ;2         *
-    beq     Lf55f                   ;2/3       *
-    lda     Lfd84,x                 ;4         *
-    sta     ram_AB                  ;3         *
-    ldy     #$00                    ;2         *
-    sty     ram_E0                  ;3         *
-    sty     ram_AF                  ;3         *
-    lda     ram_CA                  ;3         *
-    cmp     #$18                    ;2         *
-    bne     Lf55c                   ;2/3       *
-    sty     ram_CA                  ;3   =  51 *
+    lda     ram_B3
+    clc
+    adc     #$10
+    lsr
+    lsr
+    lsr
+    lsr
+    lsr
+    tax
+    lda     ram_CA
+    cmp     #$58
+    beq     Lf55f
+    lda     Lfd84,x
+    sta     ram_AB
+    ldy     #$00
+    sty     ram_E0
+    sty     ram_AF
+    lda     ram_CA
+    cmp     #$18
+    bne     Lf55c
+    sty     ram_CA
 Lf55c
-    iny                             ;2         *
-    sty     ram_C0                  ;3   =   5 *
+    iny
+    sty     ram_C0
 Lf55f
-    lda     ram_C6                  ;3         *
-    and     #$48                    ;2         *
-    beq     Lf5c7                   ;2/3       *
-    bit     INPT4                   ;3         *
-    bmi     Lf5c7                   ;2/3       *
-    lda     #$fe                    ;2         *
-    sta     ram_C9                  ;3         *
-    lda     #$58                    ;2         *
-    sta     ram_CA                  ;3         *
-    sta     ram_AF                  ;3         *
-    lda     ram_C1                  ;3         *
-    and     #$0f                    ;2   =  30 *
+    lda     ram_C6
+    and     #$48
+    beq     Lf5c7
+    bit     INPT4
+    bmi     Lf5c7
+    lda     #$fe
+    sta     ram_C9
+    lda     #$58
+    sta     ram_CA
+    sta     ram_AF
+    lda     ram_C1
+    and     #$0f
 Lf577
-    bne     Lf5c7                   ;2/3       *
-    lda     #$01                    ;2         *
-    ldy     ram_88                  ;3         *
-    cpy     #$07                    ;2         *
-    beq     Lf583                   ;2/3       *
-    lda     #$02                    ;2   =  13 *
+    bne     Lf5c7
+    lda     #$01
+    ldy     ram_88
+    cpy     #$07
+    beq     Lf583
+    lda     #$02
 Lf583
-    jsr     Lfcae                   ;6         *
-    cpx     #$02                    ;2         *
-    bcs     Lf593                   ;2/3 =  10 *
+    jsr     Lfcae
+    cpx     #$02
+    bcs     Lf593
 Lf58a
-    jsr     Lfed5                   ;6         *
-    cpy     #$08                    ;2         *
-    bcs     Lf5c7                   ;2/3       *
-    bcc     Lf5c4                   ;2/3 =  12 *
+    jsr     Lfed5
+    cpy     #$08
+    bcs     Lf5c7
+    bcc     Lf5c4
 Lf593
-    cpx     #$02                    ;2         *
-    bne     Lf59d                   ;2/3       *
-    dec     ram_B2                  ;5         *
-    lda     #$05                    ;2         *
-    bne     Lf5b2                   ;2/3 =  13 *
+    cpx     #$02
+    bne     Lf59d
+    dec     ram_B2
+    lda     #$05
+    bne     Lf5b2
 Lf59d
-    cpx     #$06                    ;2         *
-    bcs     Lf5aa                   ;2/3       *
-    jsr     Lfeea                   ;6         *
-    cpy     #$07                    ;2         *
-    bcs     Lf5be                   ;2/3       *
-    bcc     Lf5c7                   ;2/3 =  16 *
+    cpx     #$06
+    bcs     Lf5aa
+    jsr     Lfeea
+    cpy     #$07
+    bcs     Lf5be
+    bcc     Lf5c7
 Lf5aa
-    cpx     #$07                    ;2         *
-    beq     Lf58a                   ;2/3       *
-    inc     ram_B2                  ;5         *
-    lda     #$09                    ;2   =  11 *
+    cpx     #$07
+    beq     Lf58a
+    inc     ram_B2
+    lda     #$09
 Lf5b2
-    sta     ram_AB                  ;3         *
-    ldx     #$0f                    ;2         *
-    stx     ram_85                  ;3         *
-    cpy     #$07                    ;2         *
-    beq     Lf5c7                   ;2/3       *
-    bcc     Lf5c4                   ;2/3 =  14 *
+    sta     ram_AB
+    ldx     #$0f
+    stx     ram_85
+    cpy     #$07
+    beq     Lf5c7
+    bcc     Lf5c4
 Lf5be
-    jsr     Lfd20                   ;6         *
-    jmp     Lf5c7                   ;3   =   9 *
+    jsr     Lfd20
+    jmp     Lf5c7
     
 Lf5c4
-    jsr     Lfd42                   ;6   =   6 *
+    jsr     Lfd42
 Lf5c7
-    lda     ram_B5                  ;3         *
-    cmp     #$02                    ;2         *
-    bcs     Lf5d0                   ;2/3 =   7 *
+    lda     ram_B5
+    cmp     #$02
+    bcs     Lf5d0
 Lf5cd
-    jmp     Lf76f                   ;3   =   3 *
+    jmp     Lf76f
     
 Lf5d0
-    bit     ram_F9                  ;3         *
-    bpl     Lf5d8                   ;2/3       *
-    lda     ram_E3                  ;3         *
-    bne     Lf5de                   ;2/3 =  10 *
+    bit     ram_F9
+    bpl     Lf5d8
+    lda     ram_E3
+    bne     Lf5de
 Lf5d8
-    lda     ram_A6                  ;3         *
-    cmp     #$bf                    ;2         *
-    bcs     Lf5cd                   ;2/3 =   7 *
+    lda     ram_A6
+    cmp     #$bf
+    bcs     Lf5cd
 Lf5de
-    lda     ram_A5                  ;3         *
-    cmp     #$d7                    ;2         *
-    bcs     Lf5cd                   ;2/3       *
-    sta     ram_AF                  ;3         *
-    cmp     #$c8                    ;2         *
-    bne     Lf615                   ;2/3!      *
-    dec     ram_A5                  ;5         *
-    ldy     #$00                    ;2         *
-    sty     ram_B2                  ;3         *
-    sty     ram_AB                  ;3         *
-    ldx     #$03                    ;2         *
-    stx     ram_B5                  ;3         *
-    stx     ram_85                  ;3         *
-    stx     ram_84                  ;3         *
-    ldx     #$09                    ;2         *
-    stx     ram_AA                  ;3         *
-    stx     ram_F6                  ;3         *
-    ldx     #$65                    ;2         *
-    lda     ram_B3                  ;3         *
-    bne     Lf612                   ;2/3       *
-    ldx     #$55                    ;2         *
-    lda     ram_88                  ;3         *
-    cmp     #$0d                    ;2         *
-    beq     Lf615                   ;2/3       *
-    bcs     Lf612                   ;2/3       *
-    ldx     #$60                    ;2   =  66 *
+    lda     ram_A5
+    cmp     #$d7
+    bcs     Lf5cd
+    sta     ram_AF
+    cmp     #$c8
+    bne     Lf615
+    dec     ram_A5
+    ldy     #$00
+    sty     ram_B2
+    sty     ram_AB
+    ldx     #$03
+    stx     ram_B5
+    stx     ram_85
+    stx     ram_84
+    ldx     #$09
+    stx     ram_AA
+    stx     ram_F6
+    ldx     #$65
+    lda     ram_B3
+    bne     Lf612
+    ldx     #$55
+    lda     ram_88
+    cmp     #$0d
+    beq     Lf615
+    bcs     Lf612
+    ldx     #$60
 Lf612
-    jsr     Lfcc7                   ;6   =   6 *
+    jsr     Lfcc7
 Lf615
-    ldx     ram_E8                  ;3         *
-    beq     Lf61c                   ;2/3 =   5 *
+    ldx     ram_E8
+    beq     Lf61c
 Lf619
-    jmp     Lf6ab                   ;3   =   3 *
+    jmp     Lf6ab
     
 Lf61c
-    lda     ram_AB                  ;3         *
-    and     #$0c                    ;2         *
-    ora     #$01                    ;2         *
-    sta     ram_AB                  ;3         *
-    lda     ram_84                  ;3         *
-    cmp     #$04                    ;2         *
-    bne     Lf635                   ;2/3       *
-    lda     ram_88                  ;3         *
-    adc     #$03                    ;2         *
-    ldx     ram_C6                  ;3         *
-    bpl     Lf63c                   ;2/3       *
-    lsr                             ;2         *
-    bpl     Lf63c                   ;2/3 =  31 *
+    lda     ram_AB
+    and     #$0c
+    ora     #$01
+    sta     ram_AB
+    lda     ram_84
+    cmp     #$04
+    bne     Lf635
+    lda     ram_88
+    adc     #$03
+    ldx     ram_C6
+    bpl     Lf63c
+    lsr
+    bpl     Lf63c
 Lf635
-    ldx     ram_A4                  ;3         *
-    lda     Lfda8,x                 ;4         *
-    sta     ram_C4                  ;3   =  10 *
+    ldx     ram_A4
+    lda     Lfda8,x
+    sta     ram_C4
 Lf63c
-    inc     ram_C2                  ;5         *
-    cmp     ram_C2                  ;3         *
-    bcs     Lf619                   ;2/3       *
-    lda     #$00                    ;2         *
-    sta     ram_C2                  ;3         *
-    jsr     Lfd42                   ;6         *
-    lda     ram_A5                  ;3         *
-    cmp     #$a7                    ;2         *
-    bcs     Lf690                   ;2/3       *
-    cmp     #$78                    ;2         *
-    bcc     Lf65b                   ;2/3       *
-    inc     ram_E1                  ;5         *
-    bne     Lf690                   ;2/3       *
-    dec     ram_E1                  ;5         *
-    bne     Lf690                   ;2/3 =  46 *
+    inc     ram_C2
+    cmp     ram_C2
+    bcs     Lf619
+    lda     #$00
+    sta     ram_C2
+    jsr     Lfd42
+    lda     ram_A5
+    cmp     #$a7
+    bcs     Lf690
+    cmp     #$78
+    bcc     Lf65b
+    inc     ram_E1
+    bne     Lf690
+    dec     ram_E1
+    bne     Lf690
 Lf65b
-    cmp     #$1e                    ;2         *
-    bne     Lf68a                   ;2/3       *
-    inc     ram_B5                  ;5         *
-    inc     ram_84                  ;5         *
-    ldx     #$02                    ;2         *
-    stx     ram_F2                  ;3         *
-    lda     #$40                    ;2         *
-    sta     ram_E9                  ;3         *
-    dec     ram_A5                  ;5         *
-    lda     #$00                    ;2         *
-    sta     ram_E7                  ;3         *
-    bit     ram_F9                  ;3         *
-    bpl     Lf67e                   ;2/3       *
-    stx     ram_88                  ;3         *
-    bit     ram_F7                  ;3         *
-    bpl     Lf680                   ;2/3       *
-    lda     #$27                    ;2         *
+    cmp     #$1e
+    bne     Lf68a
+    inc     ram_B5
+    inc     ram_84
+    ldx     #$02
+    stx     ram_F2
+    lda     #$40
+    sta     ram_E9
+    dec     ram_A5
+    lda     #$00
+    sta     ram_E7
+    bit     ram_F9
+    bpl     Lf67e
+    stx     ram_88
+    bit     ram_F7
+    bpl     Lf680
+    lda     #$27
     .byte   $2c ;bit                ;4-2 =  51 *
 Lf67e
-    lda     #$4f                    ;2   =   2 *
+    lda     #$4f
 Lf680
-    sta     ram_B2                  ;3         *
-    ldx     #$35                    ;2         *
-    lda     ram_CA                  ;3         *
-    cmp     #$41                    ;2         *
-    beq     Lf612                   ;2/3 =  12 *
+    sta     ram_B2
+    ldx     #$35
+    lda     ram_CA
+    cmp     #$41
+    beq     Lf612
 Lf68a
-    lda     ram_E1                  ;3         *
-    beq     Lf690                   ;2/3       *
-    dec     ram_E1                  ;5   =  10 *
+    lda     ram_E1
+    beq     Lf690
+    dec     ram_E1
 Lf690
-    lda     ram_A5                  ;3         *
-    cmp     #$30                    ;2         *
-    bcs     Lf6a0                   ;2/3       *
-    cmp     #$1e                    ;2         *
-    bcc     Lf6a0                   ;2/3       *
-    inc     ram_E7                  ;5         *
-    bne     Lf6a0                   ;2/3       *
-    dec     ram_E7                  ;5   =  23 *
+    lda     ram_A5
+    cmp     #$30
+    bcs     Lf6a0
+    cmp     #$1e
+    bcc     Lf6a0
+    inc     ram_E7
+    bne     Lf6a0
+    dec     ram_E7
 Lf6a0
-    dec     ram_C3                  ;5         *
-    bpl     Lf6ab                   ;2/3       *
-    lda     #$0a                    ;2         *
-    sta     ram_C3                  ;3         *
-    jsr     Lfeea                   ;6   =  18 *
+    dec     ram_C3
+    bpl     Lf6ab
+    lda     #$0a
+    sta     ram_C3
+    jsr     Lfeea
 Lf6ab
-    lda     ram_84                  ;3         *
-    cmp     #$04                    ;2         *
-    bne     Lf6c9                   ;2/3       *
-    dec     ram_EB                  ;5         *
-    bpl     Lf6c9                   ;2/3       *
-    lda     #$2a                    ;2         *
-    sta     ram_EB                  ;3         *
-    dec     ram_E9                  ;5         *
-    bpl     Lf6c9                   ;2/3       *
-    bit     ram_F0                  ;3         *
-    bmi     Lf6c9                   ;2/3       *
-    lda     ram_CA                  ;3         *
-    bne     Lf6c9                   ;2/3       *
-    lda     #$44                    ;2         *
-    sta     ram_CA                  ;3   =  41 *
+    lda     ram_84
+    cmp     #$04
+    bne     Lf6c9
+    dec     ram_EB
+    bpl     Lf6c9
+    lda     #$2a
+    sta     ram_EB
+    dec     ram_E9
+    bpl     Lf6c9
+    bit     ram_F0
+    bmi     Lf6c9
+    lda     ram_CA
+    bne     Lf6c9
+    lda     #$44
+    sta     ram_CA
 Lf6c9
-    lda     ram_A5                  ;3         *
-    cmp     #$78                    ;2         *
-    bcs     Lf721                   ;2/3!      *
-    ldx     #$1e                    ;2         *
-    stx     AUDF1                   ;3         *
-    ldx     #$08                    ;2         *
-    stx     AUDC1                   ;3         *
-    ldx     #$01                    ;2         *
-    bit     ram_F0                  ;3         *
-    bpl     Lf6df                   ;2/3       *
-    ldx     #$03                    ;2   =  26 *
+    lda     ram_A5
+    cmp     #$78
+    bcs     Lf721
+    ldx     #$1e
+    stx     AUDF1
+    ldx     #$08
+    stx     AUDC1
+    ldx     #$01
+    bit     ram_F0
+    bpl     Lf6df
+    ldx     #$03
 Lf6df
-    stx     AUDV1                   ;3         *
-    lda     ram_98                  ;3         *
-    bne     Lf736                   ;2/3!      *
-    ldy     ram_99                  ;3         *
-    bne     Lf736                   ;2/3!      *
-    lda     ram_E8                  ;3         *
-    bne     Lf712                   ;2/3!      *
-    dec     ram_E8                  ;5         *
-    ldx     #$98                    ;2         *
-    jsr     Lfce6                   ;6         *
-    ldx     #$15                    ;2         *
-    lda     ram_E9                  ;3         *
-    bpl     Lf71e                   ;2/3!      *
-    ldx     #$20                    ;2         *
-    cmp     #$eb                    ;2         *
-    bcc     Lf71e                   ;2/3       *
-    ldx     #$40                    ;2         *
-    lda     ram_F0                  ;3         *
-    beq     Lf71e                   ;2/3       *
-    lda     ram_88                  ;3         *
-    adc     #$05                    ;2         *
-    sta     ram_88                  ;3         *
-    and     #$10                    ;2         *
-    beq     Lf712                   ;2/3       *
-    sta     ram_88                  ;3   =  66 *
+    stx     AUDV1
+    lda     ram_98
+    bne     Lf736
+    ldy     ram_99
+    bne     Lf736
+    lda     ram_E8
+    bne     Lf712
+    dec     ram_E8
+    ldx     #$98
+    jsr     Lfce6
+    ldx     #$15
+    lda     ram_E9
+    bpl     Lf71e
+    ldx     #$20
+    cmp     #$eb
+    bcc     Lf71e
+    ldx     #$40
+    lda     ram_F0
+    beq     Lf71e
+    lda     ram_88
+    adc     #$05
+    sta     ram_88
+    and     #$10
+    beq     Lf712
+    sta     ram_88
 Lf712
-    lda     ram_B2                  ;3         *
-    cmp     #$18                    ;2         *
-    bcc     Lf724                   ;2/3       *
-    cmp     #$97                    ;2         *
-    bcs     Lf724                   ;2/3       *
-    ldx     #$10                    ;2   =  13 *
+    lda     ram_B2
+    cmp     #$18
+    bcc     Lf724
+    cmp     #$97
+    bcs     Lf724
+    ldx     #$10
 Lf71e
-    jsr     Lfcc7                   ;6   =   6 *
+    jsr     Lfcc7
 Lf721
-    jmp     Lf76f                   ;3   =   3 *
+    jmp     Lf76f
     
 Lf724
-    lda     ram_F3                  ;3         *
-    bne     Lf732                   ;2/3       *
-    lda     ram_88                  ;3         *
-    bne     Lf732                   ;2/3       *
-    inc     ram_F3                  ;5         *
-    lda     #$a2                    ;2         *
-    sta     ram_CA                  ;3   =  20 *
+    lda     ram_F3
+    bne     Lf732
+    lda     ram_88
+    bne     Lf732
+    inc     ram_F3
+    lda     #$a2
+    sta     ram_CA
 Lf732
-    lda     ram_E9                  ;3         *
-    cmp     #$90                    ;2   =   5 *
+    lda     ram_E9
+    cmp     #$90
 Lf736
-    bne     Lf76f                   ;2/3       *
-    ldx     #$30                    ;2         *
-    lda     ram_88                  ;3         *
-    beq     Lf743                   ;2/3       *
-    jsr     Lfcc7                   ;6         *
-    bcs     Lf76f                   ;2/3 =  17 *
+    bne     Lf76f
+    ldx     #$30
+    lda     ram_88
+    beq     Lf743
+    jsr     Lfcc7
+    bcs     Lf76f
 Lf743
-    sty     ram_96                  ;3         *
-    sty     ram_B6                  ;3         *
-    sty     ram_BA                  ;3         *
-    sty     ram_F9                  ;3         *
-    ldx     #$21                    ;2         *
-    bit     ram_F8                  ;3         *
-    bpl     Lf753                   ;2/3       *
-    ldx     #$19                    ;2   =  21 *
+    sty     ram_96
+    sty     ram_B6
+    sty     ram_BA
+    sty     ram_F9
+    ldx     #$21
+    bit     ram_F8
+    bpl     Lf753
+    ldx     #$19
 Lf753
-    stx     ram_85                  ;3         *
-    ldx     #$05                    ;2         *
-    bit     ram_F8                  ;3         *
-    bmi     Lf76b                   ;2/3       *
-    ldy     ram_E3                  ;3         *
-    beq     Lf76b                   ;2/3       *
-    inx                             ;2         *
-    cpy     #$06                    ;2         *
-    bne     Lf76b                   ;2/3       *
-    lda     ram_9B                  ;3         *
-    cmp     #$75                    ;2         *
-    bcc     Lf76b                   ;2/3       *
-    inx                             ;2   =  30 *
+    stx     ram_85
+    ldx     #$05
+    bit     ram_F8
+    bmi     Lf76b
+    ldy     ram_E3
+    beq     Lf76b
+    inx
+    cpy     #$06
+    bne     Lf76b
+    lda     ram_9B
+    cmp     #$75
+    bcc     Lf76b
+    inx
 Lf76b
-    stx     ram_84                  ;3         *
-    sty     ram_F8                  ;3   =   6 *
+    stx     ram_84
+    sty     ram_F8
 Lf76f
-    ldy     ram_F4                  ;3         *
-    beq     Lf789                   ;2/3       *
-    cpy     #$01                    ;2         *
-    bne     Lf77c                   ;2/3       *
-    beq     Lf786                   ;2/3       *
-Bank1_Entry_From_Bank0
-    jmp     Bank1_Handler                   ;3   =  14
+    ldy     ram_F4
+    beq     Lf789
+    cpy     #$01
+    bne     Lf77c
+    beq     Lf786
+bank1EntryFromBank0
+    jmp     bank1Handler
     
 Lf77c
-    cpy     #$02                    ;2         *
-    bne     Lf789                   ;2/3       *
-    jsr     Lfd20                   ;6         *
-    jmp     Lf789                   ;3   =  13 *
+    cpy     #$02
+    bne     Lf789
+    jsr     Lfd20
+    jmp     Lf789
     
 Lf786
-    jsr     Lfd42                   ;6   =   6 *
+    jsr     Lfd42
 Lf789
-    ldx     ram_85                  ;3         *
-    cpx     #$0d                    ;2         *
-    bne     Lf799                   ;2/3       *
-    clc                             ;2         *
-    lda     ram_B1                  ;3         *
-    sbc     ram_B0                  ;3         *
-    eor     #$ff                    ;2         *
-    jmp     Lf7c0                   ;3   =  20 *
+    ldx     ram_85
+    cpx     #$0d
+    bne     Lf799
+    clc
+    lda     ram_B1
+    sbc     ram_B0
+    eor     #$ff
+    jmp     Lf7c0
     
 Lf799
-    lda     ram_B2                  ;3         *
-    cpx     #$0f                    ;2         *
-    beq     Lf7be                   ;2/3       *
-    lda     ram_E9                  ;3         *
-    cpx     #$17                    ;2         *
-    beq     Lf7be                   ;2/3       *
-    lda     #$d2                    ;2         *
-    sec                             ;2         *
-    sbc     ram_A5                  ;3         *
-    cpx     #$11                    ;2         *
-    beq     Lf7be                   ;2/3       *
-    lda     ram_88                  ;3         *
-    asl                             ;2         *
-    asl                             ;2         *
-    sbc     #$1b                    ;2         *
-    cpx     #$13                    ;2         *
-    beq     Lf7be                   ;2/3       *
-    cpx     #$15                    ;2         *
-    bne     Lf7f5                   ;2/3       *
-    lda     ram_B3                  ;3   =  45 *
+    lda     ram_B2
+    cpx     #$0f
+    beq     Lf7be
+    lda     ram_E9
+    cpx     #$17
+    beq     Lf7be
+    lda     #$d2
+    sec
+    sbc     ram_A5
+    cpx     #$11
+    beq     Lf7be
+    lda     ram_88
+    asl
+    asl
+    sbc     #$1b
+    cpx     #$13
+    beq     Lf7be
+    cpx     #$15
+    bne     Lf7f5
+    lda     ram_B3
 Lf7be
-    cmp     #$80                    ;2   =   2 *
+    cmp     #$80
 Lf7c0
-    ldx     #$00                    ;2         *
-    bcc     Lf7ca                   ;2/3       *
-    ldx     #$a0                    ;2         *
-    eor     #$ff                    ;2         *
-    adc     #$00                    ;2   =  10 *
+    ldx     #$00
+    bcc     Lf7ca
+    ldx     #$a0
+    eor     #$ff
+    adc     #$00
 Lf7ca
-    stx     ram_A3                  ;3         *
-    tay                             ;2         *
-    lsr                             ;2         *
-    lsr                             ;2         *
-    lsr                             ;2         *
-    lsr                             ;2         *
-    tax                             ;2         *
-    lda     Lfd9a,x                 ;4         *
-    sta     ram_A2                  ;3         *
-    cpx     #$0d                    ;2         *
-    bcc     Lf7dd                   ;2/3       *
-    inc     ram_A3                  ;5   =  31 *
+    stx     ram_A3
+    tay
+    lsr
+    lsr
+    lsr
+    lsr
+    tax
+    lda     Lfd9a,x
+    sta     ram_A2
+    cpx     #$0d
+    bcc     Lf7dd
+    inc     ram_A3
 Lf7dd
-    cpx     #$07                    ;2         *
-    bcc     Lf7e3                   ;2/3       *
-    inc     ram_A3                  ;5   =   9 *
+    cpx     #$07
+    bcc     Lf7e3
+    inc     ram_A3
 Lf7e3
-    tya                             ;2         *
-    and     #$0f                    ;2         *
-    cmp     #$0a                    ;2         *
-    bcc     Lf7ec                   ;2/3       *
-    adc     #$05                    ;2   =  10 *
+    tya
+    and     #$0f
+    cmp     #$0a
+    bcc     Lf7ec
+    adc     #$05
 Lf7ec
-    sed                             ;2         *
-    adc     ram_A2                  ;3         *
-    sta     ram_A2                  ;3         *
-    bcc     Lf7f5                   ;2/3       *
-    inc     ram_A3                  ;5   =  15 *
+    sed
+    adc     ram_A2
+    sta     ram_A2
+    bcc     Lf7f5
+    inc     ram_A3
 Lf7f5
-    cld                             ;2   =   2 *
+    cld
 Lf7f6
-    ldx     #$06                    ;2        
-    ldy     ram_85                  ;3        
-    lda     ram_F1                  ;3        
-    beq     Lf800                   ;2/3!     
-    ldy     #$09                    ;2   =  12 *
+    ldx     #$06
+    ldy     ram_85
+    lda     ram_F1
+    beq     Lf800
+    ldy     #$09
 Lf800
-    sty     ram_FA                  ;3        
-    cpy     #$0d                    ;2        
-    bcc     Lf808                   ;2/3      
-    ldy     #$0d                    ;2   =   9
+    sty     ram_FA
+    cpy     #$0d
+    bcc     Lf808
+    ldy     #$0d
 Lf808
-    lda.wy  ram_96,y                ;4        
-    and     #$f0                    ;2        
-    lsr                             ;2        
-    jsr     Lfddc                   ;6        
-    dex                             ;2        
-    lda.wy  ram_96,y                ;4        
-    and     #$0f                    ;2        
-    asl                             ;2        
-    asl                             ;2        
-    asl                             ;2        
-    jsr     Lfddc                   ;6        
-    dey                             ;2        
-    dex                             ;2        
-    bpl     Lf808                   ;2/3      
-    ldx     #$06                    ;2        
-    ldy     #$54                    ;2   =  44
+    lda.wy  ram_96,y
+    and     #$f0
+    lsr
+    jsr     Lfddc
+    dex
+    lda.wy  ram_96,y
+    and     #$0f
+    asl
+    asl
+    asl
+    jsr     Lfddc
+    dey
+    dex
+    bpl     Lf808
+    ldx     #$06
+    ldy     #$54
 Lf825
-    lda     ram_CC,x                ;4        
-    bne     Lf82f                   ;2/3      
-    sty     ram_CC,x                ;4        
-    dex                             ;2        
-    dex                             ;2        
-    bne     Lf825                   ;2/3 =  16
+    lda     ram_CC,x
+    bne     Lf82f
+    sty     ram_CC,x
+    dex
+    dex
+    bne     Lf825
 Lf82f
-    lda     ram_FA                  ;3        
-    lsr                             ;2        
-    tax                             ;2        
-    lda     Lfe16,x                 ;4        
-    cpx     #$0c                    ;2        
-    bcs     Lf848                   ;2/3      
-    sta     ram_D6                  ;3         *
-    adc     #$06                    ;2         *
-    sta     ram_D4                  ;3         *
-    lda     #$de                    ;2         *
-    sta     ram_D7                  ;3         *
-    sta     ram_D5                  ;3         *
-    bne     Lf857                   ;2/3 =  33 *
+    lda     ram_FA
+    lsr
+    tax
+    lda     Lfe16,x
+    cpx     #$0c
+    bcs     Lf848
+    sta     ram_D6
+    adc     #$06
+    sta     ram_D4
+    lda     #$de
+    sta     ram_D7
+    sta     ram_D5
+    bne     Lf857
 Lf848
-    ldx     #$0a                    ;2        
-    ldy     #$df                    ;2        
-    clc                             ;2   =   6
+    ldx     #$0a
+    ldy     #$df
+    clc
 Lf84d
-    sta     ram_CC,x                ;4        
-    sty     ram_CD,x                ;4        
-    adc     #$07                    ;2        
-    dex                             ;2        
-    dex                             ;2        
-    bpl     Lf84d                   ;2/3 =  16
+    sta     ram_CC,x
+    sty     ram_CD,x
+    adc     #$07
+    dex
+    dex
+    bpl     Lf84d
 Lf857
-    ldx     INTIM                   ;4        
-    bne     Lf857                   ;2/3      
-    stx     WSYNC                   ;3   =   9
+    ldx     INTIM
+    bne     Lf857
+    stx     WSYNC
 ;---------------------------------------
-    ldy     ram_B4                  ;3        
-    beq     Lf870                   ;2/3      
-    lda     ram_C1                  ;3         *
-    and     #$02                    ;2         *
-    beq     Lf870                   ;2/3       *
-    cpy     #$05                    ;2         *
-    bne     Lf86e                   ;2/3       *
-    stx     WSYNC                   ;3   =  19 *
+    ldy     ram_B4
+    beq     Lf870
+    lda     ram_C1
+    and     #$02
+    beq     Lf870
+    cpy     #$05
+    bne     Lf86e
+    stx     WSYNC
 ;---------------------------------------
 Lf86e
-    stx     WSYNC                   ;3   =   3 *
+    stx     WSYNC
 ;---------------------------------------
 Lf870
-    stx     WSYNC                   ;3   =   3
+    stx     WSYNC
 ;---------------------------------------
-    sta     ram_FA                  ;3        
-    lda     #$0f                    ;2        
-    and     ram_B8                  ;3        
-    lsr                             ;2        
-    sta     VBLANK                  ;3        
-    dex                             ;2        
-    stx     PF2                     ;3        
-    inx                             ;2        
-    stx     VDELP0                  ;3        
-    stx     VDELP1                  ;3        
-    lda     #$80                    ;2        
-    sta     HMBL,x                  ;4        
-    lda     #$15                    ;2        
-    sta     CTRLPF                  ;3        
-    lda     ram_98                  ;3        
-    cmp     #$09                    ;2        
-    sta     RESBL                   ;3        
-    bcs     Lf8c2                   ;2/3      
-    ldy     ram_B7                  ;3        
-    beq     Lf8c8                   ;2/3      
-    ldy     ram_B5                  ;3        
-    bne     Lf8c2                   ;2/3      
-    eor     #$0f                    ;2        
-    sbc     #$05                    ;2        
-    rol                             ;2        
-    sta     ram_FA                  ;3        
-    sta     ram_FC                  ;3        
-    lda     #$14                    ;2        
-    sbc     ram_FA                  ;3        
-    asl                             ;2        
-    adc     #$0b                    ;2        
-    sta     ram_FB                  ;3        
-    lda     ram_B4                  ;3        
-    beq     Lf8bb                   ;2/3      
-    lda     ram_C1                  ;3         *
-    and     #$02                    ;2         *
-    beq     Lf8bb                   ;2/3       *
-    inc     ram_FC                  ;5         *
-    dec     ram_FA                  ;5   = 103 *
+    sta     ram_FA
+    lda     #$0f
+    and     ram_B8
+    lsr
+    sta     VBLANK
+    dex
+    stx     PF2
+    inx
+    stx     VDELP0
+    stx     VDELP1
+    lda     #$80
+    sta     HMBL,x
+    lda     #$15
+    sta     CTRLPF
+    lda     ram_98
+    cmp     #$09
+    sta     RESBL
+    bcs     Lf8c2
+    ldy     ram_B7
+    beq     Lf8c8
+    ldy     ram_B5
+    bne     Lf8c2
+    eor     #$0f
+    sbc     #$05
+    rol
+    sta     ram_FA
+    sta     ram_FC
+    lda     #$14
+    sbc     ram_FA
+    asl
+    adc     #$0b
+    sta     ram_FB
+    lda     ram_B4
+    beq     Lf8bb
+    lda     ram_C1
+    and     #$02
+    beq     Lf8bb
+    inc     ram_FC
+    dec     ram_FA
 Lf8bb
-    lda     ram_AE                  ;3        
-    adc     #$06                    ;2        
-    tay                             ;2        
-    bcc     Lf8fb                   ;2/3 =   9
+    lda     ram_AE
+    adc     #$06
+    tay
+    bcc     Lf8fb
 Lf8c2
-    ldy     ram_B5                  ;3         *
-    bne     Lf8c8                   ;2/3       *
-    inc     ram_B5                  ;5   =  10 *
+    ldy     ram_B5
+    bne     Lf8c8
+    inc     ram_B5
 Lf8c8
-    lda     #$01                    ;2        
-    sta     ram_FA                  ;3        
-    lda     ram_A4                  ;3        
-    lsr                             ;2        
-    eor     #$0f                    ;2        
-    tay                             ;2        
-    lda     ram_80                  ;3        
-    bit     ram_EC                  ;3        
-    beq     Lf8de                   ;2/3      
-    dec     ram_EC                  ;5         *
-    lda     #$1e                    ;2         *
-    bne     Lf8e8                   ;2/3 =  31 *
+    lda     #$01
+    sta     ram_FA
+    lda     ram_A4
+    lsr
+    eor     #$0f
+    tay
+    lda     ram_80
+    bit     ram_EC
+    beq     Lf8de
+    dec     ram_EC
+    lda     #$1e
+    bne     Lf8e8
 Lf8de
-    cmp     ram_E1                  ;3        
-    bcs     Lf8ed                   ;2/3      
-    and     #$07                    ;2         *
-    tay                             ;2         *
-    lda     Lfebf,y                 ;4   =  13 *
+    cmp     ram_E1
+    bcs     Lf8ed
+    and     #$07
+    tay
+    lda     Lfebf,y
 Lf8e8
-    sta     COLUP1                  ;3         *
-    jmp     Lf903                   ;3   =   6 *
+    sta     COLUP1
+    jmp     Lf903
     
 Lf8ed
-    cmp     ram_E7                  ;3        
-    bcs     Lf8f5                   ;2/3      
-    lda     #$08                    ;2         *
-    bne     Lf8e8                   ;2/3 =   9 *
+    cmp     ram_E7
+    bcs     Lf8f5
+    lda     #$08
+    bne     Lf8e8
 Lf8f5
-    lda     ram_B7                  ;3        
-    bne     Lf8fb                   ;2/3      
-    ldy     #$05                    ;2   =   7
+    lda     ram_B7
+    bne     Lf8fb
+    ldy     #$05
 Lf8fb
-    lda     Lfd8a,y                 ;4        
-    sta     COLUP1                  ;3        
-    lda     Lfec5,y                 ;4   =  11
+    lda     Lfd8a,y
+    sta     COLUP1
+    lda     Lfec5,y
 Lf903
-    sta     COLUBK                  ;3        
-    sta     ram_FD                  ;3   =   6
+    sta     COLUBK
+    sta     ram_FD
 Lf907
-    sta     WSYNC                   ;3   =   3
+    sta     WSYNC
 ;---------------------------------------
-    sta     HMOVE                   ;3        
-    lda     Lfe27,x                 ;4        
-    sta     PF0                     ;3        
-    lda     Lff01,x                 ;4        
-    sta     PF1                     ;3        
-    lda     Lfe31,x                 ;4        
-    sta     PF2                     ;3        
-    sta     HMCLR                   ;3        
-    inx                             ;2        
-    cpx     #$0a                    ;2        
-    bcc     Lf907                   ;2/3      
-    ldx     ram_FA                  ;3   =  36
+    sta     HMOVE
+    lda     Lfe27,x
+    sta     PF0
+    lda     Lff01,x
+    sta     PF1
+    lda     Lfe31,x
+    sta     PF2
+    sta     HMCLR
+    inx
+    cpx     #$0a
+    bcc     Lf907
+    ldx     ram_FA
 Lf923
-    sta     WSYNC                   ;3   =   3
+    sta     WSYNC
 ;---------------------------------------
-    lda     #$30                    ;2        
-    sta     PF0                     ;3        
-    lda     #$00                    ;2        
-    sta     PF1                     ;3        
-    sta     PF2                     ;3        
-    dex                             ;2        
-    bne     Lf923                   ;2/3      
-    lda     ram_B7                  ;3        
-    beq     Lf991                   ;2/3      
-    lda     ram_B5                  ;3        
-    bne     Lf991                   ;2/3      
-    sta     REFP0                   ;3        
-    lda     #$07                    ;2        
-    sta     NUSIZ0                  ;3        
-    lda     ram_86                  ;3        
-    jsr     Lfe00                   ;6        
-    ldx     #$0a                    ;2   =  46
+    lda     #$30
+    sta     PF0
+    lda     #$00
+    sta     PF1
+    sta     PF2
+    dex
+    bne     Lf923
+    lda     ram_B7
+    beq     Lf991
+    lda     ram_B5
+    bne     Lf991
+    sta     REFP0
+    lda     #$07
+    sta     NUSIZ0
+    lda     ram_86
+    jsr     Lfe00
+    ldx     #$0a
 Lf947
-    sta     WSYNC                   ;3   =   3
+    sta     WSYNC
 ;---------------------------------------
-    sta     HMOVE                   ;3        
-    lda     Lfe78,x                 ;4        
-    sta     GRP0                    ;3        
-    lda     Lfea0,x                 ;4        
-    adc     ram_AE                  ;3        
-    sta     COLUP0                  ;3        
-    lda     Lfe8c,x                 ;4        
-    sta     HMP0                    ;3        
-    dex                             ;2        
-    bne     Lf947                   ;2/3      
-    stx     WSYNC                   ;3   =  34
+    sta     HMOVE
+    lda     Lfe78,x
+    sta     GRP0
+    lda     Lfea0,x
+    adc     ram_AE
+    sta     COLUP0
+    lda     Lfe8c,x
+    sta     HMP0
+    dex
+    bne     Lf947
+    stx     WSYNC
 ;---------------------------------------
-    stx     GRP0                    ;3        
-    ldx     ram_FB                  ;3   =   6
+    stx     GRP0
+    ldx     ram_FB
 Lf965
-    stx     WSYNC                   ;3   =   3
+    stx     WSYNC
 ;---------------------------------------
-    dex                             ;2        
-    bne     Lf965                   ;2/3      
-    lda     ram_87                  ;3        
-    jsr     Lfe00                   ;6        
-    ldx     #$0a                    ;2   =  15
+    dex
+    bne     Lf965
+    lda     ram_87
+    jsr     Lfe00
+    ldx     #$0a
 Lf971
-    sta     WSYNC                   ;3   =   3
+    sta     WSYNC
 ;---------------------------------------
-    sta     HMOVE                   ;3        
-    lda     Lfe82,x                 ;4        
-    sta     GRP0                    ;3        
-    lda     Lfea0,x                 ;4        
-    adc     ram_AE                  ;3        
-    sta     COLUP0                  ;3        
-    lda     Lfe96,x                 ;4        
-    sta     HMP0                    ;3        
-    dex                             ;2        
-    bne     Lf971                   ;2/3      
-    stx     WSYNC                   ;3   =  34
+    sta     HMOVE
+    lda     Lfe82,x
+    sta     GRP0
+    lda     Lfea0,x
+    adc     ram_AE
+    sta     COLUP0
+    lda     Lfe96,x
+    sta     HMP0
+    dex
+    bne     Lf971
+    stx     WSYNC
 ;---------------------------------------
-    stx     GRP0                    ;3        
-    ldx     ram_FC                  ;3        
-    bne     Lf9fe                   ;2/3 =   8
+    stx     GRP0
+    ldx     ram_FC
+    bne     Lf9fe
 Lf991
-    cmp     #$04                    ;2        
-    beq     Lfa01                   ;2/3!     
-    txs                             ;2        
-    lda     #$04                    ;2        
-    sta     ram_FC                  ;3        
-    ldy     ram_89                  ;3        
-    lda     #$3c                    ;2        
-    sta     ram_FB                  ;3   =  19
+    cmp     #$04
+    beq     Lfa01
+    txs
+    lda     #$04
+    sta     ram_FC
+    ldy     ram_89
+    lda     #$3c
+    sta     ram_FB
 Lf9a0
-    sta     WSYNC                   ;3   =   3
+    sta     WSYNC
 ;---------------------------------------
-    sta     HMOVE                   ;3        
-    lda     (ram_DC),y              ;5        
-    sta     GRP0                    ;3        
-    lda     Lfeb9,y                 ;4        
-    sta     ENAM1                   ;3        
-    dec     ram_FB                  ;5        
-    bmi     Lf9f1                   ;2/3      
-    dey                             ;2        
-    sta     HMCLR                   ;3        
-    bmi     Lf9e5                   ;2/3      
-    cpy     #$02                    ;2        
-    beq     Lf9c2                   ;2/3      
-    cpy     #$08                    ;2        
-    beq     Lf9c2                   ;2/3      
-    cpy     #$0e                    ;2        
-    bne     Lf9a0                   ;2/3 =  44
+    sta     HMOVE
+    lda     (ram_DC),y
+    sta     GRP0
+    lda     Lfeb9,y
+    sta     ENAM1
+    dec     ram_FB
+    bmi     Lf9f1
+    dey
+    sta     HMCLR
+    bmi     Lf9e5
+    cpy     #$02
+    beq     Lf9c2
+    cpy     #$08
+    beq     Lf9c2
+    cpy     #$0e
+    bne     Lf9a0
 Lf9c2
-    tsx                             ;2        
-    inx                             ;2        
-    txs                             ;2        
-    lda     ram_89,x                ;4        
-    sta     ram_FA                  ;3        
-    lda     (ram_DC),y              ;5        
-    dey                             ;2        
-    sta     WSYNC                   ;3   =  23
+    tsx
+    inx
+    txs
+    lda     ram_89,x
+    sta     ram_FA
+    lda     (ram_DC),y
+    dey
+    sta     WSYNC
 ;---------------------------------------
-    sta     GRP0                    ;3        
-    lda     ram_FA                  ;3   =   6
+    sta     GRP0
+    lda     ram_FA
 Lf9d2
-    sbc     #$0f                    ;2        
-    bcs     Lf9d2                   ;2/3      
-    eor     #$0f                    ;2        
-    asl                             ;2        
-    asl                             ;2        
-    asl                             ;2        
-    asl                             ;2        
-    adc     #$80                    ;2        
-    sta     HMM1                    ;3        
-    sta     RESM1                   ;3        
-    jmp     Lf9a0                   ;3   =  25
+    sbc     #$0f
+    bcs     Lf9d2
+    eor     #$0f
+    asl
+    asl
+    asl
+    asl
+    adc     #$80
+    sta     HMM1
+    sta     RESM1
+    jmp     Lf9a0
     
 Lf9e5
-    dec     ram_FC                  ;5        
-    ldx     ram_FC                  ;3        
-    lda     ram_D8,x                ;4        
-    sta     ram_DC                  ;3        
-    ldy     #$11                    ;2        
-    bne     Lf9a0                   ;2/3 =  19
+    dec     ram_FC
+    ldx     ram_FC
+    lda     ram_D8,x
+    sta     ram_DC
+    ldy     #$11
+    bne     Lf9a0
 Lf9f1
-    ldx     #$ff                    ;2        
-    txs                             ;2        
-    inx                             ;2        
-    ldy     ram_89                  ;3        
-    cpy     #$14                    ;2        
-    bne     Lf9fd                   ;2/3      
-    sta     WSYNC                   ;3   =  16
+    ldx     #$ff
+    txs
+    inx
+    ldy     ram_89
+    cpy     #$14
+    bne     Lf9fd
+    sta     WSYNC
 ;---------------------------------------
 Lf9fd
-    inx                             ;2   =   2
+    inx
 Lf9fe
-    jmp     Lfba7                   ;3   =   3
+    jmp     Lfba7
     
 Lfa01
-    ldx     ram_A5                  ;3   =   3 *
+    ldx     ram_A5
 Lfa03
-    sta     WSYNC                   ;3   =   3 *
+    sta     WSYNC
 ;---------------------------------------
-    dex                             ;2         *
-    bpl     Lfa03                   ;2/3       *
-    lda     ram_88                  ;3         *
-    tax                             ;2         *
-    eor     #$1f                    ;2         *
-    sec                             ;2         *
-    sbc     #$0f                    ;2         *
-    sta     ram_FC                  ;3   =  18 *
+    dex
+    bpl     Lfa03
+    lda     ram_88
+    tax
+    eor     #$1f
+    sec
+    sbc     #$0f
+    sta     ram_FC
 Lfa12
-    sta     WSYNC                   ;3   =   3 *
+    sta     WSYNC
 ;---------------------------------------
-    dex                             ;2         *
-    bpl     Lfa12                   ;2/3       *
-    inx                             ;2         *
-    stx     REFP0                   ;3         *
-    lda     #$05                    ;2         *
-    sta     NUSIZ0                  ;3         *
-    lda     ram_86                  ;3         *
-    jsr     Lfdf5                   ;6         *
-    ldx     #$07                    ;2   =  25 *
+    dex
+    bpl     Lfa12
+    inx
+    stx     REFP0
+    lda     #$05
+    sta     NUSIZ0
+    lda     ram_86
+    jsr     Lfdf5
+    ldx     #$07
 Lfa25
-    sta     WSYNC                   ;3   =   3 *
+    sta     WSYNC
 ;---------------------------------------
-    sta     HMOVE                   ;3         *
-    lda     Lfdc5,x                 ;4         *
-    jsr     Lfb9c                   ;6         *
-    bne     Lfa25                   ;2/3       *
-    lda     ram_87                  ;3         *
-    jsr     Lfdf5                   ;6         *
-    ldx     #$07                    ;2   =  26 *
+    sta     HMOVE
+    lda     Lfdc5,x
+    jsr     Lfb9c
+    bne     Lfa25
+    lda     ram_87
+    jsr     Lfdf5
+    ldx     #$07
 Lfa38
-    sta     WSYNC                   ;3   =   3 *
+    sta     WSYNC
 ;---------------------------------------
-    sta     HMOVE                   ;3         *
-    lda     Lfdcc,x                 ;4         *
-    jsr     Lfb9c                   ;6         *
-    bne     Lfa38                   ;2/3       *
-    lda     ram_B2                  ;3         *
-    clc                             ;2         *
-    adc     #$6d                    ;2         *
-    bcs     Lfa4f                   ;2/3       *
-    cmp     #$a0                    ;2         *
-    bcc     Lfa51                   ;2/3 =  28 *
+    sta     HMOVE
+    lda     Lfdcc,x
+    jsr     Lfb9c
+    bne     Lfa38
+    lda     ram_B2
+    clc
+    adc     #$6d
+    bcs     Lfa4f
+    cmp     #$a0
+    bcc     Lfa51
 Lfa4f
-    sbc     #$a0                    ;2   =   2 *
+    sbc     #$a0
 Lfa51
-    jsr     Lfe00                   ;6         *
-    inx                             ;2         *
-    lda     ram_B2                  ;3         *
-    clc                             ;2         *
-    adc     #$24                    ;2         *
-    cmp     #$a0                    ;2         *
-    bcc     Lfa60                   ;2/3       *
-    sbc     #$a0                    ;2   =  21 *
+    jsr     Lfe00
+    inx
+    lda     ram_B2
+    clc
+    adc     #$24
+    cmp     #$a0
+    bcc     Lfa60
+    sbc     #$a0
 Lfa60
-    jsr     Lfe00                   ;6         *
-    lda     #$17                    ;2         *
-    sta     NUSIZ0                  ;3         *
-    sta     NUSIZ1                  ;3         *
-    ldy     #$24                    ;2         *
-    sty     COLUP0                  ;3         *
-    sty     COLUP1                  ;3         *
-    ldx     #$04                    ;2   =  24 *
+    jsr     Lfe00
+    lda     #$17
+    sta     NUSIZ0
+    sta     NUSIZ1
+    ldy     #$24
+    sty     COLUP0
+    sty     COLUP1
+    ldx     #$04
 Lfa71
-    sta     WSYNC                   ;3   =   3 *
+    sta     WSYNC
 ;---------------------------------------
-    sta     HMOVE                   ;3         *
-    lda     Lfdd7,x                 ;4         *
-    sta     COLUBK                  ;3         *
-    lda     Lfdd3,x                 ;4         *
-    sta     GRP0                    ;3         *
-    sta     GRP1                    ;3         *
-    dex                             ;2         *
-    sty     HMP0                    ;3         *
-    sty     HMP1                    ;3         *
-    bne     Lfa71                   ;2/3       *
-    sta     WSYNC                   ;3   =  33 *
+    sta     HMOVE
+    lda     Lfdd7,x
+    sta     COLUBK
+    lda     Lfdd3,x
+    sta     GRP0
+    sta     GRP1
+    dex
+    sty     HMP0
+    sty     HMP1
+    bne     Lfa71
+    sta     WSYNC
 ;---------------------------------------
-    stx     GRP0                    ;3         *
-    stx     GRP1                    ;3         *
-    sty     COLUBK                  ;3         *
-    lda     ram_B2                  ;3         *
-    cmp     #$50                    ;2         *
-    bcc     Lfa99                   ;2/3       *
-    adc     #$5f                    ;2         *
-    clc                             ;2   =  20 *
+    stx     GRP0
+    stx     GRP1
+    sty     COLUBK
+    lda     ram_B2
+    cmp     #$50
+    bcc     Lfa99
+    adc     #$5f
+    clc
 Lfa99
-    adc     #$52                    ;2         *
-    tay                             ;2         *
-    ldx     #$02                    ;2         *
-    jsr     Lfe00                   ;6         *
-    tya                             ;2         *
-    clc                             ;2         *
-    adc     #$01                    ;2         *
-    inx                             ;2         *
-    jsr     Lfe00                   ;6         *
-    sta     WSYNC                   ;3   =  29 *
+    adc     #$52
+    tay
+    ldx     #$02
+    jsr     Lfe00
+    tya
+    clc
+    adc     #$01
+    inx
+    jsr     Lfe00
+    sta     WSYNC
 ;---------------------------------------
-    sta     HMOVE                   ;3         *
-    jsr     Lff00                   ;6         *
-    ldy     #$00                    ;2         *
-    lda     ram_B2                  ;3         *
-    cmp     #$50                    ;2         *
-    bcc     Lfac5                   ;2/3       *
-    ldx     #$10                    ;2         *
-    stx     HMM0                    ;3         *
-    ldx     #$01                    ;2         *
-    stx     HMM1                    ;3         *
-    cmp     #$78                    ;2         *
-    jmp     Lfacf                   ;3   =  33 *
+    sta     HMOVE
+    jsr     Lff00
+    ldy     #$00
+    lda     ram_B2
+    cmp     #$50
+    bcc     Lfac5
+    ldx     #$10
+    stx     HMM0
+    ldx     #$01
+    stx     HMM1
+    cmp     #$78
+    jmp     Lfacf
     
 Lfac5
-    ldx     #$f0                    ;2         *
-    stx     HMM1                    ;3         *
-    ldx     #$00                    ;2         *
-    stx     HMM0                    ;3         *
-    cmp     #$28                    ;2   =  12 *
+    ldx     #$f0
+    stx     HMM1
+    ldx     #$00
+    stx     HMM0
+    cmp     #$28
 Lfacf
-    beq     Lfad7                   ;2/3       *
-    ldy     #$10                    ;2         *
-    bcc     Lfad7                   ;2/3       *
-    ldy     #$f0                    ;2   =   8 *
+    beq     Lfad7
+    ldy     #$10
+    bcc     Lfad7
+    ldy     #$f0
 Lfad7
-    sty     ram_E4,x                ;4         *
-    sta     WSYNC                   ;3   =   7 *
+    sty     ram_E4,x
+    sta     WSYNC
 ;---------------------------------------
-    lda     #$20                    ;2         *
-    sta     COLUBK                  ;3         *
-    lda     ram_B2                  ;3         *
-    cmp     #$50                    ;2         *
-    bcc     Lfae7                   ;2/3       *
-    sbc     #$50                    ;2   =  14 *
+    lda     #$20
+    sta     COLUBK
+    lda     ram_B2
+    cmp     #$50
+    bcc     Lfae7
+    sbc     #$50
 Lfae7
-    cmp     #$29                    ;2         *
-    bcc     Lfaef                   ;2/3       *
-    eor     #$ff                    ;2         *
-    sbc     #$b0                    ;2   =   8 *
+    cmp     #$29
+    bcc     Lfaef
+    eor     #$ff
+    sbc     #$b0
 Lfaef
-    lsr                             ;2         *
-    sta     ram_FA                  ;3         *
-    lda     ram_E8                  ;3         *
-    beq     Lfb02                   ;2/3!      *
-    lda     ram_C1                  ;3         *
-    and     #$03                    ;2         *
-    bne     Lfb02                   ;2/3!      *
-    lda     ram_B6                  ;3         *
-    beq     Lfb02                   ;2/3       *
-    dec     ram_E9                  ;5   =  27 *
+    lsr
+    sta     ram_FA
+    lda     ram_E8
+    beq     Lfb02
+    lda     ram_C1
+    and     #$03
+    bne     Lfb02
+    lda     ram_B6
+    beq     Lfb02
+    dec     ram_E9
 Lfb02
-    lda     ram_E9                  ;3         *
-    eor     #$ff                    ;2         *
-    clc                             ;2         *
-    adc     #$36                    ;2         *
-    sta     ram_FD                  ;3         *
-    sta     WSYNC                   ;3   =  15 *
+    lda     ram_E9
+    eor     #$ff
+    clc
+    adc     #$36
+    sta     ram_FD
+    sta     WSYNC
 ;---------------------------------------
-    lda     #$28                    ;2         *
-    sta     COLUBK                  ;3         *
-    lda     #$1d                    ;2         *
-    sec                             ;2         *
-    sbc     ram_A5                  ;3         *
-    clc                             ;2         *
-    adc     ram_FC                  ;3         *
-    sta     ram_FC                  ;3         *
-    ldy     #$0f                    ;2         *
-    lda     ram_C1                  ;3         *
-    and     #$10                    ;2         *
-    bne     Lfb25                   ;2/3       *
-    ldy     #$0a                    ;2   =  31 *
+    lda     #$28
+    sta     COLUBK
+    lda     #$1d
+    sec
+    sbc     ram_A5
+    clc
+    adc     ram_FC
+    sta     ram_FC
+    ldy     #$0f
+    lda     ram_C1
+    and     #$10
+    bne     Lfb25
+    ldy     #$0a
 Lfb25
-    sty     COLUP0                  ;3         *
-    sty     COLUP1                  ;3         *
-    sty     CXCLR                   ;3         *
-    ldy     #$00                    ;2   =  11 *
+    sty     COLUP0
+    sty     COLUP1
+    sty     CXCLR
+    ldy     #$00
 Lfb2d
-    sta     WSYNC                   ;3   =   3 *
+    sta     WSYNC
 ;---------------------------------------
-    sta     HMOVE                   ;3         *
-    iny                             ;2         *
-    cpy     ram_FA                  ;3         *
-    bcc     Lfb3e                   ;2/3       *
-    ldy     #$00                    ;2         *
-    lda     ram_E4,x                ;4         *
-    sta     HMM0,x                  ;4         *
-    bcs     Lfb42                   ;2/3 =  22 *
+    sta     HMOVE
+    iny
+    cpy     ram_FA
+    bcc     Lfb3e
+    ldy     #$00
+    lda     ram_E4,x
+    sta     HMM0,x
+    bcs     Lfb42
 Lfb3e
-    lda     #$00                    ;2         *
-    sta     HMM0,x                  ;4   =   6 *
+    lda     #$00
+    sta     HMM0,x
 Lfb42
-    lda     #$00                    ;2         *
-    dec     ram_FD                  ;5         *
-    bpl     Lfb4c                   ;2/3       *
-    sta     ENAM0                   ;3         *
-    bmi     Lfb5c                   ;2/3 =  14 *
+    lda     #$00
+    dec     ram_FD
+    bpl     Lfb4c
+    sta     ENAM0
+    bmi     Lfb5c
 Lfb4c
-    bit     CXM0FB                  ;3         *
-    bmi     Lfb52                   ;2/3       *
-    lda     #$02                    ;2   =   7 *
+    bit     CXM0FB
+    bmi     Lfb52
+    lda     #$02
 Lfb52
-    sta     ENAM0                   ;3         *
-    lda     #$00                    ;2         *
-    bit     CXM1FB                  ;3         *
-    bmi     Lfb5c                   ;2/3       *
-    lda     #$02                    ;2   =  12 *
+    sta     ENAM0
+    lda     #$00
+    bit     CXM1FB
+    bmi     Lfb5c
+    lda     #$02
 Lfb5c
-    sta     ENAM1                   ;3         *
-    dec     ram_FC                  ;5         *
-    bpl     Lfb2d                   ;2/3       *
-    txs                             ;2         *
-    ldx     #$0a                    ;2   =  14 *
+    sta     ENAM1
+    dec     ram_FC
+    bpl     Lfb2d
+    txs
+    ldx     #$0a
 Lfb65
-    sta     WSYNC                   ;3   =   3 *
+    sta     WSYNC
 ;---------------------------------------
-    sta     HMOVE                   ;3         *
-    lda     Lfe26,x                 ;4         *
-    sta     PF0                     ;3         *
-    lda     Lff00,x                 ;4         *
-    sta     PF1                     ;3         *
-    lda     Lfe30,x                 ;4         *
-    sta     PF2                     ;3         *
-    stx     ram_FB                  ;3         *
-    tsx                             ;2         *
-    iny                             ;2         *
-    cpy     ram_FA                  ;3         *
-    bcc     Lfb88                   ;2/3       *
-    ldy     #$00                    ;2         *
-    lda     ram_E4,x                ;4         *
-    sta     HMM0,x                  ;4         *
-    bcs     Lfb8c                   ;2/3 =  48 *
+    sta     HMOVE
+    lda     Lfe26,x
+    sta     PF0
+    lda     Lff00,x
+    sta     PF1
+    lda     Lfe30,x
+    sta     PF2
+    stx     ram_FB
+    tsx
+    iny
+    cpy     ram_FA
+    bcc     Lfb88
+    ldy     #$00
+    lda     ram_E4,x
+    sta     HMM0,x
+    bcs     Lfb8c
 Lfb88
-    lda     #$00                    ;2         *
-    sta     HMM0,x                  ;4   =   6 *
+    lda     #$00
+    sta     HMM0,x
 Lfb8c
-    dec     ram_FD                  ;5         *
-    bpl     Lfb94                   ;2/3       *
-    sta     ENAM0                   ;3         *
-    sta     ENAM1                   ;3   =  13 *
+    dec     ram_FD
+    bpl     Lfb94
+    sta     ENAM0
+    sta     ENAM1
 Lfb94
-    ldx     ram_FB                  ;3         *
-    dex                             ;2         *
-    bne     Lfb65                   ;2/3       *
-    jmp     Lfc38                   ;3   =  10 *
+    ldx     ram_FB
+    dex
+    bne     Lfb65
+    jmp     Lfc38
     
 Lfb9c
-    sta     GRP0                    ;3         *
-    lda     Lfdbe,x                 ;4         *
-    sta     COLUP0                  ;3         *
-    sta     HMCLR                   ;3         *
-    dex                             ;2         *
-    rts                             ;6   =  21 *
+    sta     GRP0
+    lda     Lfdbe,x
+    sta     COLUP0
+    sta     HMCLR
+    dex
+    rts
     
 Lfba7
-    stx     WSYNC                   ;3   =   3
+    stx     WSYNC
 ;---------------------------------------
-    dex                             ;2        
-    bne     Lfba7                   ;2/3      
-    stx     GRP0                    ;3        
-    stx     ENAM1                   ;3        
-    lda     ram_B7                  ;3        
-    beq     Lfbc2                   ;2/3      
-    lda     #$10                    ;2        
-    ldy     ram_B5                  ;3        
-    beq     Lfbc2                   ;2/3      
-    ldy     ram_FD                  ;3         *
-    cpy     #$90                    ;2         *
-    bne     Lfbc2                   ;2/3       *
-    lda     ram_88                  ;3   =  32 *
+    dex
+    bne     Lfba7
+    stx     GRP0
+    stx     ENAM1
+    lda     ram_B7
+    beq     Lfbc2
+    lda     #$10
+    ldy     ram_B5
+    beq     Lfbc2
+    ldy     ram_FD
+    cpy     #$90
+    bne     Lfbc2
+    lda     ram_88
 Lfbc2
-    sta     ram_FC                  ;3        
-    lda     ram_EF                  ;3        
-    sta     WSYNC                   ;3   =   9
+    sta     ram_FC
+    lda     ram_EF
+    sta     WSYNC
 ;---------------------------------------
-    and     #$0f                    ;2        
-    tay                             ;2        
-    nop                             ;2        
-    stx     COLUP0                  ;3        
-    ldx     #$11                    ;2        
-    stx     CTRLPF                  ;3        
-    lda     #$15                    ;2        
-    ldx     #$05                    ;2        
-    sta     NUSIZ0                  ;3   =  21
+    and     #$0f
+    tay
+    nop
+    stx     COLUP0
+    ldx     #$11
+    stx     CTRLPF
+    lda     #$15
+    ldx     #$05
+    sta     NUSIZ0
 Lfbd8
-    dex                             ;2        
-    bne     Lfbd8                   ;2/3      
-    sta     RESM0                   ;3        
-    sta     HMM0,x                  ;4        
-    lda     #$c0                    ;2        
-    sta     HMP0,x                  ;4        
-    dex                             ;2        
-    stx     ENAM0                   ;3        
-    ldx     #$11                    ;2        
-    lda     #PURPLE|$9              ;2        
-    sta     RESP0                   ;3   =  29
+    dex
+    bne     Lfbd8
+    sta     RESM0
+    sta     HMM0,x
+    lda     #$c0
+    sta     HMP0,x
+    dex
+    stx     ENAM0
+    ldx     #$11
+    lda     #PURPLE|$9
+    sta     RESP0
 Lfbec
-    sta     WSYNC                   ;3   =   3
+    sta     WSYNC
 ;---------------------------------------
-    sta     HMOVE                   ;3        
-    sta     COLUPF                  ;3        
-    lda     Lfe33,x                 ;4        
-    sta     PF0                     ;3        
-    lda     Lfe3b,x                 ;4        
-    sta     PF1                     ;3        
-    lda     Lfe43,x                 ;4        
-    sta     PF2                     ;3   =  27
+    sta     HMOVE
+    sta     COLUPF
+    lda     Lfe33,x
+    sta     PF0
+    lda     Lfe3b,x
+    sta     PF1
+    lda     Lfe43,x
+    sta     PF2
 Lfc01
-    lda     #$ff                    ;2        
-    sta     GRP0                    ;3        
-    dey                             ;2        
-    bpl     Lfc0a                   ;2/3      
-    ldy     #$0f                    ;2   =  11
+    lda     #$ff
+    sta     GRP0
+    dey
+    bpl     Lfc0a
+    ldy     #$0f
 Lfc0a
-    sta     HMCLR                   ;3        
-    lda     ram_FD                  ;3        
-    dec     ram_FC                  ;5        
-    bpl     Lfc18                   ;2/3      
-    lda     Lfe55,y                 ;4        
-    sec                             ;2        
-    adc     ram_EA                  ;3   =  22
+    sta     HMCLR
+    lda     ram_FD
+    dec     ram_FC
+    bpl     Lfc18
+    lda     Lfe55,y
+    sec
+    adc     ram_EA
 Lfc18
-    dex                             ;2        
-    beq     Lfc38                   ;2/3      
-    cpx     #$0a                    ;2        
-    bcs     Lfbec                   ;2/3!     
-    sta     WSYNC                   ;3   =  11
+    dex
+    beq     Lfc38
+    cpx     #$0a
+    bcs     Lfbec
+    sta     WSYNC
 ;---------------------------------------
-    sta     COLUBK                  ;3        
-    lda     #BLACK|$0               ;2        
-    sta     COLUPF                  ;3        
-    lda     Lfe26,x                 ;4        
-    sta     PF0                     ;3        
-    lda     Lff00,x                 ;4        
-    sta     PF1                     ;3        
-    lda     Lfe30,x                 ;4        
-    sta     PF2                     ;3        
-    bcc     Lfc01                   ;2/3 =  31
+    sta     COLUBK
+    lda     #BLACK|$0
+    sta     COLUPF
+    lda     Lfe26,x
+    sta     PF0
+    lda     Lff00,x
+    sta     PF1
+    lda     Lfe30,x
+    sta     PF2
+    bcc     Lfc01
 Lfc38
-    sta     WSYNC                   ;3   =   3
+    sta     WSYNC
 ;---------------------------------------
-    jmp     Lf000                   ;3   =   3
+    jmp     resetBank1
     
-Bank1_Handler
-    bit     ram_F9                  ;3        
-    bmi     Lfc89                   ;2/3      
-    lda     ram_B5                  ;3        
-    cmp     #$02                    ;2        
-    bne     Lfc60                   ;2/3      
-    bit     ram_C6                  ;3         *
-    bmi     Lfc5c                   ;2/3       *
-    lda     ram_E6                  ;3         *
-    bpl     Lfc60                   ;2/3       *
-    ldx     #$41                    ;2         *
-    stx     ram_CA                  ;3         *
-    cmp     #$ff                    ;2         *
-    bne     Lfc60                   ;2/3       *
-    ldx     #$85                    ;2         *
-    jsr     Lfcc7                   ;6   =  39 *
+bank1Handler
+    bit     ram_F9
+    bmi     Lfc89
+    lda     ram_B5
+    cmp     #$02
+    bne     Lfc60
+    bit     ram_C6
+    bmi     Lfc5c
+    lda     ram_E6
+    bpl     Lfc60
+    ldx     #$41
+    stx     ram_CA
+    cmp     #$ff
+    bne     Lfc60
+    ldx     #$85
+    jsr     Lfcc7
 Lfc5c
-    ldx     #$01                    ;2         *
-    stx     ram_E6                  ;3   =   5 *
+    ldx     #$01
+    stx     ram_E6
 Lfc60
-    lda     ram_ED                  ;3        
-    bne     Lfc89                   ;2/3      
-    bit     ram_C6                  ;3        
-    bpl     Lfc85                   ;2/3      
-    ldx     #$50                    ;2         *
-    lda     ram_B5                  ;3         *
-    beq     Lfc89                   ;2/3       *
-    and     #$01                    ;2         *
-    bne     Lfc82                   ;2/3       *
-    lda     ram_F0                  ;3         *
-    bne     Lfc89                   ;2/3       *
-    dec     ram_F0                  ;5         *
+    lda     ram_ED
+    bne     Lfc89
+    bit     ram_C6
+    bpl     Lfc85
+    ldx     #$50
+    lda     ram_B5
+    beq     Lfc89
+    and     #$01
+    bne     Lfc82
+    lda     ram_F0
+    bne     Lfc89
+    dec     ram_F0
     .byte   $2c ;bit                ;4-5 =  30 *
 Lfc79
-    inc     ram_F0                  ;5         *
-    ldx     #$72                    ;2         *
-    jsr     Lfce6                   ;6         *
-    bne     Lfc89                   ;2/3 =  15 *
+    inc     ram_F0
+    ldx     #$72
+    jsr     Lfce6
+    bne     Lfc89
 Lfc82
-    jsr     Lfcc7                   ;6   =   6 *
+    jsr     Lfcc7
 Lfc85
-    lda     ram_F0                  ;3        
-    bne     Lfc79                   ;2/3 =   5
+    lda     ram_F0
+    bne     Lfc79
 Lfc89
-    ldx     INTIM                   ;4        
-    bne     Lfc89                   ;2/3      
-    ldy     #$02                    ;2        
-    sty     WSYNC                   ;3   =  11
+    ldx     INTIM
+    bne     Lfc89
+    ldy     #$02
+    sty     WSYNC
 ;---------------------------------------
-    sty     VSYNC                   ;3        
-    lda     ram_F2                  ;3        
-    beq     Lfca2                   ;2/3      
-    lda     ram_CA                  ;3         *
-    bne     Lfca2                   ;2/3       *
-    dec     ram_F2                  ;5         *
-    lda     #$82                    ;2         *
-    sta     ram_CA                  ;3   =  23 *
+    sty     VSYNC
+    lda     ram_F2
+    beq     Lfca2
+    lda     ram_CA
+    bne     Lfca2
+    dec     ram_F2
+    lda     #$82
+    sta     ram_CA
 Lfca2
-    lda     ram_DE                  ;3        
-    jsr     Lfe00                   ;6        
-    stx     WSYNC                   ;3   =  12
+    lda     ram_DE
+    jsr     Lfe00
+    stx     WSYNC
 ;---------------------------------------
-    stx     VSYNC                   ;3        
-    jmp     Lf011                   ;3   =   6
+    stx     VSYNC
+    jmp     Lf011
     
 Lfcae
-    bit     ram_F8                  ;3        
-    bmi     Lfd09                   ;2/3!     
-    sed                             ;2        
-    sec                             ;2        
-    sta     ram_FA                  ;3        
-    lda     ram_9A                  ;3        
-    sbc     ram_FA                  ;3        
-    sta     ram_9A                  ;3        
-    lda     ram_9B                  ;3        
-    sbc     #$00                    ;2        
-    sta     ram_9B                  ;3        
-    cld                             ;2        
-    bcs     Lfd09                   ;2/3!     
-    ldx     #$99                    ;2   =  35 *
+    bit     ram_F8
+    bmi     Lfd09
+    sed
+    sec
+    sta     ram_FA
+    lda     ram_9A
+    sbc     ram_FA
+    sta     ram_9A
+    lda     ram_9B
+    sbc     #$00
+    sta     ram_9B
+    cld
+    bcs     Lfd09
+    ldx     #$99
 Lfcc7
-    sec                             ;2         *
-    lda     ram_B6                  ;3         *
-    beq     Lfd09                   ;2/3!      *
-    stx     ram_9F                  ;3         *
-    txa                             ;2         *
-    ldx     ram_F8                  ;3         *
-    beq     Lfced                   ;2/3       *
-    inx                             ;2         *
-    ldy     #$05                    ;2   =  21 *
+    sec
+    lda     ram_B6
+    beq     Lfd09
+    stx     ram_9F
+    txa
+    ldx     ram_F8
+    beq     Lfced
+    inx
+    ldy     #$05
 Lfcd6
-    cmp     Lfd09,y                 ;4         *
-    beq     Lfcf1                   ;2/3       *
-    dey                             ;2         *
-    bne     Lfcd6                   ;2/3       *
-    bit     ram_F9                  ;3         *
-    bmi     Lfd09                   ;2/3!      *
-    sta     ram_F1                  ;3         *
-    ldx     #$b4                    ;2   =  20 *
+    cmp     Lfd09,y
+    beq     Lfcf1
+    dey
+    bne     Lfcd6
+    bit     ram_F9
+    bmi     Lfd09
+    sta     ram_F1
+    ldx     #$b4
 Lfce6
-    stx     ram_CA                  ;3         *
-    ldx     #$fe                    ;2         *
-    stx     ram_C9                  ;3         *
-    rts                             ;6   =  14 *
+    stx     ram_CA
+    ldx     #$fe
+    stx     ram_C9
+    rts
     
 Lfced
-    stx     ram_9A                  ;3         *
-    stx     ram_9B                  ;3   =   6 *
+    stx     ram_9A
+    stx     ram_9B
 Lfcf1
-    stx     ram_BA                  ;3         *
-    stx     ram_F1                  ;3         *
-    stx     ram_B6                  ;3         *
-    stx     ram_B4                  ;3         *
-    stx     ram_AB                  ;3         *
-    stx     ram_E1                  ;3         *
-    stx     ram_B3                  ;3         *
-    stx     ram_E7                  ;3         *
-    stx     ram_F9                  ;3         *
-    stx     ram_F8                  ;3         *
-    ldx     #$1b                    ;2         *
-    stx     ram_85                  ;3   =  35 *
+    stx     ram_BA
+    stx     ram_F1
+    stx     ram_B6
+    stx     ram_B4
+    stx     ram_AB
+    stx     ram_E1
+    stx     ram_B3
+    stx     ram_E7
+    stx     ram_F9
+    stx     ram_F8
+    ldx     #$1b
+    stx     ram_85
 Lfd09
-    rts                             ;6   =   6
+    rts
     
     .byte   $95,$70,$75,$80,$10             ; $fd0a (*)
     
 Lfd0f
-    ora     ram_AB                  ;3         *
-    sta     ram_AB                  ;3         *
-    lda     ram_E3                  ;3         *
-    beq     Lfd1d                   ;2/3       *
-    bit     ram_80                  ;3         *
-    bmi     Lfd1d                   ;2/3       *
-    inc     ram_B0                  ;5   =  21 *
+    ora     ram_AB
+    sta     ram_AB
+    lda     ram_E3
+    beq     Lfd1d
+    bit     ram_80
+    bmi     Lfd1d
+    inc     ram_B0
 Lfd1d
-    ldx     #$0f                    ;2         *
-    rts                             ;6   =   8 *
+    ldx     #$0f
+    rts
     
 Lfd20
-    lda     ram_A5                  ;3         *
-    cmp     #$ff                    ;2         *
-    beq     Lfd40                   ;2/3       *
-    sed                             ;2         *
-    lda     ram_98                  ;3         *
-    clc                             ;2         *
-    adc     #$01                    ;2         *
-    sta     ram_98                  ;3         *
-    bcc     Lfd38                   ;2/3       *
-    lda     ram_99                  ;3         *
-    adc     #$00                    ;2         *
-    sta     ram_99                  ;3         *
-    inc     ram_A4                  ;5   =  34 *
+    lda     ram_A5
+    cmp     #$ff
+    beq     Lfd40
+    sed
+    lda     ram_98
+    clc
+    adc     #$01
+    sta     ram_98
+    bcc     Lfd38
+    lda     ram_99
+    adc     #$00
+    sta     ram_99
+    inc     ram_A4
 Lfd38
-    lda     ram_98                  ;3         *
-    and     #$0f                    ;2         *
-    bne     Lfd40                   ;2/3 =   7 *
+    lda     ram_98
+    and     #$0f
+    bne     Lfd40
 Lfd3e
-    inc     ram_A5                  ;5   =   5 *
+    inc     ram_A5
 Lfd40
-    cld                             ;2         *
-    rts                             ;6   =   8 *
+    cld
+    rts
     
 Lfd42
-    sed                             ;2         *
-    lda     ram_98                  ;3         *
-    sec                             ;2         *
-    sbc     #$01                    ;2         *
-    sta     ram_98                  ;3         *
-    bcs     Lfd54                   ;2/3       *
-    lda     ram_99                  ;3         *
-    sbc     #$00                    ;2         *
-    sta     ram_99                  ;3         *
-    dec     ram_A4                  ;5   =  27 *
+    sed
+    lda     ram_98
+    sec
+    sbc     #$01
+    sta     ram_98
+    bcs     Lfd54
+    lda     ram_99
+    sbc     #$00
+    sta     ram_99
+    dec     ram_A4
 Lfd54
-    lda     ram_98                  ;3         *
-    and     #$0f                    ;2         *
-    bne     Lfd40                   ;2/3       *
-    dec     ram_A5                  ;5         *
-    lda     ram_A5                  ;3         *
-    cmp     #$ff                    ;2         *
-    bne     Lfd40                   ;2/3       *
-    beq     Lfd3e                   ;2/3 =  21 *
+    lda     ram_98
+    and     #$0f
+    bne     Lfd40
+    dec     ram_A5
+    lda     ram_A5
+    cmp     #$ff
+    bne     Lfd40
+    beq     Lfd3e
     
 Lfd64
     .byte   $01,$0f,$12,$0d,$05,$19,$66,$6e ; $fd64 (D)
@@ -4064,47 +4064,47 @@ Lfdd7
     .byte   $88,$ae,$7c,$7a,$78             ; $fdd7 (*)
     
 Lfddc
-    cpy     #$04                    ;2        
-    bcs     Lfde6                   ;2/3      
-    bit     ram_E1                  ;3         *
-    bpl     Lfde6                   ;2/3       *
-    lda     #$50                    ;2   =  11 *
+    cpy     #$04
+    bcs     Lfde6
+    bit     ram_E1
+    bpl     Lfde6
+    lda     #$50
 Lfde6
-    sta     ram_CC,x                ;4        
-    lda     #$de                    ;2        
-    sta     ram_CD,x                ;4        
-    dex                             ;2        
-    rts                             ;6   =  18
+    sta     ram_CC,x
+    lda     #$de
+    sta     ram_CD,x
+    dex
+    rts
     
 Lfdee
     .byte   $15,$20,$25,$30,$35,$40,$40     ; $fdee (*)
     
 Lfdf5
-    clc                             ;2         *
-    adc     ram_B2                  ;3         *
-    bcs     Lfdfe                   ;2/3       *
-    cmp     #$a0                    ;2         *
-    bcc     Lfe00                   ;2/3!=  11 *
+    clc
+    adc     ram_B2
+    bcs     Lfdfe
+    cmp     #$a0
+    bcc     Lfe00
 Lfdfe
-    sbc     #$9f                    ;2   =   2 *
+    sbc     #$9f
 Lfe00
-    sta     WSYNC                   ;3   =   3
+    sta     WSYNC
 ;---------------------------------------
-    sec                             ;2   =   2
+    sec
 Lfe03
-    sbc     #$0f                    ;2        
-    bcs     Lfe03                   ;2/3      
-    eor     #$0f                    ;2        
-    asl                             ;2        
-    asl                             ;2        
-    asl                             ;2        
-    asl                             ;2        
-    adc     #$80                    ;2        
-    sta     RESP0,x                 ;4        
-    sta     WSYNC                   ;3   =  23
+    sbc     #$0f
+    bcs     Lfe03
+    eor     #$0f
+    asl
+    asl
+    asl
+    asl
+    adc     #$80
+    sta     RESP0,x
+    sta     WSYNC
 ;---------------------------------------
-    sta     HMP0,x                  ;4        
-    rts                             ;6   =  10
+    sta     HMP0,x
+    rts
     
 Lfe16
     .byte   $7f,$73,$5b,$67,$8b,$df,$97,$a3 ; $fe16 (*)
@@ -4188,21 +4188,21 @@ Lfe55
     .byte   PURPLE|$3                       ; $fe64 (CP)
     
 Lfe65
-    lda     #$00                    ;2        
-    ldx     #$77                    ;2   =   4
+    lda     #$00
+    ldx     #$77
 Lfe69
-    sta     ram_80,x                ;4        
-    dex                             ;2        
-    bne     Lfe69                   ;2/3 =   8
+    sta     ram_80,x
+    dex
+    bne     Lfe69
 Lfe6e
-    ldx     #$21                    ;2   =   2
+    ldx     #$21
 Lfe70
-    lda     Lfd64,x                 ;4        
-    sta     ram_80,x                ;4        
-    dex                             ;2        
-    bpl     Lfe70                   ;2/3 =  12
+    lda     Lfd64,x
+    sta     ram_80,x
+    dex
+    bpl     Lfe70
 Lfe78
-    rts                             ;6   =   6
+    rts
     
     .byte   %10001000 ; |#   #   |            $fe79 (G)
     .byte   %11001100 ; |##  ##  |            $fe7a (G)
@@ -4273,39 +4273,39 @@ Lfec5
     .byte   $60,$70,$82,$62,$64,$84,$86     ; $fece (*)
     
 Lfed5
-    inc     ram_A6                  ;5         *
-    bne     Lfedc                   ;2/3       *
-    dec     ram_A6                  ;5         *
-    rts                             ;6   =  18 *
+    inc     ram_A6
+    bne     Lfedc
+    dec     ram_A6
+    rts
     
 Lfedc
-    sed                             ;2         *
-    lda     ram_96                  ;3         *
-    clc                             ;2         *
-    adc     #$01                    ;2         *
-    sta     ram_96                  ;3         *
-    lda     ram_97                  ;3         *
-    adc     #$00                    ;2         *
-    bcc     Lfefd                   ;2/3 =  19 *
+    sed
+    lda     ram_96
+    clc
+    adc     #$01
+    sta     ram_96
+    lda     ram_97
+    adc     #$00
+    bcc     Lfefd
 Lfeea
-    dec     ram_A6                  ;5         *
-    bne     Lfef1                   ;2/3       *
-    inc     ram_A6                  ;5         *
-    rts                             ;6   =  18 *
+    dec     ram_A6
+    bne     Lfef1
+    inc     ram_A6
+    rts
     
 Lfef1
-    sed                             ;2         *
-    sec                             ;2         *
-    lda     ram_96                  ;3         *
-    sbc     #$01                    ;2         *
-    sta     ram_96                  ;3         *
-    lda     ram_97                  ;3         *
-    sbc     #$00                    ;2   =  17 *
+    sed
+    sec
+    lda     ram_96
+    sbc     #$01
+    sta     ram_96
+    lda     ram_97
+    sbc     #$00
 Lfefd
-    sta     ram_97                  ;3         *
-    cld                             ;2   =   5 *
+    sta     ram_97
+    cld
 Lff00
-    rts                             ;6   =   6 *
+    rts
     
 Lff01
     .byte   %11000000 ; |**      |            $ff01 (P)
