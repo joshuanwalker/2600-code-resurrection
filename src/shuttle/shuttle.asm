@@ -126,10 +126,10 @@ TIM64T          = $0296
 ;-----------------------------------------------------------
 
 rngSeed         = $80
-ram_81          = $81
-ram_82          = $82
-ram_83          = $83
-ram_84          = $84
+crosshairX          = $81
+targetX          = $82
+targetAuxX          = $83
+currentScreenId          = $84
 ram_85          = $85
 ram_86          = $86
 ram_87          = $87
@@ -201,18 +201,18 @@ ram_C8          = $c8
 ram_C9          = $c9
 ram_CA          = $ca
 ram_CB          = $cb
-dashboardPtr1L          = $cc
-dashboardPtr1H          = $cd
-dashboardPtr2L          = $ce
-dashboardPtr2H          = $cf
-dashboardPtr3L          = $d0
-dashboardPtr3H          = $d1
-dashboardPtr4L          = $d2
-dashboardPtr4H          = $d3
-dashboardPtr5L          = $d4
-dashboardPtr5H          = $d5
-dashboardPtr6L          = $d6
-dashboardPtr6H          = $d7
+screenPtr1L          = $cc
+screenPtr1H          = $cd
+screenPtr2L          = $ce
+screenPtr2H          = $cf
+screenPtr3L          = $d0
+screenPtr3H          = $d1
+screenPtr4L          = $d2
+screenPtr4H          = $d3
+screenPtr5L          = $d4
+screenPtr5H          = $d5
+screenPtr6L          = $d6
+screenPtr6H          = $d7
 ram_D8          = $d8
 ;                 $d9  (i)
 ;                 $da  (i)
@@ -225,12 +225,12 @@ ram_E0          = $e0
 ram_E1          = $e1
 ram_E2          = $e2
 ram_E3          = $e3
-ram_E4          = $e4
+starfieldHorizontalMotion          = $e4
 
 ram_E6          = $e6; (s)
 ram_E7          = $e7
 ram_E8          = $e8
-ram_E9          = $e9
+starfieldScrollY          = $e9
 ram_EA          = $ea
 ram_EB          = $eb
 ram_EC          = $ec
@@ -250,7 +250,7 @@ ram_F9          = $f9
 ram_FA          = $fa
 ram_FB          = $fb
 ram_FC          = $fc
-ram_FD          = $fd
+starfieldVerticalCounter          = $fd
 ;                 $fe  (s)
 ;                 $ff  (s)
 
@@ -275,10 +275,10 @@ Start           = $f003
 
     SEG     CODE
     ORG     $0000
-    RORG    $f000
+    RORG    $d000
 
 resetBank0
-    bit     bank1Strobe                     ; $f000 (*)
+    bit     bank1Strobe                     ; $d000 *)
     
 ;-----------------------------------------------------------
 ;      Code
@@ -312,10 +312,10 @@ startBank0Kernel
     sta     HMOVE
     stx     PF0
     stx     PF1
-    lda     ram_82
+    lda     targetX
     sta     HMCLR
     jsr     $d958
-    lda     ram_83
+    lda     targetAuxX
     inx
     jsr     $d958
     lda     #YELLOW|$8
@@ -360,20 +360,20 @@ waitForVBlankTimer
     stx     RESBL
     ldx     ram_E3
     cpx     #$04
-    bcc     Lf0a3
+    bcc     Ld0a3
     lda     ram_B5
     cmp     #$02
-    bne     Lf0a3
+    bne     Ld0a3
     lda     ram_C1
     and     $debd,x
-    bne     Lf0a3
+    bne     Ld0a3
     bit     rngSeed
-    bmi     Lf0a1
+    bmi     Ld0a1
     dec     ram_B2
     .byte   $2c ;bit                ;4-5 =  60 *
-Lf0a1
+Ld0a1
     inc     ram_B2
-Lf0a3
+Ld0a3
     sta     WSYNC
 ;---------------------------------------
     sta     HMOVE
@@ -389,7 +389,7 @@ Lf0a3
     sta     HMCLR
     sta     ENABL
     sta     RESP1
-Lf0bf
+Ld0bf
     sta     WSYNC
 ;---------------------------------------
     lda     #$30
@@ -413,7 +413,7 @@ Lf0bf
     sta.w   RESP0
     sty     PF0
     dex
-    bne     Lf0bf
+    bne     Ld0bf
     sta     WSYNC
 ;---------------------------------------
     sta     HMOVE
@@ -431,22 +431,22 @@ Lf0bf
     sta     COLUP0
     ldx     #BLACK|$c
     lda     ram_A1
-    beq     Lf11d
+    beq     Ld11d
     lda     ram_C1
     and     #$20
-    beq     Lf11d
+    beq     Ld11d
     ldx     #$82
-Lf11d
+Ld11d
     stx     COLUP1
     ldx     #$08
-    lda     ram_81
+    lda     crosshairX
     sta     WSYNC
 ;---------------------------------------
     sta     HMOVE
     sec
-Lf128
+Ld128
     sbc     #$0f
-    bcs     Lf128
+    bcs     Ld128
     eor     #$0f
     asl
     asl
@@ -488,21 +488,21 @@ kernelDrawCockpitWindows
     sec
     sbc     ram_B0
     cmp     #$80
-    bne     Lf180
+    bne     Ld180
     ldx     ram_E2
     cpx     #$ff
-    bne     Lf180
+    bne     Ld180
     inc     ram_E2
     lda     rngSeed
     sta     ram_B2
-Lf180
+Ld180
     ldx     #BLACK|$4
-Lf182
+Ld182
     sta     WSYNC
 ;---------------------------------------
     sta     HMOVE
     dex
-    bne     Lf182
+    bne     Ld182
     stx     COLUBK
     stx     REFP0
     stx     REFP1
@@ -530,27 +530,27 @@ Lf182
     sty     COLUBK
     lda     #$fe
     sta     PF2
-    bcs     Lf1cd
+    bcs     Ld1cd
     lda     ram_C1
     and     #$10
-    beq     Lf1cd
+    beq     Ld1cd
     ldx     #$86
     stx     COLUPF
     ldy     #$80
-    bne     Lf1e1
-Lf1cd
+    bne     Ld1e1
+Ld1cd
     stx     COLUPF
     ldy     #BLACK|$a
     lda     ram_85
     cmp     #$19
-    bcc     Lf1df
-    beq     Lf1e1
+    bcc     Ld1df
+    beq     Ld1e1
     lda     ram_C1
     and     #$10
-    beq     Lf1e1
-Lf1df
+    beq     Ld1e1
+Ld1df
     ldy     #$58
-Lf1e1
+Ld1e1
     sty     COLUP0
     sty     COLUP1
     sta     HMCLR
@@ -572,16 +572,16 @@ Lf1e1
     sty     ram_F5
     sty     NUSIZ0
     lda     ram_F1
-    bne     Lf217
+    bne     Ld217
     lda     ram_85
     cmp     #$17
-    beq     Lf214
+    beq     Ld214
     cmp     #$05
-    bcs     Lf217
-Lf214
+    bcs     Ld217
+Ld214
     asl
     sta     ENAM0
-Lf217
+Ld217
     sta     WSYNC
 ;---------------------------------------
     sta     HMOVE
@@ -609,72 +609,72 @@ Lf217
     lda     #$17
     sta     CTRLPF
     lda     #$d9
-    sta     dashboardPtr1H
-    lda     ram_84
+    sta     screenPtr1H
+    lda     currentScreenId
     and     #$01
-    beq     Lf252
+    beq     Ld252
     lda     #$7d
-Lf252
+Ld252
     ldx     #$08
     clc
     sta     HMCLR
     sta     WSYNC
 ;---------------------------------------
     sta     HMOVE
-Lf25b
-    sta     dashboardPtr2L,x
+Ld25b
+    sta     screenPtr2L,x
     adc     #$19
     dex
     dex
-    bpl     Lf25b
+    bpl     Ld25b
     sta     WSYNC
 ;---------------------------------------
     sta     HMOVE
-    lda     ram_84
+    lda     currentScreenId
     lsr
     clc
     adc     #$da
-    sta     dashboardPtr6H
-    sta     dashboardPtr5H
-    sta     dashboardPtr4H
-    sta     dashboardPtr3H
-    sta     dashboardPtr2H
+    sta     screenPtr6H
+    sta     screenPtr5H
+    sta     screenPtr4H
+    sta     screenPtr3H
+    sta     screenPtr2H
     lda     ram_C1
-    ldx     ram_84
+    ldx     currentScreenId
     bit     ram_E1
-    bpl     Lf285
+    bpl     Ld285
     and     #$fc
-    beq     Lf28a
-    bne     Lf290
-Lf285
+    beq     Ld28a
+    bne     Ld290
+Ld285
     and     $d9f8,x
-    beq     Lf290
-Lf28a
+    beq     Ld290
+Ld28a
     lda     #$e5
     sec
     sbc     ram_AC
     .byte   $2c ;bit                ;4-2 =   9 *
-Lf290
+Ld290
     lda     #$cc
-    sta     dashboardPtr1L
+    sta     screenPtr1L
     lda     #$06
     sta     PF2
-kernelDrawDashboard
-    lda     (dashboardPtr1L),y
+kernelDrawMainView
+    lda     (screenPtr1L),y
     sta     ENABL
     sta     WSYNC
 ;---------------------------------------
     sta     HMOVE
     sty     ram_FB
-    lda     (dashboardPtr6L),y
+    lda     (screenPtr6L),y
     sta     GRP0
-    lda     (dashboardPtr5L),y
+    lda     (screenPtr5L),y
     sta     GRP1
-    lda     (dashboardPtr4L),y
+    lda     (screenPtr4L),y
     sta     GRP0
-    lda     (dashboardPtr3L),y
+    lda     (screenPtr3L),y
     tax
-    lda     (dashboardPtr2L),y
+    lda     (screenPtr2L),y
     ldy     #$00
     stx     GRP1
     sta     GRP0
@@ -682,7 +682,7 @@ kernelDrawDashboard
     sty     GRP0
     ldy     ram_FB
     dey
-    bpl     kernelDrawDashboard
+    bpl     kernelDrawMainView
     iny
     sty     GRP1
     sty     ENABL
@@ -705,13 +705,13 @@ kernelDrawDashboard
     cmp     #$14
     stx     HMBL
     sta     RESBL
-    bcs     Lf2f4
+    bcs     Ld2f4
     ldy     #$00
     cmp     #$0c
-    bcc     Lf2f4
+    bcc     Ld2f4
     sbc     #$0c
     tay
-Lf2f4
+Ld2f4
     sty     ram_FA
     tya
     eor     #$07
@@ -722,16 +722,16 @@ Lf2f4
 ;---------------------------------------
     sta     HMOVE
     sec
-Lf304
-    sta     dashboardPtr2L,x
+Ld304
+    sta     screenPtr2L,x
     sbc     #$08
-    sta     dashboardPtr1L,x
+    sta     screenPtr1L,x
     sbc     #$08
     dex
     dex
     dex
     dex
-    bpl     Lf304
+    bpl     Ld304
     sta     HMCLR
     sta     HMOVE
     ldx     #$00
@@ -740,12 +740,12 @@ Lf304
     lda     #BLACK|$8
     sta     COLUBK
     lda     #$d8
-    sta     dashboardPtr1H
-    sta     dashboardPtr2H
-    sta     dashboardPtr3H
-    sta     dashboardPtr4H
-    sta     dashboardPtr5H
-    sta     dashboardPtr6H
+    sta     screenPtr1H
+    sta     screenPtr2H
+    sta     screenPtr3H
+    sta     screenPtr4H
+    sta     screenPtr5H
+    sta     screenPtr6H
     sta     WSYNC
 ;---------------------------------------
     stx     COLUBK
@@ -807,36 +807,36 @@ kernelDrawStatusBar
     stx     GRP0
     stx     NUSIZ1
     ldx     ram_B4
-    beq     Lf3aa
+    beq     Ld3aa
     lda     ram_C1
     and     #$02
-    bne     Lf3ac
+    bne     Ld3ac
     inx
-Lf3aa
+Ld3aa
     stx     WSYNC
 ;---------------------------------------
-Lf3ac
+Ld3ac
     stx     WSYNC
 ;---------------------------------------
     cpx     #$05
-    beq     Lf3b4
+    beq     Ld3b4
     stx     WSYNC
 ;---------------------------------------
-Lf3b4
+Ld3b4
     ldx     #$dc
     stx     TIM8T
     bit     ram_F9
-    bmi     Lf403
+    bmi     Ld403
     lda     ram_B6
-    beq     Lf403
+    beq     Ld403
     lda     ram_A4
-    beq     Lf403
-    ldy     ram_84
-    beq     Lf3cf
+    beq     Ld403
+    ldy     currentScreenId
+    beq     Ld3cf
     cpy     #$03
-    bne     Lf403
+    bne     Ld403
     adc     #$14
-Lf3cf
+Ld3cf
     tax
     lda     $d868,x
     ldx     ram_F8
@@ -844,125 +844,125 @@ Lf3cf
     clc
     adc     $dafa,x
     cmp     ram_F6
-    bcc     Lf3e7
+    bcc     Ld3e7
     sbc     $d9e6,x
     cmp     ram_F6
-    bcc     Lf3f9
-    beq     Lf3f9
-Lf3e7
+    bcc     Ld3f9
+    beq     Ld3f9
+Ld3e7
     inc     ram_F5
     ldx     ram_E3
     cpx     #$06
-    bne     Lf3f1
+    bne     Ld3f1
     inc     ram_F5
-Lf3f1
+Ld3f1
     lda     #$41
     ldx     ram_CA
-    bne     Lf403
-    beq     Lf401
-Lf3f9
+    bne     Ld403
+    beq     Ld401
+Ld3f9
     lda     #$00
     ldx     ram_CA
     cpx     #$41
-    bne     Lf403
-Lf401
+    bne     Ld403
+Ld401
     sta     ram_CA
-Lf403
+Ld403
     ldx     #$00
-    lda     ram_81
-    cmp     ram_83
-    bcc     Lf411
+    lda     crosshairX
+    cmp     targetAuxX
+    bcc     Ld411
     sbc     #$0b
-    cmp     ram_83
-    bcc     Lf412
-Lf411
+    cmp     targetAuxX
+    bcc     Ld412
+Ld411
     dex
-Lf412
+Ld412
     stx     ram_A1
     lda     SWCHA
     cmp     #$ff
-    beq     Lf422
+    beq     Ld422
     ldx     #$ff
     stx     ram_F7
     inx
     stx     ram_B8
-Lf422
+Ld422
     inc     ram_B9
-    bne     Lf444
+    bne     Ld444
     lda     ram_BA
     cmp     #$0f
-    bcc     Lf430
+    bcc     Ld430
     ldx     ram_B6
     stx     ram_B7
-Lf430
+Ld430
     inc     ram_BA
-    bne     Lf444
+    bne     Ld444
     inc     ram_B8
     lda     ram_B8
     and     #$04
-    beq     Lf444
+    beq     Ld444
     sta     ram_B8
     lda     #$00
     sta     ram_B6
     sta     ram_B7
-Lf444
-    lda     ram_84
+Ld444
+    lda     currentScreenId
     cmp     #$04
-    bne     Lf45f
+    bne     Ld45f
     lda     ram_E9
-    bmi     Lf45f
+    bmi     Ld45f
     dec     ram_EE
-    bne     Lf45f
+    bne     Ld45f
     asl
     ora     #$02
     sta     ram_EE
     lda     ram_CA
-    bne     Lf45f
+    bne     Ld45f
     lda     #$34
     sta     ram_CA
-Lf45f
+Ld45f
     lda     ram_C1
     and     #$07
-    bne     Lf48b
+    bne     Ld48b
     bit     ram_F9
-    bpl     Lf481
+    bpl     Ld481
     lda     ram_B5
     cmp     #$02
-    bne     Lf477
+    bne     Ld477
     dec     ram_88
-    bpl     Lf481
-Lf473
+    bpl     Ld481
+Ld473
     inc     ram_88
-    bpl     Lf481
-Lf477
+    bpl     Ld481
+Ld477
     cmp     #$04
-    beq     Lf481
+    beq     Ld481
     lda     ram_88
     cmp     #$0d
-    bne     Lf473
-Lf481
+    bne     Ld473
+Ld481
     lda     ram_B7
-    beq     Lf489
+    beq     Ld489
     ldx     #$01
     stx     ram_C8
-Lf489
+Ld489
     dec     ram_C8
-Lf48b
+Ld48b
     ldx     ram_C9
     cpx     #$fe
-    bne     Lf495
+    bne     Ld495
     stx     ram_CB
     inc     ram_C9
-Lf495
+Ld495
     lda     ram_CA
-    beq     Lf4c8
+    beq     Ld4c8
     sta     AUDC0
     jsr     $ddfb
     tax
     lda     $d94c,x
     inc     ram_CB
     cmp     ram_CB
-    bcs     Lf4d0
+    bcs     Ld4d0
     lda     #$00
     sta     ram_CB
     inc     ram_C9
@@ -970,177 +970,177 @@ Lf495
     adc     ram_C9
     tax
     lda     $d903,x
-    beq     Lf4c8
+    beq     Ld4c8
     sta     AUDF0
     jsr     $ddfb
     ldx     ram_B6
-    bne     Lf4c3
+    bne     Ld4c3
     txa
-Lf4c3
+Ld4c3
     sta     AUDV0
     jmp     $d4d0
     
-Lf4c8
+Ld4c8
     sta     AUDV0
     sta     ram_CA
     ldx     #$fe
     stx     ram_C9
-Lf4d0
+Ld4d0
     lda     ram_B6
-    beq     Lf502
+    beq     Ld502
     
-    .byte   $a9,$03,$85,$1a,$a9,$06,$85,$16 ; $f4d4 (*)
-    .byte   $a9,$1f,$85,$18,$a5,$81,$c9,$0f ; $f4dc (*)
-    .byte   $d0,$04,$a6,$b4,$f0,$1c,$a2,$08 ; $f4e4 (*)
-    .byte   $86,$16,$20,$fb,$dd,$18,$69,$02 ; $f4ec (*)
-    .byte   $65,$b4,$a6,$ca,$d0,$0a,$a2,$02 ; $f4f4 (*)
-    .byte   $86,$15,$a2,$0e,$86,$17         ; $f4fc (*)
+    .byte   $a9,$03,$85,$1a,$a9,$06,$85,$16 ; $d4d4 *)
+    .byte   $a9,$1f,$85,$18,$a5,$81,$c9,$0f ; $d4dc *)
+    .byte   $d0,$04,$a6,$b4,$f0,$1c,$a2,$08 ; $d4e4 *)
+    .byte   $86,$16,$20,$fb,$dd,$18,$69,$02 ; $d4ec *)
+    .byte   $65,$b4,$a6,$ca,$d0,$0a,$a2,$02 ; $d4f4 *)
+    .byte   $86,$15,$a2,$0e,$86,$17         ; $d4fc *)
     
-Lf502
+Ld502
     sta     AUDV0
     sta     AUDV1
     lda     ram_B7
-    beq     Lf52a
+    beq     Ld52a
     lda     ram_B5
-    bne     Lf514
+    bne     Ld514
     jmp     $d728
     
-Lf511
+Ld511
     jmp     $d647
     
-Lf514
-    .byte   $a5,$b4,$f0,$06,$a9,$02,$85,$ab ; $f514 (*)
-    .byte   $d0,$1e,$a5,$c4,$d0,$1a,$a5,$a6 ; $f51c (*)
-    .byte   $c9,$df,$b0,$02,$a9,$e0         ; $f524 (*)
+Ld514
+    .byte   $a5,$b4,$f0,$06,$a9,$02,$85,$ab ; $d514 *)
+    .byte   $d0,$1e,$a5,$c4,$d0,$1a,$a5,$a6 ; $d51c *)
+    .byte   $c9,$df,$b0,$02,$a9,$e0         ; $d524 *)
     
-Lf52a
+Ld52a
     sbc     #$08
     eor     #$ff
     bit     ram_F9
-    bpl     Lf534
+    bpl     Ld534
     
-    .byte   $a9,$18                         ; $f532 (*)
+    .byte   $a9,$18                         ; $d532 *)
     
-Lf534
+Ld534
     sta     ram_FA
     ldx     ram_AF
-    beq     Lf53c
+    beq     Ld53c
     
-    .byte   $e6,$be                         ; $f53a (*)
+    .byte   $e6,$be                         ; $d53a *)
     
-Lf53c
+Ld53c
     inc     ram_BE
     cmp     ram_BE
-    bcs     Lf511
+    bcs     Ld511
     lda     #$00
     sta     ram_BE
     inc     ram_B1
-    bpl     Lf554
+    bpl     Ld554
     
-    .byte   $a5,$ea,$c9,$08,$f0,$08         ; $f54a (*)
+    .byte   $a5,$ea,$c9,$08,$f0,$08         ; $d54a *)
     
-Lf550
+Ld550
     inc     ram_EA
-    bpl     Lf558
-Lf554
+    bpl     Ld558
+Ld554
     dec     ram_EA
-    bmi     Lf550
-Lf558
+    bmi     Ld550
+Ld558
     inc     ram_E0
     lda     ram_B5
     cmp     #$02
-    bne     Lf564
+    bne     Ld564
     
-    .byte   $24,$f9,$30,$05                 ; $f560 (*)
+    .byte   $24,$f9,$30,$05                 ; $d560 *)
     
-Lf564
+Ld564
     lda     ram_E0
     lsr
-    bcc     Lf56b
+    bcc     Ld56b
     inc     ram_B0
-Lf56b
+Ld56b
     inc     ram_EF
     lda     ram_B7
-    beq     Lf577
+    beq     Ld577
     
-    .byte   $a5,$ab,$29,$01,$f0,$1d         ; $f571 (*)
+    .byte   $a5,$ab,$29,$01,$f0,$1d         ; $d571 *)
     
-Lf577
+Ld577
     dec     ram_89
     lda     ram_89
     cmp     #$0e
-    bne     Lf594
+    bne     Ld594
     lda     #$14
     sta     ram_89
     ldx     #$0b
     lda     ram_8A,x
     tay
     dex
-    bmi     Lf592
+    bmi     Ld592
     lda     ram_8A,x
     sty     ram_8A,x
     jmp     $d587
     
-Lf592
+Ld592
     sty     ram_95
-Lf594
+Ld594
     lda     ram_AB
     and     #$08
-    beq     Lf5ab
+    beq     Ld5ab
     
-    .byte   $a2,$0b,$d6,$8a,$b5,$8a,$c9,$ff ; $f59a (*)
-    .byte   $d0,$04,$a9,$84,$95,$8a,$ca,$10 ; $f5a2 (*)
-    .byte   $f1                             ; $f5aa (*)
+    .byte   $a2,$0b,$d6,$8a,$b5,$8a,$c9,$ff ; $d59a *)
+    .byte   $d0,$04,$a9,$84,$95,$8a,$ca,$10 ; $d5a2 *)
+    .byte   $f1                             ; $d5aa *)
     
-Lf5ab
+Ld5ab
     lda     ram_AB
     and     #$02
-    beq     Lf5d4
+    beq     Ld5d4
     
-    .byte   $e6,$89,$a5,$89,$c9,$15,$d0,$17 ; $f5b1 (*)
-    .byte   $a9,$0f,$85,$89,$a2,$00,$b5,$8a ; $f5b9 (*)
-    .byte   $a8,$e8,$e0,$0c,$f0,$07,$b5,$8a ; $f5c1 (*)
-    .byte   $94,$8a,$4c,$c1,$d5,$85,$8a,$c6 ; $f5c9 (*)
-    .byte   $ef,$c6,$ef                     ; $f5d1 (*)
+    .byte   $e6,$89,$a5,$89,$c9,$15,$d0,$17 ; $d5b1 *)
+    .byte   $a9,$0f,$85,$89,$a2,$00,$b5,$8a ; $d5b9 *)
+    .byte   $a8,$e8,$e0,$0c,$f0,$07,$b5,$8a ; $d5c1 *)
+    .byte   $94,$8a,$4c,$c1,$d5,$85,$8a,$c6 ; $d5c9 *)
+    .byte   $ef,$c6,$ef                     ; $d5d1 *)
     
-Lf5d4
+Ld5d4
     lda     ram_AB
     and     #$04
-    beq     Lf5eb
+    beq     Ld5eb
     
-    .byte   $a2,$0b,$f6,$8a,$b5,$8a,$c9,$85 ; $f5da (*)
-    .byte   $90,$04,$a9,$00,$95,$8a,$ca,$10 ; $f5e2 (*)
-    .byte   $f1                             ; $f5ea (*)
+    .byte   $a2,$0b,$f6,$8a,$b5,$8a,$c9,$85 ; $d5da *)
+    .byte   $90,$04,$a9,$00,$95,$8a,$ca,$10 ; $d5e2 *)
+    .byte   $f1                             ; $d5ea *)
     
-Lf5eb
+Ld5eb
     lda     ram_B7
-    beq     Lf5f5
+    beq     Ld5f5
     
-    .byte   $a5,$b5,$c9,$02,$f0,$03         ; $f5ef (*)
+    .byte   $a5,$b5,$c9,$02,$f0,$03         ; $d5ef *)
     
-Lf5f5
+Ld5f5
     jmp     $d728
     
-    .byte   $a0,$01,$a5,$fa,$a6,$e2,$e0,$ff ; $f5f8 (*)
-    .byte   $d0,$02,$a9,$28,$38,$e9,$18,$f0 ; $f600 (*)
-    .byte   $3e,$90,$04,$c8,$49,$ff,$18,$69 ; $f608 (*)
-    .byte   $12,$e6,$bf,$c5,$bf,$f0,$02,$b0 ; $f610 (*)
-    .byte   $2e,$a9,$00,$85,$bf,$c0,$01,$f0 ; $f618 (*)
-    .byte   $03,$e6,$b0,$2c,$c6,$b0,$a6,$e3 ; $f620 (*)
-    .byte   $a5,$bd,$e6,$bd,$dd,$b1,$df,$d0 ; $f628 (*)
-    .byte   $16,$a9,$00,$85,$bd,$a5,$80,$dd ; $f630 (*)
-    .byte   $fa,$dc,$b0,$09,$0a,$0a,$90,$03 ; $f638 (*)
-    .byte   $c6,$b2,$2c,$e6,$b2,$84,$f4     ; $f640 (*)
+    .byte   $a0,$01,$a5,$fa,$a6,$e2,$e0,$ff ; $d5f8 *)
+    .byte   $d0,$02,$a9,$28,$38,$e9,$18,$f0 ; $d600 *)
+    .byte   $3e,$90,$04,$c8,$49,$ff,$18,$69 ; $d608 *)
+    .byte   $12,$e6,$bf,$c5,$bf,$f0,$02,$b0 ; $d610 *)
+    .byte   $2e,$a9,$00,$85,$bf,$c0,$01,$f0 ; $d618 *)
+    .byte   $03,$e6,$b0,$2c,$c6,$b0,$a6,$e3 ; $d620 *)
+    .byte   $a5,$bd,$e6,$bd,$dd,$b1,$df,$d0 ; $d628 *)
+    .byte   $16,$a9,$00,$85,$bd,$a5,$80,$dd ; $d630 *)
+    .byte   $fa,$dc,$b0,$09,$0a,$0a,$90,$03 ; $d638 *)
+    .byte   $c6,$b2,$2c,$e6,$b2,$84,$f4     ; $d640 *)
     
-Lf647
+Ld647
     lda     ram_B0
     sec
     sbc     ram_B1
     cmp     #$10
-    bcc     Lf653
+    bcc     Ld653
     jmp     $d6d2
     
-Lf653
+Ld653
     lsr
     tax
     lda     $d893,x
@@ -1151,122 +1151,122 @@ Lf653
     clc
     adc     ram_EA
     cmp     #$9f
-    bcc     Lf66b
+    bcc     Ld66b
     
-    .byte   $a9,$9f                         ; $f669 (*)
+    .byte   $a9,$9f                         ; $d669 *)
     
-Lf66b
+Ld66b
     sta     COLUP0
     ldy     #$00
     lda     ram_B2
     clc
     adc     #$50
     cmp     #$a0
-    bcs     Lf684
+    bcs     Ld684
     adc     #$b0
-    bcs     Lf681
+    bcs     Ld681
     
-    .byte   $c8,$49,$ff,$69,$01             ; $f67c (*)
+    .byte   $c8,$49,$ff,$69,$01             ; $d67c *)
     
-Lf681
+Ld681
     cmp     $dfe6,x
-Lf684
-    bcs     Lf6d0
+Ld684
+    bcs     Ld6d0
     cpx     #$00
-    beq     Lf696
+    beq     Ld696
     
-    .byte   $86,$fc,$e0,$06,$90,$01,$98,$4a ; $f68a (*)
-    .byte   $c6,$fc,$d0,$fb                 ; $f692 (*)
+    .byte   $86,$fc,$e0,$06,$90,$01,$98,$4a ; $d68a *)
+    .byte   $c6,$fc,$d0,$fb                 ; $d692 *)
     
-Lf696
+Ld696
     sta     ram_FA
     lda     ram_B2
     cpy     #$01
-    beq     Lf6a2
+    beq     Ld6a2
     clc
     adc     ram_FA
     .byte   $2c ;bit                ;4-3 =  22
-Lf6a2
+Ld6a2
     sbc     ram_FA
     clc
     adc     #$50
     cmp     ram_DF
-    beq     Lf6b8
+    beq     Ld6b8
     lda     ram_C1
     and     #$03
-    bne     Lf6b8
-    bcs     Lf6b6
+    bne     Ld6b8
+    bcs     Ld6b6
     
-    .byte   $c6,$df,$2c                     ; $f6b3 (*)
+    .byte   $c6,$df,$2c                     ; $d6b3 *)
     
-Lf6b6
+Ld6b6
     inc     ram_DF
-Lf6b8
+Ld6b8
     ldy     ram_DF
     lda     ram_C1
     lsr
     sta     REFP0
     and     #$08
-    bne     Lf6c7
+    bne     Ld6c7
     txa
     ora     #$08
     tax
-Lf6c7
+Ld6c7
     sec
     tya
     sbc     $d9ca,x
-    bcc     Lf728
+    bcc     Ld728
     
-    .byte   $b0,$3b                         ; $f6ce (*)
-Lf6d0
-    .byte   $b0,$56                         ; $f6d0 (*)
+    .byte   $b0,$3b                         ; $d6ce *)
+Ld6d0
+    .byte   $b0,$56                         ; $d6d0 *)
     
-Lf6d2
+Ld6d2
     cmp     #$80
-    bcc     Lf6de
+    bcc     Ld6de
     ldx     #$ce
     ldy     #$05
     lda     #BLUE_CYAN|$d
-    bcs     Lf6e8
+    bcs     Ld6e8
     
-Lf6de
-    .byte   $c9,$40,$90,$46,$a2,$0e,$a0,$00 ; $f6de (*)
-    .byte   $a9,$90                         ; $f6e6 (*)
+Ld6de
+    .byte   $c9,$40,$90,$46,$a2,$0e,$a0,$00 ; $d6de *)
+    .byte   $a9,$90                         ; $d6e6 *)
     
-Lf6e8
+Ld6e8
     stx     ram_FB
     sty     NUSIZ0
     sta     COLUP0
     lda     ram_DF
-    beq     Lf728
+    beq     Ld728
     cmp     #$94
-    beq     Lf728
+    beq     Ld728
     lda     #$94
     ldx     ram_B2
     cpx     #$80
-    bcc     Lf700
+    bcc     Ld700
     
-    .byte   $a9,$00                         ; $f6fe (*)
+    .byte   $a9,$00                         ; $d6fe *)
     
-Lf700
+Ld700
     cmp     ram_DF
-    bcs     Lf707
+    bcs     Ld707
     
-    .byte   $c6,$df,$2c                     ; $f704 (*)
+    .byte   $c6,$df,$2c                     ; $d704 *)
     
-Lf707
+Ld707
     inc     ram_DF
     lda     ram_DF
     sta     ram_DE
     lda     ram_B5
     cmp     #$02
-    bne     Lf728
+    bne     Ld728
     
-    .byte   $a5,$88,$d0,$11,$a5,$b3,$69,$0f ; $f713 (*)
-    .byte   $c9,$21,$b0,$09,$a5,$b7,$f0,$05 ; $f71b (*)
-    .byte   $a5,$a5,$e9,$c2,$2c             ; $f723 (*)
+    .byte   $a5,$88,$d0,$11,$a5,$b3,$69,$0f ; $d713 *)
+    .byte   $c9,$21,$b0,$09,$a5,$b7,$f0,$05 ; $d71b *)
+    .byte   $a5,$a5,$e9,$c2,$2c             ; $d723 *)
     
-Lf728
+Ld728
     lda     #$6a
     sta     ram_FA
     ldx     #$04
@@ -1277,265 +1277,265 @@ Lf728
     sec
     sbc     #$15
     sta     ram_FA
-    bpl     Lf756
+    bpl     Ld756
     
-    .byte   $69,$16,$18,$65,$fb,$4c,$58,$d7 ; $f73c (*)
+    .byte   $69,$16,$18,$65,$fb,$4c,$58,$d7 ; $d73c *)
     
-Lf744
+Ld744
     lda     ram_FA
     sec
     sbc     #$12
     sta     ram_FA
-    bpl     Lf756
+    bpl     Ld756
     
-    .byte   $c9,$e2,$90,$05,$69,$15,$4c,$3e ; $f74d (*)
-    .byte   $d7                             ; $f755 (*)
+    .byte   $c9,$e2,$90,$05,$69,$15,$4c,$3e ; $d74d *)
+    .byte   $d7                             ; $d755 *)
     
-Lf756
+Ld756
     lda     #$04
     sta     ram_D8,x
     dex
-    bpl     Lf744
+    bpl     Ld744
     lda     #$ff
     sta     ram_DD
-    lda     ram_84
+    lda     currentScreenId
     bne     endOfKernelSwitch
     
-Lf765
-    .byte   $20,$da,$d9,$b0,$0f,$a5,$aa,$69 ; $f765 (*)
-    .byte   $02,$85,$ad,$85,$f6,$a5,$a4     ; $f76d (*)
+Ld765
+    .byte   $20,$da,$d9,$b0,$0f,$a5,$aa,$69 ; $d765 *)
+    .byte   $02,$85,$ad,$85,$f6,$a5,$a4     ; $d76d *)
     
 bankSwitch0to1
     sta     ram_AC
     bit     bank1Strobe
     
-    .byte   $a5,$b2,$69,$03,$10,$02,$a9,$00 ; $f779 (*)
-    .byte   $c9,$08,$90,$02,$a9,$06,$69,$02 ; $f781 (*)
-    .byte   $a6,$84,$d0,$02,$69,$16,$85,$ad ; $f789 (*)
-    .byte   $a9,$07,$d0,$df                 ; $f791 (*)
+    .byte   $a5,$b2,$69,$03,$10,$02,$a9,$00 ; $d779 *)
+    .byte   $c9,$08,$90,$02,$a9,$06,$69,$02 ; $d781 *)
+    .byte   $a6,$84,$d0,$02,$69,$16,$85,$ad ; $d789 *)
+    .byte   $a9,$07,$d0,$df                 ; $d791 *)
     
 ;-----------------------------------------------------------
 ;      End of Kernel / Switch to Logic (Bank 0 -> Bank 1)
 ;-----------------------------------------------------------
 endOfKernelSwitch
     cmp     #$03
-    beq     Lf765
+    beq     Ld765
     cmp     #$02
-    bne     Lf7ea
+    bne     Ld7ea
     
-    .byte   $20,$da,$d9,$90,$28,$a5,$b2,$e9 ; $f79d (*)
-    .byte   $80,$20,$fb,$dd,$18,$e9,$01,$b0 ; $f7a5 (*)
-    .byte   $02,$a9,$00,$85,$ad,$a9,$d2,$38 ; $f7ad (*)
-    .byte   $e5,$a5,$18,$69,$0b,$c9,$15,$90 ; $f7b5 (*)
-    .byte   $09,$a2,$01,$c9,$80,$b0,$02,$a2 ; $f7bd (*)
-    .byte   $15,$8a,$4c,$74,$d7,$20,$a3,$d9 ; $f7c5 (*)
-    .byte   $4a,$18,$69,$14,$85,$ad,$a5,$b2 ; $f7cd (*)
-    .byte   $69,$0e,$c9,$1b,$90,$08,$c9,$8e ; $f7d5 (*)
-    .byte   $a9,$1b,$90,$02,$a9,$ff,$69,$01 ; $f7dd (*)
-    .byte   $49,$1f,$4a,$10,$57             ; $f7e5 (*)
+    .byte   $20,$da,$d9,$90,$28,$a5,$b2,$e9 ; $d79d *)
+    .byte   $80,$20,$fb,$dd,$18,$e9,$01,$b0 ; $d7a5 *)
+    .byte   $02,$a9,$00,$85,$ad,$a9,$d2,$38 ; $d7ad *)
+    .byte   $e5,$a5,$18,$69,$0b,$c9,$15,$90 ; $d7b5 *)
+    .byte   $09,$a2,$01,$c9,$80,$b0,$02,$a2 ; $d7bd *)
+    .byte   $15,$8a,$4c,$74,$d7,$20,$a3,$d9 ; $d7c5 *)
+    .byte   $4a,$18,$69,$14,$85,$ad,$a5,$b2 ; $d7cd *)
+    .byte   $69,$0e,$c9,$1b,$90,$08,$c9,$8e ; $d7d5 *)
+    .byte   $a9,$1b,$90,$02,$a9,$ff,$69,$01 ; $d7dd *)
+    .byte   $49,$1f,$4a,$10,$57             ; $d7e5 *)
     
-Lf7ea
+Ld7ea
     cmp     #$01
-    bne     Lf808
+    bne     Ld808
     
-    .byte   $20,$a3,$d9,$20,$da,$d9,$a5,$b0 ; $f7ee (*)
-    .byte   $b0,$02,$a5,$b1,$4a,$4a,$4a,$aa ; $f7f6 (*)
-    .byte   $18,$69,$05,$85,$ad,$bd,$ec,$de ; $f7fe (*)
-    .byte   $d0,$bf                         ; $f806 (*)
+    .byte   $20,$a3,$d9,$20,$da,$d9,$a5,$b0 ; $d7ee *)
+    .byte   $b0,$02,$a5,$b1,$4a,$4a,$4a,$aa ; $d7f6 *)
+    .byte   $18,$69,$05,$85,$ad,$bd,$ec,$de ; $d7fe *)
+    .byte   $d0,$bf                         ; $d806 *)
     
-Lf808
+Ld808
     cmp     #$04
-    bne     Lf847
+    bne     Ld847
     
-    .byte   $20,$da,$d9,$b0,$14,$a5,$e9,$10 ; $f80c (*)
-    .byte   $02,$a9,$00,$4a,$4a,$85,$ad,$a5 ; $f814 (*)
-    .byte   $a5,$4a,$d0,$02,$a9,$ff,$38,$b0 ; $f81c (*)
-    .byte   $1d,$a5,$b2,$69,$4f,$c9,$a0,$90 ; $f824 (*)
-    .byte   $02,$e9,$9f,$4a,$4a,$4a,$18,$69 ; $f82c (*)
-    .byte   $13,$85,$ad,$a5,$a5,$4a,$f0,$03 ; $f834 (*)
-    .byte   $49,$0f,$2c,$a9,$10,$18,$69,$03 ; $f83c (*)
+    .byte   $20,$da,$d9,$b0,$14,$a5,$e9,$10 ; $d80c *)
+    .byte   $02,$a9,$00,$4a,$4a,$85,$ad,$a5 ; $d814 *)
+    .byte   $a5,$4a,$d0,$02,$a9,$ff,$38,$b0 ; $d81c *)
+    .byte   $1d,$a5,$b2,$69,$4f,$c9,$a0,$90 ; $d824 *)
+    .byte   $02,$e9,$9f,$4a,$4a,$4a,$18,$69 ; $d82c *)
+    .byte   $13,$85,$ad,$a5,$a5,$4a,$f0,$03 ; $d834 *)
+    .byte   $49,$0f,$2c,$a9,$10,$18,$69,$03 ; $d83c *)
     
-Lf844
+Ld844
     jmp     $d774
     
-Lf847
+Ld847
     lda     #$00
     sta     ram_AD
     ldx     ram_9B
     ldy     ram_E3
     lda     #$03
     cpx     #$35
-    bcc     Lf85b
+    bcc     Ld85b
     cpy     #$02
-    bcc     Lf85b
+    bcc     Ld85b
     
-    .byte   $a9,$09                         ; $f859 (*)
+    .byte   $a9,$09                         ; $d859 *)
     
-Lf85b
+Ld85b
     cpx     #$45
-    bcc     Lf865
+    bcc     Ld865
     cpy     #$04
-    bcc     Lf865
+    bcc     Ld865
     
-    .byte   $a9,$0f                         ; $f863 (*)
+    .byte   $a9,$0f                         ; $d863 *)
     
-Lf865
-    bne     Lf844
+Ld865
+    bne     Ld844
     
-    .byte   $00,$04,$04,$04,$04,$04,$05,$05 ; $f867 (*)
-    .byte   $06,$07,$08,$0a,$0c,$0e,$11,$14 ; $f86f (*)
-    .byte   $17,$19,$1b,$1d,$1e,$1f,$1f,$1f ; $f877 (*)
-    .byte   $1d,$1f,$20,$20,$1f,$1d,$1b,$19 ; $f87f (*)
-    .byte   $18,$14,$14,$16,$19,$19,$16,$13 ; $f887 (*)
-    .byte   $0f,$0c,$09,$09                 ; $f88f (*)
-    .byte   $05                             ; $f893 (D)
-    .byte   $05,$00,$00,$00,$00,$00,$00     ; $f894 (*)
+    .byte   $00,$04,$04,$04,$04,$04,$05,$05 ; $d867 *)
+    .byte   $06,$07,$08,$0a,$0c,$0e,$11,$14 ; $d86f *)
+    .byte   $17,$19,$1b,$1d,$1e,$1f,$1f,$1f ; $d877 *)
+    .byte   $1d,$1f,$20,$20,$1f,$1d,$1b,$19 ; $d87f *)
+    .byte   $18,$14,$14,$16,$19,$19,$16,$13 ; $d887 *)
+    .byte   $0f,$0c,$09,$09                 ; $d88f *)
+    .byte   $05                             ; $d893 D)
+    .byte   $05,$00,$00,$00,$00,$00,$00     ; $d894 *)
 
 activisionLogo  
-    .byte   %01100001 ; | ##    #|            $f89b (A)
-    .byte   %00110001 ; |  ##   #|            $f89c (A)
-    .byte   %00011111 ; |   #####|            $f89d (A)
-    .byte   %00001101 ; |    ## #|            $f89e (A)
-    .byte   %00000111 ; |     ###|            $f89f (A)
-    .byte   %00000011 ; |      ##|            $f8a0 (A)
-    .byte   %00000001 ; |       #|            $f8a1 (A)
-    .byte   %00000000 ; |        |            $f8a2 (A)
-    .byte   %01110101 ; | ### # #|            $f8a3 (C)
-    .byte   %01000101 ; | #   # #|            $f8a4 (C)
-    .byte   %01000101 ; | #   # #|            $f8a5 (C)
-    .byte   %01000101 ; | #   # #|            $f8a6 (C)
-    .byte   %01110101 ; | ### # #|            $f8a7 (C)
-    .byte   %00000100 ; |     #  |            $f8a8 (C)
-    .byte   %01111111 ; | #######|            $f8a9 (C)
-    .byte   %00000000 ; |        |            $f8aa (C)
-    .byte   %01100000 ; | ##     |            $f8ab (T)
-    .byte   %01110000 ; | ###    |            $f8ac (T)
-    .byte   %01011000 ; | # ##   |            $f8ad (G)
-    .byte   %01001100 ; | #  ##  |            $f8ae (G)
-    .byte   %01000110 ; | #   ## |            $f8af (G)
-    .byte   %01000011 ; | #    ##|            $f8b0 (G)
-    .byte   %11000001 ; |##     #|            $f8b1 (G)
-    .byte   %00000000 ; |        |            $f8b2 (G)
-    .byte   %10111010 ; |# ### # |            $f8b3 (G)
-    .byte   %10001010 ; |#   # # |            $f8b4 (G)
-    .byte   %10111010 ; |# ### # |            $f8b5 (G)
-    .byte   %10100010 ; |# #   # |            $f8b6 (G)
-    .byte   %00111010 ; |  ### # |            $f8b7 (G)
-    .byte   %00000000 ; |        |            $f8b8 (G)
-    .byte   %11111110 ; |####### |            $f8b9 (G)
-    .byte   %00000000 ; |        |            $f8ba (G)
-    .byte   %11101001 ; |### #  #|            $f8bb (G)
-    .byte   %10101011 ; |# # # ##|            $f8bc (G)
-    .byte   %10101111 ; |# # ####|            $f8bd (G)
-    .byte   %10101101 ; |# # ## #|            $f8be (G)
-    .byte   %11101001 ; |### #  #|            $f8bf (G)
+    .byte   %01100001 ; | ##    #|            $d89b A)
+    .byte   %00110001 ; |  ##   #|            $d89c A)
+    .byte   %00011111 ; |   #####|            $d89d A)
+    .byte   %00001101 ; |    ## #|            $d89e A)
+    .byte   %00000111 ; |     ###|            $d89f A)
+    .byte   %00000011 ; |      ##|            $d8a0 A)
+    .byte   %00000001 ; |       #|            $d8a1 A)
+    .byte   %00000000 ; |        |            $d8a2 A)
+    .byte   %01110101 ; | ### # #|            $d8a3 C)
+    .byte   %01000101 ; | #   # #|            $d8a4 C)
+    .byte   %01000101 ; | #   # #|            $d8a5 C)
+    .byte   %01000101 ; | #   # #|            $d8a6 C)
+    .byte   %01110101 ; | ### # #|            $d8a7 C)
+    .byte   %00000100 ; |     #  |            $d8a8 C)
+    .byte   %01111111 ; | #######|            $d8a9 C)
+    .byte   %00000000 ; |        |            $d8aa C)
+    .byte   %01100000 ; | ##     |            $d8ab T)
+    .byte   %01110000 ; | ###    |            $d8ac T)
+    .byte   %01011000 ; | # ##   |            $d8ad G)
+    .byte   %01001100 ; | #  ##  |            $d8ae G)
+    .byte   %01000110 ; | #   ## |            $d8af G)
+    .byte   %01000011 ; | #    ##|            $d8b0 G)
+    .byte   %11000001 ; |##     #|            $d8b1 G)
+    .byte   %00000000 ; |        |            $d8b2 G)
+    .byte   %10111010 ; |# ### # |            $d8b3 G)
+    .byte   %10001010 ; |#   # # |            $d8b4 G)
+    .byte   %10111010 ; |# ### # |            $d8b5 G)
+    .byte   %10100010 ; |# #   # |            $d8b6 G)
+    .byte   %00111010 ; |  ### # |            $d8b7 G)
+    .byte   %00000000 ; |        |            $d8b8 G)
+    .byte   %11111110 ; |####### |            $d8b9 G)
+    .byte   %00000000 ; |        |            $d8ba G)
+    .byte   %11101001 ; |### #  #|            $d8bb G)
+    .byte   %10101011 ; |# # # ##|            $d8bc G)
+    .byte   %10101111 ; |# # ####|            $d8bd G)
+    .byte   %10101101 ; |# # ## #|            $d8be G)
+    .byte   %11101001 ; |### #  #|            $d8bf G)
 
 copyrightGfx
-    .byte   %00000000 ; |        |            $f8c0 (G)
-    .byte   %00000000 ; |        |            $f8c1 (G)
-    .byte   %00000000 ; |        |            $f8c2 (G)
-    .byte   %01110111 ; | ### ###|            $f8c3 (G)
-    .byte   %01010001 ; | # #   #|            $f8c4 (G)
-    .byte   %01110011 ; | ###  ##|            $f8c5 (G)
-    .byte   %01010001 ; | # #   #|            $f8c6 (G)
-    .byte   %01110111 ; | ### ###|            $f8c7 (G)
-    .byte   %00000000 ; |        |            $f8c8 (G)
-    .byte   %00000000 ; |        |            $f8c9 (G)
-    .byte   %00000000 ; |        |            $f8ca (G)
-    .byte   %00010001 ; |   #   #|            $f8cb (G)
-    .byte   %00010001 ; |   #   #|            $f8cc (G)
-    .byte   %00010111 ; |   # ###|            $f8cd (G)
-    .byte   %00010101 ; |   # # #|            $f8ce (G)
-    .byte   %00010111 ; |   # ###|            $f8cf (G)
-    .byte   %00000000 ; |        |            $f8d0 (G)
-    .byte   %10000000 ; |#       |            $f8d1 (G)
-    .byte   %10000000 ; |#       |            $f8d2 (G)
-    .byte   %10101010 ; |# # # # |            $f8d3 (G)
-    .byte   %10101010 ; |# # # # |            $f8d4 (G)
-    .byte   %10111010 ; |# ### # |            $f8d5 (G)
-    .byte   %00100111 ; |  #  ###|            $f8d6 (G)
-    .byte   %00100010 ; |  #   # |            $f8d7 (G)
-    .byte   %00000000 ; |        |            $f8d8 (G)
-    .byte   %00000011 ; |      ##|            $f8d9 (G)
-    .byte   %00000000 ; |        |            $f8da (G)
-    .byte   %01001011 ; | #  # ##|            $f8db (G)
-    .byte   %01001010 ; | #  # # |            $f8dc (G)
-    .byte   %01101011 ; | ## # ##|            $f8dd (G)
-    .byte   %00000000 ; |        |            $f8de (G)
-    .byte   %00001000 ; |    #   |            $f8df (G)
-    .byte   %00000000 ; |        |            $f8e0 (G)
-    .byte   %01000111 ; | #   ###|            $f8e1 (G)
-    .byte   %01000001 ; | #     #|            $f8e2 (G)
-    .byte   %01110111 ; | ### ###|            $f8e3 (G)
-    .byte   %01010101 ; | # # # #|            $f8e4 (G)
-    .byte   %01110101 ; | ### # #|            $f8e5 (G)
-    .byte   %00000000 ; |        |            $f8e6 (G)
-    .byte   %00000000 ; |        |            $f8e7 (G)
-    .byte   %00000000 ; |        |            $f8e8 (G)
-    .byte   %00000000 ; |        |            $f8e9 (G)
-    .byte   %00000000 ; |        |            $f8ea (G)
-    .byte   %11110111 ; |#### ###|            $f8eb (G)
-    .byte   %10010101 ; |#  # # #|            $f8ec (G)
-    .byte   %10000111 ; |#    ###|            $f8ed (G)
-    .byte   %10010000 ; |#  #    |            $f8ee (G)
-    .byte   %11110000 ; |####    |            $f8ef (G)
+    .byte   %00000000 ; |        |            $d8c0 G)
+    .byte   %00000000 ; |        |            $d8c1 G)
+    .byte   %00000000 ; |        |            $d8c2 G)
+    .byte   %01110111 ; | ### ###|            $d8c3 G)
+    .byte   %01010001 ; | # #   #|            $d8c4 G)
+    .byte   %01110011 ; | ###  ##|            $d8c5 G)
+    .byte   %01010001 ; | # #   #|            $d8c6 G)
+    .byte   %01110111 ; | ### ###|            $d8c7 G)
+    .byte   %00000000 ; |        |            $d8c8 G)
+    .byte   %00000000 ; |        |            $d8c9 G)
+    .byte   %00000000 ; |        |            $d8ca G)
+    .byte   %00010001 ; |   #   #|            $d8cb G)
+    .byte   %00010001 ; |   #   #|            $d8cc G)
+    .byte   %00010111 ; |   # ###|            $d8cd G)
+    .byte   %00010101 ; |   # # #|            $d8ce G)
+    .byte   %00010111 ; |   # ###|            $d8cf G)
+    .byte   %00000000 ; |        |            $d8d0 G)
+    .byte   %10000000 ; |#       |            $d8d1 G)
+    .byte   %10000000 ; |#       |            $d8d2 G)
+    .byte   %10101010 ; |# # # # |            $d8d3 G)
+    .byte   %10101010 ; |# # # # |            $d8d4 G)
+    .byte   %10111010 ; |# ### # |            $d8d5 G)
+    .byte   %00100111 ; |  #  ###|            $d8d6 G)
+    .byte   %00100010 ; |  #   # |            $d8d7 G)
+    .byte   %00000000 ; |        |            $d8d8 G)
+    .byte   %00000011 ; |      ##|            $d8d9 G)
+    .byte   %00000000 ; |        |            $d8da G)
+    .byte   %01001011 ; | #  # ##|            $d8db G)
+    .byte   %01001010 ; | #  # # |            $d8dc G)
+    .byte   %01101011 ; | ## # ##|            $d8dd G)
+    .byte   %00000000 ; |        |            $d8de G)
+    .byte   %00001000 ; |    #   |            $d8df G)
+    .byte   %00000000 ; |        |            $d8e0 G)
+    .byte   %01000111 ; | #   ###|            $d8e1 G)
+    .byte   %01000001 ; | #     #|            $d8e2 G)
+    .byte   %01110111 ; | ### ###|            $d8e3 G)
+    .byte   %01010101 ; | # # # #|            $d8e4 G)
+    .byte   %01110101 ; | ### # #|            $d8e5 G)
+    .byte   %00000000 ; |        |            $d8e6 G)
+    .byte   %00000000 ; |        |            $d8e7 G)
+    .byte   %00000000 ; |        |            $d8e8 G)
+    .byte   %00000000 ; |        |            $d8e9 G)
+    .byte   %00000000 ; |        |            $d8ea G)
+    .byte   %11110111 ; |#### ###|            $d8eb G)
+    .byte   %10010101 ; |#  # # #|            $d8ec G)
+    .byte   %10000111 ; |#    ###|            $d8ed G)
+    .byte   %10010000 ; |#  #    |            $d8ee G)
+    .byte   %11110000 ; |####    |            $d8ef G)
     
-    .byte   BLUE|$4                         ; $f8f0 (CP)
-    .byte   GREEN_YELLOW|$6                 ; $f8f1 (CP)
-    .byte   GREEN_YELLOW|$6                 ; $f8f2 (CP)
-    .byte   YELLOW|$a                       ; $f8f3 (CP)
-    .byte   BROWN|$6                        ; $f8f4 (CP)
-    .byte   BROWN|$6                        ; $f8f5 (CP)
-    .byte   RED|$4                          ; $f8f6 (CP)
-    .byte   BLACK|$0                        ; $f8f7 (CP)
+    .byte   BLUE|$4                         ; $d8f0 CP)
+    .byte   GREEN_YELLOW|$6                 ; $d8f1 CP)
+    .byte   GREEN_YELLOW|$6                 ; $d8f2 CP)
+    .byte   YELLOW|$a                       ; $d8f3 CP)
+    .byte   BROWN|$6                        ; $d8f4 CP)
+    .byte   BROWN|$6                        ; $d8f5 CP)
+    .byte   RED|$4                          ; $d8f6 CP)
+    .byte   BLACK|$0                        ; $d8f7 CP)
     
-    .byte   $02,$04,$11,$13,$1e,$20,$2f,$40 ; $f8f8 (*)
+    .byte   $02,$04,$11,$13,$1e,$20,$2f,$40 ; $d8f8 *)
     .byte   $20,$40,$0d,$57,$00,$5f,$00
-    .byte   %01010101 ; | # # # #|            $f907 (G)
-    .byte   %01010000 ; | # #    |            $f908 (G)
-    .byte   %01010101 ; | # # # #|            $f909 (G)
-    .byte   %01010000 ; | # #    |            $f90a (G)
-    .byte   %01010101 ; | # # # #|            $f90b (G)
-    .byte   %01010000 ; | # #    |            $f90c (G)
-    .byte   %01010101 ; | # # # #|            $f90d (G)
-    .byte   %01010000 ; | # #    |            $f90e (G)
-    .byte   %00000000 ; |        |            $f90f (G)
-    .byte   %01011010 ; | # ## # |            $f910 (G)
-    .byte   %01011000 ; | # ##   |            $f911 (G)
-    .byte   %01011010 ; | # ## # |            $f912 (G)
-    .byte   %01011000 ; | # ##   |            $f913 (G)
-    .byte   %01011010 ; | # ## # |            $f914 (G)
-    .byte   %00000000 ; |        |            $f915 (G)
-    .byte   %01001000 ; | #  #   |            $f916 (G)
-    .byte   %00001000 ; |    #   |            $f917 (G)
-    .byte   %01001000 ; | #  #   |            $f918 (G)
-    .byte   %00001000 ; |    #   |            $f919 (G)
-    .byte   %01001000 ; | #  #   |            $f91a (G)
-    .byte   %00001000 ; |    #   |            $f91b (G)
-    .byte   %01001000 ; | #  #   |            $f91c (G)
-    .byte   %00001000 ; |    #   |            $f91d (G)
-    .byte   %01001000 ; | #  #   |            $f91e (G)
-    .byte   %00001000 ; |    #   |            $f91f (G)
-    .byte   %00000000 ; |        |            $f920 (G)
-    .byte   %10111111 ; |# ######|            $f921 (G)
-    .byte   %00000000 ; |        |            $f922 (G)
+    .byte   %01010101 ; | # # # #|            $d907 G)
+    .byte   %01010000 ; | # #    |            $d908 G)
+    .byte   %01010101 ; | # # # #|            $d909 G)
+    .byte   %01010000 ; | # #    |            $d90a G)
+    .byte   %01010101 ; | # # # #|            $d90b G)
+    .byte   %01010000 ; | # #    |            $d90c G)
+    .byte   %01010101 ; | # # # #|            $d90d G)
+    .byte   %01010000 ; | # #    |            $d90e G)
+    .byte   %00000000 ; |        |            $d90f G)
+    .byte   %01011010 ; | # ## # |            $d910 G)
+    .byte   %01011000 ; | # ##   |            $d911 G)
+    .byte   %01011010 ; | # ## # |            $d912 G)
+    .byte   %01011000 ; | # ##   |            $d913 G)
+    .byte   %01011010 ; | # ## # |            $d914 G)
+    .byte   %00000000 ; |        |            $d915 G)
+    .byte   %01001000 ; | #  #   |            $d916 G)
+    .byte   %00001000 ; |    #   |            $d917 G)
+    .byte   %01001000 ; | #  #   |            $d918 G)
+    .byte   %00001000 ; |    #   |            $d919 G)
+    .byte   %01001000 ; | #  #   |            $d91a G)
+    .byte   %00001000 ; |    #   |            $d91b G)
+    .byte   %01001000 ; | #  #   |            $d91c G)
+    .byte   %00001000 ; |    #   |            $d91d G)
+    .byte   %01001000 ; | #  #   |            $d91e G)
+    .byte   %00001000 ; |    #   |            $d91f G)
+    .byte   %00000000 ; |        |            $d920 G)
+    .byte   %10111111 ; |# ######|            $d921 G)
+    .byte   %00000000 ; |        |            $d922 G)
 	
-	.byte   $cb,$c3,$c5,$87,$88 ; $f920 (*)
-    .byte   $89,$8c,$4c,$4e,$4f,$4f,$2e,$2d ; $f928 (*)
-    .byte   $2e,$00,$64,$64,$44,$44,$44,$44 ; $f930 (*)
-    .byte   $44,$44,$44,$44,$04,$ec,$ec,$cc ; $f938 (*)
-    .byte   $8c,$2c,$00,$e2,$cb,$ae,$90,$73 ; $f940 (*)
-    .byte   $56,$36,$16,$00,$0a,$2a,$12,$08 ; $f948 (*)
-    .byte   $12,$0a,$04,$08,$03,$05,$02,$12 ; $f950 (*)
+	.byte   $cb,$c3,$c5,$87,$88 ; $d920 *)
+    .byte   $89,$8c,$4c,$4e,$4f,$4f,$2e,$2d ; $d928 *)
+    .byte   $2e,$00,$64,$64,$44,$44,$44,$44 ; $d930 *)
+    .byte   $44,$44,$44,$44,$04,$ec,$ec,$cc ; $d938 *)
+    .byte   $8c,$2c,$00,$e2,$cb,$ae,$90,$73 ; $d940 *)
+    .byte   $56,$36,$16,$00,$0a,$2a,$12,$08 ; $d948 *)
+    .byte   $12,$0a,$04,$08,$03,$05,$02,$12 ; $d950 *)
     
-Lf958
+Ld958
     sta     WSYNC
 ;---------------------------------------
     sta     HMOVE
     sec
-Lf95d
+Ld95d
     sbc     #$0f
-    bcs     Lf95d
+    bcs     Ld95d
     eor     #$0f
     asl
     asl
@@ -1555,1770 +1555,1770 @@ Lf95d
     sta     HMP0,x
     rts
     
-Lf979
+Ld979
     ldy     ram_FA
-    lda     (dashboardPtr1L),y
+    lda     (screenPtr1L),y
     sta     ram_FC
     sta     WSYNC
 ;---------------------------------------
     sta     HMOVE
-    lda     (dashboardPtr6L),y
+    lda     (screenPtr6L),y
     sta     GRP0
-    lda     (dashboardPtr5L),y
+    lda     (screenPtr5L),y
     sta     GRP1
-    lda     (dashboardPtr4L),y
+    lda     (screenPtr4L),y
     sta     GRP0
-    lda     (dashboardPtr3L),y
+    lda     (screenPtr3L),y
     tax
-    lda     (dashboardPtr2L),y
+    lda     (screenPtr2L),y
     ldy     ram_FC
     stx     GRP1
     sta     GRP0
     sty     GRP1
     sty     GRP0
     dec     ram_FA
-    bpl     Lf979
+    bpl     Ld979
     rts
     
-    .byte   $a2,$02,$a5,$88,$d0,$13,$a5,$b3 ; $f9a3 (*)
-    .byte   $69,$10,$c9,$21,$b0,$0b,$a5,$b0 ; $f9ab (*)
-    .byte   $e5,$b1,$18,$69,$11,$c9,$20,$90 ; $f9b3 (*)
-    .byte   $03,$a9,$28,$ca,$86,$84,$60     ; $f9bb (*)
+    .byte   $a2,$02,$a5,$88,$d0,$13,$a5,$b3 ; $d9a3 *)
+    .byte   $69,$10,$c9,$21,$b0,$0b,$a5,$b0 ; $d9ab *)
+    .byte   $e5,$b1,$18,$69,$11,$c9,$20,$90 ; $d9b3 *)
+    .byte   $03,$a9,$28,$ca,$86,$84,$60     ; $d9bb *)
     
-    .byte   BLUE_CYAN|$a                    ; $f9c2 (C)
+    .byte   BLUE_CYAN|$a                    ; $d9c2 C)
     
-    .byte   $9a,$98,$98,$96,$96,$94,$93,$06 ; $f9c3 (*)
-    .byte   $06                             ; $f9cb (*)
-    .byte   $01,$01,$01,$01,$01,$01,$04,$04 ; $f9cc (D)
-    .byte   $00,$00,$00,$00,$00,$00,$18,$a5 ; $f9d4 (D)
-    .byte   $c1,$29,$01,$d0,$01,$38,$60,$00 ; $f9dc (D)
-    .byte   $00                             ; $f9e4 (D)
+    .byte   $9a,$98,$98,$96,$96,$94,$93,$06 ; $d9c3 *)
+    .byte   $06                             ; $d9cb *)
+    .byte   $01,$01,$01,$01,$01,$01,$04,$04 ; $d9cc D)
+    .byte   $00,$00,$00,$00,$00,$00,$18,$a5 ; $d9d4 D)
+    .byte   $c1,$29,$01,$d0,$01,$38,$60,$00 ; $d9dc D)
+    .byte   $00                             ; $d9e4 D)
  
  
 ;-----------------------------------------------------------
 ;      Graphic Data: Dashboard & Screens
 ;-----------------------------------------------------------
     
-    .byte   %11111111 ; |########|            $f9e5 (G)
-    .byte   %00000111 ; |     ###|            $f9e6 (G)
-    .byte   %00000101 ; |     # #|            $f9e7 (G)
-    .byte   %00100001 ; |  #    #|            $f9e8 (G)
-    .byte   %00000001 ; |       #|            $f9e9 (G)
-    .byte   %00000001 ; |       #|            $f9ea (G)
-    .byte   %00000001 ; |       #|            $f9eb (G)
-    .byte   %00000001 ; |       #|            $f9ec (G)
-    .byte   %00000001 ; |       #|            $f9ed (G)
-    .byte   %00000001 ; |       #|            $f9ee (G)
-    .byte   %00100001 ; |  #    #|            $f9ef (G)
+    .byte   %11111111 ; |########|            $d9e5 G)
+    .byte   %00000111 ; |     ###|            $d9e6 G)
+    .byte   %00000101 ; |     # #|            $d9e7 G)
+    .byte   %00100001 ; |  #    #|            $d9e8 G)
+    .byte   %00000001 ; |       #|            $d9e9 G)
+    .byte   %00000001 ; |       #|            $d9ea G)
+    .byte   %00000001 ; |       #|            $d9eb G)
+    .byte   %00000001 ; |       #|            $d9ec G)
+    .byte   %00000001 ; |       #|            $d9ed G)
+    .byte   %00000001 ; |       #|            $d9ee G)
+    .byte   %00100001 ; |  #    #|            $d9ef G)
     
 thrustTSprite   
-    .byte   %00100000 ; |  #     |            $f9f0 (G)
-    .byte   %00100000 ; |  #     |            $f9f1 (G)
-    .byte   %00100000 ; |  #     |            $f9f2 (G)
-    .byte   %00100000 ; |  #     |            $f9f3 (G)
-    .byte   %00100000 ; |  #     |            $f9f4 (G)
-    .byte   %00100000 ; |  #     |            $f9f5 (G)
-    .byte   %10101000 ; |# # #   |            $f9f6 (G)
-    .byte   %11111000 ; |#####   |            $f9f7 (G)
-    .byte   %00010000 ; |   #    |            $f9f8 (G)
-    .byte   %00010001 ; |   #   #|            $f9f9 (G)
-    .byte   %00010000 ; |   #    |            $f9fa (G)
-    .byte   %00010000 ; |   #    |            $f9fb (G)
-    .byte   %00010000 ; |   #    |            $f9fc (G)
-    .byte   %00000000 ; |        |            $f9fd (G)
-    .byte   %11111111 ; |########|            $f9fe (G)
-    .byte   %00000000 ; |        |            $f9ff (G)
+    .byte   %00100000 ; |  #     |            $d9f0 G)
+    .byte   %00100000 ; |  #     |            $d9f1 G)
+    .byte   %00100000 ; |  #     |            $d9f2 G)
+    .byte   %00100000 ; |  #     |            $d9f3 G)
+    .byte   %00100000 ; |  #     |            $d9f4 G)
+    .byte   %00100000 ; |  #     |            $d9f5 G)
+    .byte   %10101000 ; |# # #   |            $d9f6 G)
+    .byte   %11111000 ; |#####   |            $d9f7 G)
+    .byte   %00010000 ; |   #    |            $d9f8 G)
+    .byte   %00010001 ; |   #   #|            $d9f9 G)
+    .byte   %00010000 ; |   #    |            $d9fa G)
+    .byte   %00010000 ; |   #    |            $d9fb G)
+    .byte   %00010000 ; |   #    |            $d9fc G)
+    .byte   %00000000 ; |        |            $d9fd G)
+    .byte   %11111111 ; |########|            $d9fe G)
+    .byte   %00000000 ; |        |            $d9ff G)
 
 launchScreen0
-    .byte   %11110110 ; |#### ## |            $fa00 (G)
-    .byte   %11110110 ; |#### ## |            $fa01 (G)
-    .byte   %11111011 ; |##### ##|            $fa02 (G)
-    .byte   %11111011 ; |##### ##|            $fa03 (G)
-    .byte   %11101101 ; |### ## #|            $fa04 (G)
-    .byte   %11101101 ; |### ## #|            $fa05 (G)
-    .byte   %11101110 ; |### ### |            $fa06 (G)
-    .byte   %11101110 ; |### ### |            $fa07 (G)
-    .byte   %11111111 ; |########|            $fa08 (G)
-    .byte   %11111111 ; |########|            $fa09 (G)
-    .byte   %11111111 ; |########|            $fa0a (G)
-    .byte   %11111111 ; |########|            $fa0b (G)
-    .byte   %11111111 ; |########|            $fa0c (G)
-    .byte   %11111111 ; |########|            $fa0d (G)
-    .byte   %11111111 ; |########|            $fa0e (G)
-    .byte   %11111111 ; |########|            $fa0f (G)
-    .byte   %11111111 ; |########|            $fa10 (G)
-    .byte   %11111111 ; |########|            $fa11 (G)
-    .byte   %11111111 ; |########|            $fa12 (G)
-    .byte   %10001111 ; |#   ####|            $fa13 (G)
-    .byte   %11011111 ; |## #####|            $fa14 (G)
-    .byte   %11011111 ; |## #####|            $fa15 (G)
-    .byte   %11011111 ; |## #####|            $fa16 (G)
-    .byte   %10011111 ; |#  #####|            $fa17 (G)
-    .byte   %11111111 ; |########|            $fa18 (G)
+    .byte   %11110110 ; |#### ## |            $da00 G)
+    .byte   %11110110 ; |#### ## |            $da01 G)
+    .byte   %11111011 ; |##### ##|            $da02 G)
+    .byte   %11111011 ; |##### ##|            $da03 G)
+    .byte   %11101101 ; |### ## #|            $da04 G)
+    .byte   %11101101 ; |### ## #|            $da05 G)
+    .byte   %11101110 ; |### ### |            $da06 G)
+    .byte   %11101110 ; |### ### |            $da07 G)
+    .byte   %11111111 ; |########|            $da08 G)
+    .byte   %11111111 ; |########|            $da09 G)
+    .byte   %11111111 ; |########|            $da0a G)
+    .byte   %11111111 ; |########|            $da0b G)
+    .byte   %11111111 ; |########|            $da0c G)
+    .byte   %11111111 ; |########|            $da0d G)
+    .byte   %11111111 ; |########|            $da0e G)
+    .byte   %11111111 ; |########|            $da0f G)
+    .byte   %11111111 ; |########|            $da10 G)
+    .byte   %11111111 ; |########|            $da11 G)
+    .byte   %11111111 ; |########|            $da12 G)
+    .byte   %10001111 ; |#   ####|            $da13 G)
+    .byte   %11011111 ; |## #####|            $da14 G)
+    .byte   %11011111 ; |## #####|            $da15 G)
+    .byte   %11011111 ; |## #####|            $da16 G)
+    .byte   %10011111 ; |#  #####|            $da17 G)
+    .byte   %11111111 ; |########|            $da18 G)
 
 launchScreen1
-    .byte   %11110111 ; |#### ###|            $fa19 (G)
-    .byte   %11110111 ; |#### ###|            $fa1a (G)
-    .byte   %11111111 ; |########|            $fa1b (G)
-    .byte   %11111111 ; |########|            $fa1c (G)
-    .byte   %11111111 ; |########|            $fa1d (G)
-    .byte   %11111111 ; |########|            $fa1e (G)
-    .byte   %11111111 ; |########|            $fa1f (G)
-    .byte   %11111111 ; |########|            $fa20 (G)
-    .byte   %01111111 ; | #######|            $fa21 (G)
-    .byte   %10111111 ; |# ######|            $fa22 (G)
-    .byte   %11011111 ; |## #####|            $fa23 (G)
-    .byte   %11100111 ; |###  ###|            $fa24 (G)
-    .byte   %00111001 ; |  ###  #|            $fa25 (G)
-    .byte   %01111110 ; | ###### |            $fa26 (G)
-    .byte   %00111111 ; |  ######|            $fa27 (G)
-    .byte   %10111111 ; |# ######|            $fa28 (G)
-    .byte   %00111111 ; |  ######|            $fa29 (G)
-    .byte   %11111111 ; |########|            $fa2a (G)
-    .byte   %11111111 ; |########|            $fa2b (G)
-    .byte   %11111111 ; |########|            $fa2c (G)
-    .byte   %11111111 ; |########|            $fa2d (G)
-    .byte   %11111111 ; |########|            $fa2e (G)
-    .byte   %11111111 ; |########|            $fa2f (G)
-    .byte   %11111111 ; |########|            $fa30 (G)
-    .byte   %11111111 ; |########|            $fa31 (G)
+    .byte   %11110111 ; |#### ###|            $da19 G)
+    .byte   %11110111 ; |#### ###|            $da1a G)
+    .byte   %11111111 ; |########|            $da1b G)
+    .byte   %11111111 ; |########|            $da1c G)
+    .byte   %11111111 ; |########|            $da1d G)
+    .byte   %11111111 ; |########|            $da1e G)
+    .byte   %11111111 ; |########|            $da1f G)
+    .byte   %11111111 ; |########|            $da20 G)
+    .byte   %01111111 ; | #######|            $da21 G)
+    .byte   %10111111 ; |# ######|            $da22 G)
+    .byte   %11011111 ; |## #####|            $da23 G)
+    .byte   %11100111 ; |###  ###|            $da24 G)
+    .byte   %00111001 ; |  ###  #|            $da25 G)
+    .byte   %01111110 ; | ###### |            $da26 G)
+    .byte   %00111111 ; |  ######|            $da27 G)
+    .byte   %10111111 ; |# ######|            $da28 G)
+    .byte   %00111111 ; |  ######|            $da29 G)
+    .byte   %11111111 ; |########|            $da2a G)
+    .byte   %11111111 ; |########|            $da2b G)
+    .byte   %11111111 ; |########|            $da2c G)
+    .byte   %11111111 ; |########|            $da2d G)
+    .byte   %11111111 ; |########|            $da2e G)
+    .byte   %11111111 ; |########|            $da2f G)
+    .byte   %11111111 ; |########|            $da30 G)
+    .byte   %11111111 ; |########|            $da31 G)
 
 launchScreen2
-    .byte   %10111101 ; |# #### #|            $fa32 (G)
-    .byte   %10111101 ; |# #### #|            $fa33 (G)
-    .byte   %11111111 ; |########|            $fa34 (G)
-    .byte   %11111111 ; |########|            $fa35 (G)
-    .byte   %11111111 ; |########|            $fa36 (G)
-    .byte   %11111111 ; |########|            $fa37 (G)
-    .byte   %11111111 ; |########|            $fa38 (G)
-    .byte   %11111111 ; |########|            $fa39 (G)
-    .byte   %11111111 ; |########|            $fa3a (G)
-    .byte   %11111111 ; |########|            $fa3b (G)
-    .byte   %11111111 ; |########|            $fa3c (G)
-    .byte   %11111111 ; |########|            $fa3d (G)
-    .byte   %11111111 ; |########|            $fa3e (G)
-    .byte   %01111111 ; | #######|            $fa3f (G)
-    .byte   %10001111 ; |#   ####|            $fa40 (G)
-    .byte   %11110001 ; |####   #|            $fa41 (G)
-    .byte   %11111110 ; |####### |            $fa42 (G)
-    .byte   %11111111 ; |########|            $fa43 (G)
-    .byte   %11111100 ; |######  |            $fa44 (G)
-    .byte   %11111110 ; |####### |            $fa45 (G)
-    .byte   %11111100 ; |######  |            $fa46 (G)
-    .byte   %11111110 ; |####### |            $fa47 (G)
-    .byte   %11111100 ; |######  |            $fa48 (G)
-    .byte   %11111111 ; |########|            $fa49 (G)
-    .byte   %11111111 ; |########|            $fa4a (G)
+    .byte   %10111101 ; |# #### #|            $da32 G)
+    .byte   %10111101 ; |# #### #|            $da33 G)
+    .byte   %11111111 ; |########|            $da34 G)
+    .byte   %11111111 ; |########|            $da35 G)
+    .byte   %11111111 ; |########|            $da36 G)
+    .byte   %11111111 ; |########|            $da37 G)
+    .byte   %11111111 ; |########|            $da38 G)
+    .byte   %11111111 ; |########|            $da39 G)
+    .byte   %11111111 ; |########|            $da3a G)
+    .byte   %11111111 ; |########|            $da3b G)
+    .byte   %11111111 ; |########|            $da3c G)
+    .byte   %11111111 ; |########|            $da3d G)
+    .byte   %11111111 ; |########|            $da3e G)
+    .byte   %01111111 ; | #######|            $da3f G)
+    .byte   %10001111 ; |#   ####|            $da40 G)
+    .byte   %11110001 ; |####   #|            $da41 G)
+    .byte   %11111110 ; |####### |            $da42 G)
+    .byte   %11111111 ; |########|            $da43 G)
+    .byte   %11111100 ; |######  |            $da44 G)
+    .byte   %11111110 ; |####### |            $da45 G)
+    .byte   %11111100 ; |######  |            $da46 G)
+    .byte   %11111110 ; |####### |            $da47 G)
+    .byte   %11111100 ; |######  |            $da48 G)
+    .byte   %11111111 ; |########|            $da49 G)
+    .byte   %11111111 ; |########|            $da4a G)
 
 launchScreen3
-    .byte   %11101111 ; |### ####|            $fa4b (G)
-    .byte   %11101111 ; |### ####|            $fa4c (G)
-    .byte   %11111111 ; |########|            $fa4d (G)
-    .byte   %00000000 ; |        |            $fa4e (G)
-    .byte   %01111011 ; | #### ##|            $fa4f (G)
-    .byte   %01111011 ; | #### ##|            $fa50 (G)
-    .byte   %01010101 ; | # # # #|            $fa51 (G)
-    .byte   %01111111 ; | #######|            $fa52 (G)
-    .byte   %01111111 ; | #######|            $fa53 (G)
-    .byte   %01010101 ; | # # # #|            $fa54 (G)
-    .byte   %01111011 ; | #### ##|            $fa55 (G)
-    .byte   %01111011 ; | #### ##|            $fa56 (G)
-    .byte   %00000000 ; |        |            $fa57 (G)
-    .byte   %11111111 ; |########|            $fa58 (G)
-    .byte   %11111111 ; |########|            $fa59 (G)
-    .byte   %11111111 ; |########|            $fa5a (G)
-    .byte   %00111111 ; |  ######|            $fa5b (G)
-    .byte   %11001111 ; |##  ####|            $fa5c (G)
-    .byte   %11110011 ; |####  ##|            $fa5d (G)
-    .byte   %11111100 ; |######  |            $fa5e (G)
-    .byte   %11111111 ; |########|            $fa5f (G)
-    .byte   %11111111 ; |########|            $fa60 (G)
-    .byte   %11111111 ; |########|            $fa61 (G)
-    .byte   %11111111 ; |########|            $fa62 (G)
-    .byte   %11111111 ; |########|            $fa63 (G)
+    .byte   %11101111 ; |### ####|            $da4b G)
+    .byte   %11101111 ; |### ####|            $da4c G)
+    .byte   %11111111 ; |########|            $da4d G)
+    .byte   %00000000 ; |        |            $da4e G)
+    .byte   %01111011 ; | #### ##|            $da4f G)
+    .byte   %01111011 ; | #### ##|            $da50 G)
+    .byte   %01010101 ; | # # # #|            $da51 G)
+    .byte   %01111111 ; | #######|            $da52 G)
+    .byte   %01111111 ; | #######|            $da53 G)
+    .byte   %01010101 ; | # # # #|            $da54 G)
+    .byte   %01111011 ; | #### ##|            $da55 G)
+    .byte   %01111011 ; | #### ##|            $da56 G)
+    .byte   %00000000 ; |        |            $da57 G)
+    .byte   %11111111 ; |########|            $da58 G)
+    .byte   %11111111 ; |########|            $da59 G)
+    .byte   %11111111 ; |########|            $da5a G)
+    .byte   %00111111 ; |  ######|            $da5b G)
+    .byte   %11001111 ; |##  ####|            $da5c G)
+    .byte   %11110011 ; |####  ##|            $da5d G)
+    .byte   %11111100 ; |######  |            $da5e G)
+    .byte   %11111111 ; |########|            $da5f G)
+    .byte   %11111111 ; |########|            $da60 G)
+    .byte   %11111111 ; |########|            $da61 G)
+    .byte   %11111111 ; |########|            $da62 G)
+    .byte   %11111111 ; |########|            $da63 G)
 
 launchScreen4
-    .byte   %01111011 ; | #### ##|            $fa64 (G)
-    .byte   %01111011 ; | #### ##|            $fa65 (G)
-    .byte   %11111111 ; |########|            $fa66 (G)
-    .byte   %00010011 ; |   #  ##|            $fa67 (G)
-    .byte   %11011011 ; |## ## ##|            $fa68 (G)
-    .byte   %11011011 ; |## ## ##|            $fa69 (G)
-    .byte   %01010011 ; | # #  ##|            $fa6a (G)
-    .byte   %11011011 ; |## ## ##|            $fa6b (G)
-    .byte   %11011011 ; |## ## ##|            $fa6c (G)
-    .byte   %01010011 ; | # #  ##|            $fa6d (G)
-    .byte   %11011011 ; |## ## ##|            $fa6e (G)
-    .byte   %11011011 ; |## ## ##|            $fa6f (G)
-    .byte   %00010011 ; |   #  ##|            $fa70 (G)
-    .byte   %11111011 ; |##### ##|            $fa71 (G)
-    .byte   %11111011 ; |##### ##|            $fa72 (G)
-    .byte   %01010011 ; | # #  ##|            $fa73 (G)
-    .byte   %10111011 ; |# ### ##|            $fa74 (G)
-    .byte   %01011011 ; | # ## ##|            $fa75 (G)
-    .byte   %11110011 ; |####  ##|            $fa76 (G)
-    .byte   %11111011 ; |##### ##|            $fa77 (G)
-    .byte   %01111011 ; | #### ##|            $fa78 (G)
-    .byte   %10110011 ; |# ##  ##|            $fa79 (G)
-    .byte   %11111111 ; |########|            $fa7a (G)
-    .byte   %11111111 ; |########|            $fa7b (G)
-    .byte   %11111111 ; |########|            $fa7c (G)
+    .byte   %01111011 ; | #### ##|            $da64 G)
+    .byte   %01111011 ; | #### ##|            $da65 G)
+    .byte   %11111111 ; |########|            $da66 G)
+    .byte   %00010011 ; |   #  ##|            $da67 G)
+    .byte   %11011011 ; |## ## ##|            $da68 G)
+    .byte   %11011011 ; |## ## ##|            $da69 G)
+    .byte   %01010011 ; | # #  ##|            $da6a G)
+    .byte   %11011011 ; |## ## ##|            $da6b G)
+    .byte   %11011011 ; |## ## ##|            $da6c G)
+    .byte   %01010011 ; | # #  ##|            $da6d G)
+    .byte   %11011011 ; |## ## ##|            $da6e G)
+    .byte   %11011011 ; |## ## ##|            $da6f G)
+    .byte   %00010011 ; |   #  ##|            $da70 G)
+    .byte   %11111011 ; |##### ##|            $da71 G)
+    .byte   %11111011 ; |##### ##|            $da72 G)
+    .byte   %01010011 ; | # #  ##|            $da73 G)
+    .byte   %10111011 ; |# ### ##|            $da74 G)
+    .byte   %01011011 ; | # ## ##|            $da75 G)
+    .byte   %11110011 ; |####  ##|            $da76 G)
+    .byte   %11111011 ; |##### ##|            $da77 G)
+    .byte   %01111011 ; | #### ##|            $da78 G)
+    .byte   %10110011 ; |# ##  ##|            $da79 G)
+    .byte   %11111111 ; |########|            $da7a G)
+    .byte   %11111111 ; |########|            $da7b G)
+    .byte   %11111111 ; |########|            $da7c G)
 
 ;======================
 ; Orbit Screen
 ;======================
 orbitScreen0
-    .byte   %11111111 ; |########|            $fa7d (G)
-    .byte   %11111110 ; |####### |            $fa7e (G)
-    .byte   %11111110 ; |####### |            $fa7f (G)
-    .byte   %11111110 ; |####### |            $fa80 (G)
-    .byte   %11111111 ; |########|            $fa81 (G)
-    .byte   %11111111 ; |########|            $fa82 (G)
-    .byte   %11000011 ; |##    ##|            $fa83 (G)
-    .byte   %11011111 ; |## #####|            $fa84 (G)
-    .byte   %11001111 ; |##  ####|            $fa85 (G)
-    .byte   %11011111 ; |## #####|            $fa86 (G)
-    .byte   %11000111 ; |##   ###|            $fa87 (G)
-    .byte   %11011111 ; |## #####|            $fa88 (G)
-    .byte   %11001111 ; |##  ####|            $fa89 (G)
-    .byte   %11011111 ; |## #####|            $fa8a (G)
-    .byte   %11000010 ; |##    # |            $fa8b (G)
-    .byte   %11011110 ; |## #### |            $fa8c (G)
-    .byte   %11001111 ; |##  ####|            $fa8d (G)
-    .byte   %11011111 ; |## #####|            $fa8e (G)
-    .byte   %11000111 ; |##   ###|            $fa8f (G)
-    .byte   %11011111 ; |## #####|            $fa90 (G)
-    .byte   %11001111 ; |##  ####|            $fa91 (G)
-    .byte   %11011111 ; |## #####|            $fa92 (G)
-    .byte   %11000011 ; |##    ##|            $fa93 (G)
-    .byte   %11111111 ; |########|            $fa94 (G)
-    .byte   %11111111 ; |########|            $fa95 (G)
+    .byte   %11111111 ; |########|            $da7d G)
+    .byte   %11111110 ; |####### |            $da7e G)
+    .byte   %11111110 ; |####### |            $da7f G)
+    .byte   %11111110 ; |####### |            $da80 G)
+    .byte   %11111111 ; |########|            $da81 G)
+    .byte   %11111111 ; |########|            $da82 G)
+    .byte   %11000011 ; |##    ##|            $da83 G)
+    .byte   %11011111 ; |## #####|            $da84 G)
+    .byte   %11001111 ; |##  ####|            $da85 G)
+    .byte   %11011111 ; |## #####|            $da86 G)
+    .byte   %11000111 ; |##   ###|            $da87 G)
+    .byte   %11011111 ; |## #####|            $da88 G)
+    .byte   %11001111 ; |##  ####|            $da89 G)
+    .byte   %11011111 ; |## #####|            $da8a G)
+    .byte   %11000010 ; |##    # |            $da8b G)
+    .byte   %11011110 ; |## #### |            $da8c G)
+    .byte   %11001111 ; |##  ####|            $da8d G)
+    .byte   %11011111 ; |## #####|            $da8e G)
+    .byte   %11000111 ; |##   ###|            $da8f G)
+    .byte   %11011111 ; |## #####|            $da90 G)
+    .byte   %11001111 ; |##  ####|            $da91 G)
+    .byte   %11011111 ; |## #####|            $da92 G)
+    .byte   %11000011 ; |##    ##|            $da93 G)
+    .byte   %11111111 ; |########|            $da94 G)
+    .byte   %11111111 ; |########|            $da95 G)
 
 orbitalScreen1
-    .byte   %11111111 ; |########|            $fa96 (G)
-    .byte   %00000000 ; |        |            $fa97 (G)
-    .byte   %10101010 ; |# # # # |            $fa98 (G)
-    .byte   %10101010 ; |# # # # |            $fa99 (G)
-    .byte   %11111111 ; |########|            $fa9a (G)
-    .byte   %11111111 ; |########|            $fa9b (G)
-    .byte   %11111111 ; |########|            $fa9c (G)
-    .byte   %11111111 ; |########|            $fa9d (G)
-    .byte   %11111111 ; |########|            $fa9e (G)
-    .byte   %11111111 ; |########|            $fa9f (G)
-    .byte   %11111111 ; |########|            $faa0 (G)
-    .byte   %11111111 ; |########|            $faa1 (G)
-    .byte   %11111111 ; |########|            $faa2 (G)
-    .byte   %11111111 ; |########|            $faa3 (G)
-    .byte   %10101010 ; |# # # # |            $faa4 (G)
-    .byte   %11111111 ; |########|            $faa5 (G)
-    .byte   %01111111 ; | #######|            $faa6 (G)
-    .byte   %10111111 ; |# ######|            $faa7 (G)
-    .byte   %11011111 ; |## #####|            $faa8 (G)
-    .byte   %11101111 ; |### ####|            $faa9 (G)
-    .byte   %11110000 ; |####    |            $faaa (G)
-    .byte   %11111111 ; |########|            $faab (G)
-    .byte   %11111111 ; |########|            $faac (G)
-    .byte   %11111111 ; |########|            $faad (G)
-    .byte   %11111111 ; |########|            $faae (G)
+    .byte   %11111111 ; |########|            $da96 G)
+    .byte   %00000000 ; |        |            $da97 G)
+    .byte   %10101010 ; |# # # # |            $da98 G)
+    .byte   %10101010 ; |# # # # |            $da99 G)
+    .byte   %11111111 ; |########|            $da9a G)
+    .byte   %11111111 ; |########|            $da9b G)
+    .byte   %11111111 ; |########|            $da9c G)
+    .byte   %11111111 ; |########|            $da9d G)
+    .byte   %11111111 ; |########|            $da9e G)
+    .byte   %11111111 ; |########|            $da9f G)
+    .byte   %11111111 ; |########|            $daa0 G)
+    .byte   %11111111 ; |########|            $daa1 G)
+    .byte   %11111111 ; |########|            $daa2 G)
+    .byte   %11111111 ; |########|            $daa3 G)
+    .byte   %10101010 ; |# # # # |            $daa4 G)
+    .byte   %11111111 ; |########|            $daa5 G)
+    .byte   %01111111 ; | #######|            $daa6 G)
+    .byte   %10111111 ; |# ######|            $daa7 G)
+    .byte   %11011111 ; |## #####|            $daa8 G)
+    .byte   %11101111 ; |### ####|            $daa9 G)
+    .byte   %11110000 ; |####    |            $daaa G)
+    .byte   %11111111 ; |########|            $daab G)
+    .byte   %11111111 ; |########|            $daac G)
+    .byte   %11111111 ; |########|            $daad G)
+    .byte   %11111111 ; |########|            $daae G)
 
 orbitalScreen2	
-    .byte   %11111111 ; |########|            $faaf (G)
-    .byte   %00000000 ; |        |            $fab0 (G)
-    .byte   %10101010 ; |# # # # |            $fab1 (G)
-    .byte   %10101010 ; |# # # # |            $fab2 (G)
-    .byte   %11111111 ; |########|            $fab3 (G)
-    .byte   %11111111 ; |########|            $fab4 (G)
-    .byte   %11111111 ; |########|            $fab5 (G)
-    .byte   %11111111 ; |########|            $fab6 (G)
-    .byte   %11111111 ; |########|            $fab7 (G)
-    .byte   %11111111 ; |########|            $fab8 (G)
-    .byte   %11111111 ; |########|            $fab9 (G)
-    .byte   %11111111 ; |########|            $faba (G)
-    .byte   %11111111 ; |########|            $fabb (G)
-    .byte   %11111110 ; |####### |            $fabc (G)
-    .byte   %10101000 ; |# # #   |            $fabd (G)
-    .byte   %11111011 ; |##### ##|            $fabe (G)
-    .byte   %11110111 ; |#### ###|            $fabf (G)
-    .byte   %11101111 ; |### ####|            $fac0 (G)
-    .byte   %11011111 ; |## #####|            $fac1 (G)
-    .byte   %10111111 ; |# ######|            $fac2 (G)
-    .byte   %01111111 ; | #######|            $fac3 (G)
-    .byte   %11111111 ; |########|            $fac4 (G)
-    .byte   %11111111 ; |########|            $fac5 (G)
-    .byte   %11111111 ; |########|            $fac6 (G)
-    .byte   %11111111 ; |########|            $fac7 (G)
+    .byte   %11111111 ; |########|            $daaf G)
+    .byte   %00000000 ; |        |            $dab0 G)
+    .byte   %10101010 ; |# # # # |            $dab1 G)
+    .byte   %10101010 ; |# # # # |            $dab2 G)
+    .byte   %11111111 ; |########|            $dab3 G)
+    .byte   %11111111 ; |########|            $dab4 G)
+    .byte   %11111111 ; |########|            $dab5 G)
+    .byte   %11111111 ; |########|            $dab6 G)
+    .byte   %11111111 ; |########|            $dab7 G)
+    .byte   %11111111 ; |########|            $dab8 G)
+    .byte   %11111111 ; |########|            $dab9 G)
+    .byte   %11111111 ; |########|            $daba G)
+    .byte   %11111111 ; |########|            $dabb G)
+    .byte   %11111110 ; |####### |            $dabc G)
+    .byte   %10101000 ; |# # #   |            $dabd G)
+    .byte   %11111011 ; |##### ##|            $dabe G)
+    .byte   %11110111 ; |#### ###|            $dabf G)
+    .byte   %11101111 ; |### ####|            $dac0 G)
+    .byte   %11011111 ; |## #####|            $dac1 G)
+    .byte   %10111111 ; |# ######|            $dac2 G)
+    .byte   %01111111 ; | #######|            $dac3 G)
+    .byte   %11111111 ; |########|            $dac4 G)
+    .byte   %11111111 ; |########|            $dac5 G)
+    .byte   %11111111 ; |########|            $dac6 G)
+    .byte   %11111111 ; |########|            $dac7 G)
 
 orbitalScreen3
-    .byte   %11111111 ; |########|            $fac8 (G)
-    .byte   %00000000 ; |        |            $fac9 (G)
-    .byte   %10101010 ; |# # # # |            $faca (G)
-    .byte   %10101010 ; |# # # # |            $facb (G)
-    .byte   %11111111 ; |########|            $facc (G)
-    .byte   %11111111 ; |########|            $facd (G)
-    .byte   %11111111 ; |########|            $face (G)
-    .byte   %11111111 ; |########|            $facf (G)
-    .byte   %11110000 ; |####    |            $fad0 (G)
-    .byte   %11101111 ; |### ####|            $fad1 (G)
-    .byte   %11011111 ; |## #####|            $fad2 (G)
-    .byte   %10111111 ; |# ######|            $fad3 (G)
-    .byte   %01111111 ; | #######|            $fad4 (G)
-    .byte   %11111111 ; |########|            $fad5 (G)
-    .byte   %10101010 ; |# # # # |            $fad6 (G)
-    .byte   %11111111 ; |########|            $fad7 (G)
-    .byte   %11111111 ; |########|            $fad8 (G)
-    .byte   %11111111 ; |########|            $fad9 (G)
-    .byte   %11111111 ; |########|            $fada (G)
-    .byte   %11111111 ; |########|            $fadb (G)
-    .byte   %11111111 ; |########|            $fadc (G)
-    .byte   %11111111 ; |########|            $fadd (G)
-    .byte   %11111111 ; |########|            $fade (G)
-    .byte   %11111111 ; |########|            $fadf (G)
-    .byte   %11111111 ; |########|            $fae0 (G)
+    .byte   %11111111 ; |########|            $dac8 G)
+    .byte   %00000000 ; |        |            $dac9 G)
+    .byte   %10101010 ; |# # # # |            $daca G)
+    .byte   %10101010 ; |# # # # |            $dacb G)
+    .byte   %11111111 ; |########|            $dacc G)
+    .byte   %11111111 ; |########|            $dacd G)
+    .byte   %11111111 ; |########|            $dace G)
+    .byte   %11111111 ; |########|            $dacf G)
+    .byte   %11110000 ; |####    |            $dad0 G)
+    .byte   %11101111 ; |### ####|            $dad1 G)
+    .byte   %11011111 ; |## #####|            $dad2 G)
+    .byte   %10111111 ; |# ######|            $dad3 G)
+    .byte   %01111111 ; | #######|            $dad4 G)
+    .byte   %11111111 ; |########|            $dad5 G)
+    .byte   %10101010 ; |# # # # |            $dad6 G)
+    .byte   %11111111 ; |########|            $dad7 G)
+    .byte   %11111111 ; |########|            $dad8 G)
+    .byte   %11111111 ; |########|            $dad9 G)
+    .byte   %11111111 ; |########|            $dada G)
+    .byte   %11111111 ; |########|            $dadb G)
+    .byte   %11111111 ; |########|            $dadc G)
+    .byte   %11111111 ; |########|            $dadd G)
+    .byte   %11111111 ; |########|            $dade G)
+    .byte   %11111111 ; |########|            $dadf G)
+    .byte   %11111111 ; |########|            $dae0 G)
 
 orbitalScreen4	
-    .byte   %11111111 ; |########|            $fae1 (G)
-    .byte   %00000011 ; |      ##|            $fae2 (G)
-    .byte   %10101011 ; |# # # ##|            $fae3 (G)
-    .byte   %10101011 ; |# # # ##|            $fae4 (G)
-    .byte   %11111111 ; |########|            $fae5 (G)
-    .byte   %11111111 ; |########|            $fae6 (G)
-    .byte   %11111111 ; |########|            $fae7 (G)
-    .byte   %11111111 ; |########|            $fae8 (G)
-    .byte   %01111111 ; | #######|            $fae9 (G)
-    .byte   %10111111 ; |# ######|            $faea (G)
-    .byte   %11011111 ; |## #####|            $faeb (G)
-    .byte   %11101111 ; |### ####|            $faec (G)
-    .byte   %11110111 ; |#### ###|            $faed (G)
-    .byte   %11111011 ; |##### ##|            $faee (G)
-    .byte   %10101011 ; |# # # ##|            $faef (G)
-    .byte   %11111111 ; |########|            $faf0 (G)
-    .byte   %11111111 ; |########|            $faf1 (G)
-    .byte   %11111111 ; |########|            $faf2 (G)
-    .byte   %11111111 ; |########|            $faf3 (G)
-    .byte   %11110011 ; |####  ##|            $faf4 (G)
-    .byte   %11110111 ; |#### ###|            $faf5 (G)
-    .byte   %11110011 ; |####  ##|            $faf6 (G)
-    .byte   %11111011 ; |##### ##|            $faf7 (G)
-    .byte   %11110011 ; |####  ##|            $faf8 (G)
-    .byte   %11111111 ; |########|            $faf9 (G)
+    .byte   %11111111 ; |########|            $dae1 G)
+    .byte   %00000011 ; |      ##|            $dae2 G)
+    .byte   %10101011 ; |# # # ##|            $dae3 G)
+    .byte   %10101011 ; |# # # ##|            $dae4 G)
+    .byte   %11111111 ; |########|            $dae5 G)
+    .byte   %11111111 ; |########|            $dae6 G)
+    .byte   %11111111 ; |########|            $dae7 G)
+    .byte   %11111111 ; |########|            $dae8 G)
+    .byte   %01111111 ; | #######|            $dae9 G)
+    .byte   %10111111 ; |# ######|            $daea G)
+    .byte   %11011111 ; |## #####|            $daeb G)
+    .byte   %11101111 ; |### ####|            $daec G)
+    .byte   %11110111 ; |#### ###|            $daed G)
+    .byte   %11111011 ; |##### ##|            $daee G)
+    .byte   %10101011 ; |# # # ##|            $daef G)
+    .byte   %11111111 ; |########|            $daf0 G)
+    .byte   %11111111 ; |########|            $daf1 G)
+    .byte   %11111111 ; |########|            $daf2 G)
+    .byte   %11111111 ; |########|            $daf3 G)
+    .byte   %11110011 ; |####  ##|            $daf4 G)
+    .byte   %11110111 ; |#### ###|            $daf5 G)
+    .byte   %11110011 ; |####  ##|            $daf6 G)
+    .byte   %11111011 ; |##### ##|            $daf7 G)
+    .byte   %11110011 ; |####  ##|            $daf8 G)
+    .byte   %11111111 ; |########|            $daf9 G)
 
-    .byte   %00000101 ; |     # #|            $fafa (G)
-    .byte   %00000010 ; |      # |            $fafb (G)
-    .byte   %10000010 ; |#     # |            $fafc (G)
-    .byte   %10000010 ; |#     # |            $fafd (G)
-    .byte   %10000010 ; |#     # |            $fafe (G)
-    .byte   %00000010 ; |      # |            $faff (G)
+    .byte   %00000101 ; |     # #|            $dafa G)
+    .byte   %00000010 ; |      # |            $dafb G)
+    .byte   %10000010 ; |#     # |            $dafc G)
+    .byte   %10000010 ; |#     # |            $dafd G)
+    .byte   %10000010 ; |#     # |            $dafe G)
+    .byte   %00000010 ; |      # |            $daff G)
 
 ;======================
 ;Satellite dock screen
 ;======================
 satScreen0
-    .byte   %11111111 ; |########|            $fb00 (G)
-    .byte   %11111110 ; |####### |            $fb01 (G)
-    .byte   %11111111 ; |########|            $fb02 (G)
-    .byte   %11111111 ; |########|            $fb03 (G)
-    .byte   %11111111 ; |########|            $fb04 (G)
-    .byte   %11111111 ; |########|            $fb05 (G)
-    .byte   %11111111 ; |########|            $fb06 (G)
-    .byte   %11111111 ; |########|            $fb07 (G)
-    .byte   %11111111 ; |########|            $fb08 (G)
-    .byte   %11111111 ; |########|            $fb09 (G)
-    .byte   %11111111 ; |########|            $fb0a (G)
-    .byte   %11111110 ; |####### |            $fb0b (G)
-    .byte   %10000001 ; |#      #|            $fb0c (G)
-    .byte   %11111110 ; |####### |            $fb0d (G)
-    .byte   %11111111 ; |########|            $fb0e (G)
-    .byte   %11111111 ; |########|            $fb0f (G)
-    .byte   %11111111 ; |########|            $fb10 (G)
-    .byte   %11111111 ; |########|            $fb11 (G)
-    .byte   %11111111 ; |########|            $fb12 (G)
-    .byte   %10011111 ; |#  #####|            $fb13 (G)
-    .byte   %11011111 ; |## #####|            $fb14 (G)
-    .byte   %10011111 ; |#  #####|            $fb15 (G)
-    .byte   %11011111 ; |## #####|            $fb16 (G)
-    .byte   %10011111 ; |#  #####|            $fb17 (G)
-    .byte   %11111111 ; |########|            $fb18 (G)
+    .byte   %11111111 ; |########|            $db00 G)
+    .byte   %11111110 ; |####### |            $db01 G)
+    .byte   %11111111 ; |########|            $db02 G)
+    .byte   %11111111 ; |########|            $db03 G)
+    .byte   %11111111 ; |########|            $db04 G)
+    .byte   %11111111 ; |########|            $db05 G)
+    .byte   %11111111 ; |########|            $db06 G)
+    .byte   %11111111 ; |########|            $db07 G)
+    .byte   %11111111 ; |########|            $db08 G)
+    .byte   %11111111 ; |########|            $db09 G)
+    .byte   %11111111 ; |########|            $db0a G)
+    .byte   %11111110 ; |####### |            $db0b G)
+    .byte   %10000001 ; |#      #|            $db0c G)
+    .byte   %11111110 ; |####### |            $db0d G)
+    .byte   %11111111 ; |########|            $db0e G)
+    .byte   %11111111 ; |########|            $db0f G)
+    .byte   %11111111 ; |########|            $db10 G)
+    .byte   %11111111 ; |########|            $db11 G)
+    .byte   %11111111 ; |########|            $db12 G)
+    .byte   %10011111 ; |#  #####|            $db13 G)
+    .byte   %11011111 ; |## #####|            $db14 G)
+    .byte   %10011111 ; |#  #####|            $db15 G)
+    .byte   %11011111 ; |## #####|            $db16 G)
+    .byte   %10011111 ; |#  #####|            $db17 G)
+    .byte   %11111111 ; |########|            $db18 G)
 
 SatScreen1
-    .byte   %11111111 ; |########|            $fb19 (G)
-    .byte   %00111111 ; |  ######|            $fb1a (G)
-    .byte   %01111111 ; | #######|            $fb1b (G)
-    .byte   %11111111 ; |########|            $fb1c (G)
-    .byte   %11111111 ; |########|            $fb1d (G)
-    .byte   %11111111 ; |########|            $fb1e (G)
-    .byte   %11111111 ; |########|            $fb1f (G)
-    .byte   %11111111 ; |########|            $fb20 (G)
-    .byte   %11111111 ; |########|            $fb21 (G)
-    .byte   %11111111 ; |########|            $fb22 (G)
-    .byte   %11111111 ; |########|            $fb23 (G)
-    .byte   %10111111 ; |# ######|            $fb24 (G)
-    .byte   %11000000 ; |##      |            $fb25 (G)
-    .byte   %10111111 ; |# ######|            $fb26 (G)
-    .byte   %11111111 ; |########|            $fb27 (G)
-    .byte   %11111111 ; |########|            $fb28 (G)
-    .byte   %11111111 ; |########|            $fb29 (G)
-    .byte   %11111111 ; |########|            $fb2a (G)
-    .byte   %11111111 ; |########|            $fb2b (G)
-    .byte   %11111111 ; |########|            $fb2c (G)
-    .byte   %11111111 ; |########|            $fb2d (G)
-    .byte   %11111111 ; |########|            $fb2e (G)
-    .byte   %11111111 ; |########|            $fb2f (G)
-    .byte   %11111111 ; |########|            $fb30 (G)
-    .byte   %11111111 ; |########|            $fb31 (G)
+    .byte   %11111111 ; |########|            $db19 G)
+    .byte   %00111111 ; |  ######|            $db1a G)
+    .byte   %01111111 ; | #######|            $db1b G)
+    .byte   %11111111 ; |########|            $db1c G)
+    .byte   %11111111 ; |########|            $db1d G)
+    .byte   %11111111 ; |########|            $db1e G)
+    .byte   %11111111 ; |########|            $db1f G)
+    .byte   %11111111 ; |########|            $db20 G)
+    .byte   %11111111 ; |########|            $db21 G)
+    .byte   %11111111 ; |########|            $db22 G)
+    .byte   %11111111 ; |########|            $db23 G)
+    .byte   %10111111 ; |# ######|            $db24 G)
+    .byte   %11000000 ; |##      |            $db25 G)
+    .byte   %10111111 ; |# ######|            $db26 G)
+    .byte   %11111111 ; |########|            $db27 G)
+    .byte   %11111111 ; |########|            $db28 G)
+    .byte   %11111111 ; |########|            $db29 G)
+    .byte   %11111111 ; |########|            $db2a G)
+    .byte   %11111111 ; |########|            $db2b G)
+    .byte   %11111111 ; |########|            $db2c G)
+    .byte   %11111111 ; |########|            $db2d G)
+    .byte   %11111111 ; |########|            $db2e G)
+    .byte   %11111111 ; |########|            $db2f G)
+    .byte   %11111111 ; |########|            $db30 G)
+    .byte   %11111111 ; |########|            $db31 G)
 
 satScreen2
-    .byte   %11111111 ; |########|            $fb32 (G)
-    .byte   %11111010 ; |##### # |            $fb33 (G)
-    .byte   %10011010 ; |#  ## # |            $fb34 (G)
-    .byte   %11111111 ; |########|            $fb35 (G)
-    .byte   %10011111 ; |#  #####|            $fb36 (G)
-    .byte   %11111111 ; |########|            $fb37 (G)
-    .byte   %10011111 ; |#  #####|            $fb38 (G)
-    .byte   %11111111 ; |########|            $fb39 (G)
-    .byte   %10011111 ; |#  #####|            $fb3a (G)
-    .byte   %11111111 ; |########|            $fb3b (G)
-    .byte   %10011111 ; |#  #####|            $fb3c (G)
-    .byte   %11111111 ; |########|            $fb3d (G)
-    .byte   %10011111 ; |#  #####|            $fb3e (G)
-    .byte   %11111111 ; |########|            $fb3f (G)
-    .byte   %10011111 ; |#  #####|            $fb40 (G)
-    .byte   %11111111 ; |########|            $fb41 (G)
-    .byte   %10011111 ; |#  #####|            $fb42 (G)
-    .byte   %11111111 ; |########|            $fb43 (G)
-    .byte   %10011111 ; |#  #####|            $fb44 (G)
-    .byte   %11111111 ; |########|            $fb45 (G)
-    .byte   %10011111 ; |#  #####|            $fb46 (G)
-    .byte   %11111111 ; |########|            $fb47 (G)
-    .byte   %10010001 ; |#  #   #|            $fb48 (G)
-    .byte   %11111111 ; |########|            $fb49 (G)
-    .byte   %11111111 ; |########|            $fb4a (G)
+    .byte   %11111111 ; |########|            $db32 G)
+    .byte   %11111010 ; |##### # |            $db33 G)
+    .byte   %10011010 ; |#  ## # |            $db34 G)
+    .byte   %11111111 ; |########|            $db35 G)
+    .byte   %10011111 ; |#  #####|            $db36 G)
+    .byte   %11111111 ; |########|            $db37 G)
+    .byte   %10011111 ; |#  #####|            $db38 G)
+    .byte   %11111111 ; |########|            $db39 G)
+    .byte   %10011111 ; |#  #####|            $db3a G)
+    .byte   %11111111 ; |########|            $db3b G)
+    .byte   %10011111 ; |#  #####|            $db3c G)
+    .byte   %11111111 ; |########|            $db3d G)
+    .byte   %10011111 ; |#  #####|            $db3e G)
+    .byte   %11111111 ; |########|            $db3f G)
+    .byte   %10011111 ; |#  #####|            $db40 G)
+    .byte   %11111111 ; |########|            $db41 G)
+    .byte   %10011111 ; |#  #####|            $db42 G)
+    .byte   %11111111 ; |########|            $db43 G)
+    .byte   %10011111 ; |#  #####|            $db44 G)
+    .byte   %11111111 ; |########|            $db45 G)
+    .byte   %10011111 ; |#  #####|            $db46 G)
+    .byte   %11111111 ; |########|            $db47 G)
+    .byte   %10010001 ; |#  #   #|            $db48 G)
+    .byte   %11111111 ; |########|            $db49 G)
+    .byte   %11111111 ; |########|            $db4a G)
 
 satScreen3
-    .byte   %11111111 ; |########|            $fb4b (G)
-    .byte   %10101010 ; |# # # # |            $fb4c (G)
-    .byte   %10101010 ; |# # # # |            $fb4d (G)
-    .byte   %11111111 ; |########|            $fb4e (G)
-    .byte   %11111111 ; |########|            $fb4f (G)
-    .byte   %11111011 ; |##### ##|            $fb50 (G)
-    .byte   %11111011 ; |##### ##|            $fb51 (G)
-    .byte   %11111011 ; |##### ##|            $fb52 (G)
-    .byte   %11111011 ; |##### ##|            $fb53 (G)
-    .byte   %11111011 ; |##### ##|            $fb54 (G)
-    .byte   %11111011 ; |##### ##|            $fb55 (G)
-    .byte   %11110101 ; |#### # #|            $fb56 (G)
-    .byte   %11111111 ; |########|            $fb57 (G)
-    .byte   %11110101 ; |#### # #|            $fb58 (G)
-    .byte   %11111011 ; |##### ##|            $fb59 (G)
-    .byte   %11111011 ; |##### ##|            $fb5a (G)
-    .byte   %11111011 ; |##### ##|            $fb5b (G)
-    .byte   %11111011 ; |##### ##|            $fb5c (G)
-    .byte   %11111011 ; |##### ##|            $fb5d (G)
-    .byte   %11111011 ; |##### ##|            $fb5e (G)
-    .byte   %11111111 ; |########|            $fb5f (G)
-    .byte   %11111111 ; |########|            $fb60 (G)
-    .byte   %11110001 ; |####   #|            $fb61 (G)
-    .byte   %11110111 ; |#### ###|            $fb62 (G)
-    .byte   %11111111 ; |########|            $fb63 (G)
+    .byte   %11111111 ; |########|            $db4b G)
+    .byte   %10101010 ; |# # # # |            $db4c G)
+    .byte   %10101010 ; |# # # # |            $db4d G)
+    .byte   %11111111 ; |########|            $db4e G)
+    .byte   %11111111 ; |########|            $db4f G)
+    .byte   %11111011 ; |##### ##|            $db50 G)
+    .byte   %11111011 ; |##### ##|            $db51 G)
+    .byte   %11111011 ; |##### ##|            $db52 G)
+    .byte   %11111011 ; |##### ##|            $db53 G)
+    .byte   %11111011 ; |##### ##|            $db54 G)
+    .byte   %11111011 ; |##### ##|            $db55 G)
+    .byte   %11110101 ; |#### # #|            $db56 G)
+    .byte   %11111111 ; |########|            $db57 G)
+    .byte   %11110101 ; |#### # #|            $db58 G)
+    .byte   %11111011 ; |##### ##|            $db59 G)
+    .byte   %11111011 ; |##### ##|            $db5a G)
+    .byte   %11111011 ; |##### ##|            $db5b G)
+    .byte   %11111011 ; |##### ##|            $db5c G)
+    .byte   %11111011 ; |##### ##|            $db5d G)
+    .byte   %11111011 ; |##### ##|            $db5e G)
+    .byte   %11111111 ; |########|            $db5f G)
+    .byte   %11111111 ; |########|            $db60 G)
+    .byte   %11110001 ; |####   #|            $db61 G)
+    .byte   %11110111 ; |#### ###|            $db62 G)
+    .byte   %11111111 ; |########|            $db63 G)
 
 satScreen4
-    .byte   %11111111 ; |########|            $fb64 (G)
-    .byte   %10101011 ; |# # # ##|            $fb65 (G)
-    .byte   %10101011 ; |# # # ##|            $fb66 (G)
-    .byte   %11111111 ; |########|            $fb67 (G)
-    .byte   %11111111 ; |########|            $fb68 (G)
-    .byte   %11111111 ; |########|            $fb69 (G)
-    .byte   %11111111 ; |########|            $fb6a (G)
-    .byte   %11111111 ; |########|            $fb6b (G)
-    .byte   %11111111 ; |########|            $fb6c (G)
-    .byte   %11111111 ; |########|            $fb6d (G)
-    .byte   %11111111 ; |########|            $fb6e (G)
-    .byte   %11111111 ; |########|            $fb6f (G)
-    .byte   %11111111 ; |########|            $fb70 (G)
-    .byte   %11111111 ; |########|            $fb71 (G)
-    .byte   %11111111 ; |########|            $fb72 (G)
-    .byte   %11111111 ; |########|            $fb73 (G)
-    .byte   %11111111 ; |########|            $fb74 (G)
-    .byte   %11111111 ; |########|            $fb75 (G)
-    .byte   %11111111 ; |########|            $fb76 (G)
-    .byte   %11111111 ; |########|            $fb77 (G)
-    .byte   %11111111 ; |########|            $fb78 (G)
-    .byte   %11111011 ; |##### ##|            $fb79 (G)
-    .byte   %11110001 ; |####   #|            $fb7a (G)
-    .byte   %11111011 ; |##### ##|            $fb7b (G)
-    .byte   %11111111 ; |########|            $fb7c (G)
+    .byte   %11111111 ; |########|            $db64 G)
+    .byte   %10101011 ; |# # # ##|            $db65 G)
+    .byte   %10101011 ; |# # # ##|            $db66 G)
+    .byte   %11111111 ; |########|            $db67 G)
+    .byte   %11111111 ; |########|            $db68 G)
+    .byte   %11111111 ; |########|            $db69 G)
+    .byte   %11111111 ; |########|            $db6a G)
+    .byte   %11111111 ; |########|            $db6b G)
+    .byte   %11111111 ; |########|            $db6c G)
+    .byte   %11111111 ; |########|            $db6d G)
+    .byte   %11111111 ; |########|            $db6e G)
+    .byte   %11111111 ; |########|            $db6f G)
+    .byte   %11111111 ; |########|            $db70 G)
+    .byte   %11111111 ; |########|            $db71 G)
+    .byte   %11111111 ; |########|            $db72 G)
+    .byte   %11111111 ; |########|            $db73 G)
+    .byte   %11111111 ; |########|            $db74 G)
+    .byte   %11111111 ; |########|            $db75 G)
+    .byte   %11111111 ; |########|            $db76 G)
+    .byte   %11111111 ; |########|            $db77 G)
+    .byte   %11111111 ; |########|            $db78 G)
+    .byte   %11111011 ; |##### ##|            $db79 G)
+    .byte   %11110001 ; |####   #|            $db7a G)
+    .byte   %11111011 ; |##### ##|            $db7b G)
+    .byte   %11111111 ; |########|            $db7c G)
 
 ;======================
 ; Reentry screen
 ;======================
 reentryScreen0
-    .byte   %11011110 ; |## #### |            $fb7d (G)
-    .byte   %11011110 ; |## #### |            $fb7e (G)
-    .byte   %11111111 ; |########|            $fb7f (G)
-    .byte   %11000000 ; |##      |            $fb80 (G)
-    .byte   %11011110 ; |## #### |            $fb81 (G)
-    .byte   %11011110 ; |## #### |            $fb82 (G)
-    .byte   %11010101 ; |## # # #|            $fb83 (G)
-    .byte   %11011111 ; |## #####|            $fb84 (G)
-    .byte   %11011111 ; |## #####|            $fb85 (G)
-    .byte   %11010101 ; |## # # #|            $fb86 (G)
-    .byte   %11011110 ; |## #### |            $fb87 (G)
-    .byte   %11011110 ; |## #### |            $fb88 (G)
-    .byte   %11000000 ; |##      |            $fb89 (G)
-    .byte   %11111111 ; |########|            $fb8a (G)
-    .byte   %11111111 ; |########|            $fb8b (G)
-    .byte   %11111111 ; |########|            $fb8c (G)
-    .byte   %11111111 ; |########|            $fb8d (G)
-    .byte   %11110001 ; |####   #|            $fb8e (G)
-    .byte   %11111101 ; |###### #|            $fb8f (G)
-    .byte   %11111111 ; |########|            $fb90 (G)
-    .byte   %11111111 ; |########|            $fb91 (G)
-    .byte   %11000000 ; |##      |            $fb92 (G)
-    .byte   %11111111 ; |########|            $fb93 (G)
-    .byte   %11111111 ; |########|            $fb94 (G)
-    .byte   %11111111 ; |########|            $fb95 (G)
+    .byte   %11011110 ; |## #### |            $db7d G)
+    .byte   %11011110 ; |## #### |            $db7e G)
+    .byte   %11111111 ; |########|            $db7f G)
+    .byte   %11000000 ; |##      |            $db80 G)
+    .byte   %11011110 ; |## #### |            $db81 G)
+    .byte   %11011110 ; |## #### |            $db82 G)
+    .byte   %11010101 ; |## # # #|            $db83 G)
+    .byte   %11011111 ; |## #####|            $db84 G)
+    .byte   %11011111 ; |## #####|            $db85 G)
+    .byte   %11010101 ; |## # # #|            $db86 G)
+    .byte   %11011110 ; |## #### |            $db87 G)
+    .byte   %11011110 ; |## #### |            $db88 G)
+    .byte   %11000000 ; |##      |            $db89 G)
+    .byte   %11111111 ; |########|            $db8a G)
+    .byte   %11111111 ; |########|            $db8b G)
+    .byte   %11111111 ; |########|            $db8c G)
+    .byte   %11111111 ; |########|            $db8d G)
+    .byte   %11110001 ; |####   #|            $db8e G)
+    .byte   %11111101 ; |###### #|            $db8f G)
+    .byte   %11111111 ; |########|            $db90 G)
+    .byte   %11111111 ; |########|            $db91 G)
+    .byte   %11000000 ; |##      |            $db92 G)
+    .byte   %11111111 ; |########|            $db93 G)
+    .byte   %11111111 ; |########|            $db94 G)
+    .byte   %11111111 ; |########|            $db95 G)
 
 reentryScreen1
-    .byte   %11110111 ; |#### ###|            $fb96 (G)
-    .byte   %11110111 ; |#### ###|            $fb97 (G)
-    .byte   %11111111 ; |########|            $fb98 (G)
-    .byte   %00000111 ; |     ###|            $fb99 (G)
-    .byte   %11110111 ; |#### ###|            $fb9a (G)
-    .byte   %11110111 ; |#### ###|            $fb9b (G)
-    .byte   %01010111 ; | # # ###|            $fb9c (G)
-    .byte   %11110111 ; |#### ###|            $fb9d (G)
-    .byte   %11110111 ; |#### ###|            $fb9e (G)
-    .byte   %01010111 ; | # # ###|            $fb9f (G)
-    .byte   %11110111 ; |#### ###|            $fba0 (G)
-    .byte   %11110111 ; |#### ###|            $fba1 (G)
-    .byte   %00000111 ; |     ###|            $fba2 (G)
-    .byte   %11111111 ; |########|            $fba3 (G)
-    .byte   %11111111 ; |########|            $fba4 (G)
-    .byte   %11111111 ; |########|            $fba5 (G)
-    .byte   %11010111 ; |## # ###|            $fba6 (G)
-    .byte   %11101111 ; |### ####|            $fba7 (G)
-    .byte   %11010111 ; |## # ###|            $fba8 (G)
-    .byte   %11111110 ; |####### |            $fba9 (G)
-    .byte   %11100000 ; |###     |            $fbaa (G)
-    .byte   %00001111 ; |    ####|            $fbab (G)
-    .byte   %11111111 ; |########|            $fbac (G)
-    .byte   %11111111 ; |########|            $fbad (G)
-    .byte   %11111111 ; |########|            $fbae (G)
+    .byte   %11110111 ; |#### ###|            $db96 G)
+    .byte   %11110111 ; |#### ###|            $db97 G)
+    .byte   %11111111 ; |########|            $db98 G)
+    .byte   %00000111 ; |     ###|            $db99 G)
+    .byte   %11110111 ; |#### ###|            $db9a G)
+    .byte   %11110111 ; |#### ###|            $db9b G)
+    .byte   %01010111 ; | # # ###|            $db9c G)
+    .byte   %11110111 ; |#### ###|            $db9d G)
+    .byte   %11110111 ; |#### ###|            $db9e G)
+    .byte   %01010111 ; | # # ###|            $db9f G)
+    .byte   %11110111 ; |#### ###|            $dba0 G)
+    .byte   %11110111 ; |#### ###|            $dba1 G)
+    .byte   %00000111 ; |     ###|            $dba2 G)
+    .byte   %11111111 ; |########|            $dba3 G)
+    .byte   %11111111 ; |########|            $dba4 G)
+    .byte   %11111111 ; |########|            $dba5 G)
+    .byte   %11010111 ; |## # ###|            $dba6 G)
+    .byte   %11101111 ; |### ####|            $dba7 G)
+    .byte   %11010111 ; |## # ###|            $dba8 G)
+    .byte   %11111110 ; |####### |            $dba9 G)
+    .byte   %11100000 ; |###     |            $dbaa G)
+    .byte   %00001111 ; |    ####|            $dbab G)
+    .byte   %11111111 ; |########|            $dbac G)
+    .byte   %11111111 ; |########|            $dbad G)
+    .byte   %11111111 ; |########|            $dbae G)
 
 reentryScreen2
-    .byte   %10111101 ; |# #### #|            $fbaf (G)
-    .byte   %10111101 ; |# #### #|            $fbb0 (G)
-    .byte   %11111111 ; |########|            $fbb1 (G)
-    .byte   %11111111 ; |########|            $fbb2 (G)
-    .byte   %11111111 ; |########|            $fbb3 (G)
-    .byte   %11111111 ; |########|            $fbb4 (G)
-    .byte   %11111111 ; |########|            $fbb5 (G)
-    .byte   %11111111 ; |########|            $fbb6 (G)
-    .byte   %11111111 ; |########|            $fbb7 (G)
-    .byte   %11111111 ; |########|            $fbb8 (G)
-    .byte   %11111111 ; |########|            $fbb9 (G)
-    .byte   %11111110 ; |####### |            $fbba (G)
-    .byte   %11111101 ; |###### #|            $fbbb (G)
-    .byte   %11111101 ; |###### #|            $fbbc (G)
-    .byte   %11111110 ; |####### |            $fbbd (G)
-    .byte   %11111111 ; |########|            $fbbe (G)
-    .byte   %11111111 ; |########|            $fbbf (G)
-    .byte   %11111110 ; |####### |            $fbc0 (G)
-    .byte   %11000001 ; |##     #|            $fbc1 (G)
-    .byte   %00011111 ; |   #####|            $fbc2 (G)
-    .byte   %11111111 ; |########|            $fbc3 (G)
-    .byte   %10001111 ; |#   ####|            $fbc4 (G)
-    .byte   %10111111 ; |# ######|            $fbc5 (G)
-    .byte   %11111111 ; |########|            $fbc6 (G)
-    .byte   %11111111 ; |########|            $fbc7 (G)
+    .byte   %10111101 ; |# #### #|            $dbaf G)
+    .byte   %10111101 ; |# #### #|            $dbb0 G)
+    .byte   %11111111 ; |########|            $dbb1 G)
+    .byte   %11111111 ; |########|            $dbb2 G)
+    .byte   %11111111 ; |########|            $dbb3 G)
+    .byte   %11111111 ; |########|            $dbb4 G)
+    .byte   %11111111 ; |########|            $dbb5 G)
+    .byte   %11111111 ; |########|            $dbb6 G)
+    .byte   %11111111 ; |########|            $dbb7 G)
+    .byte   %11111111 ; |########|            $dbb8 G)
+    .byte   %11111111 ; |########|            $dbb9 G)
+    .byte   %11111110 ; |####### |            $dbba G)
+    .byte   %11111101 ; |###### #|            $dbbb G)
+    .byte   %11111101 ; |###### #|            $dbbc G)
+    .byte   %11111110 ; |####### |            $dbbd G)
+    .byte   %11111111 ; |########|            $dbbe G)
+    .byte   %11111111 ; |########|            $dbbf G)
+    .byte   %11111110 ; |####### |            $dbc0 G)
+    .byte   %11000001 ; |##     #|            $dbc1 G)
+    .byte   %00011111 ; |   #####|            $dbc2 G)
+    .byte   %11111111 ; |########|            $dbc3 G)
+    .byte   %10001111 ; |#   ####|            $dbc4 G)
+    .byte   %10111111 ; |# ######|            $dbc5 G)
+    .byte   %11111111 ; |########|            $dbc6 G)
+    .byte   %11111111 ; |########|            $dbc7 G)
 
 reentryScreen3	
-    .byte   %11101111 ; |### ####|            $fbc8 (G)
-    .byte   %11101111 ; |### ####|            $fbc9 (G)
-    .byte   %11111011 ; |##### ##|            $fbca (G)
-    .byte   %10011100 ; |#  ###  |            $fbcb (G)
-    .byte   %10111111 ; |# ######|            $fbcc (G)
-    .byte   %10111111 ; |# ######|            $fbcd (G)
-    .byte   %10111111 ; |# ######|            $fbce (G)
-    .byte   %11111111 ; |########|            $fbcf (G)
-    .byte   %11111100 ; |######  |            $fbd0 (G)
-    .byte   %11110011 ; |####  ##|            $fbd1 (G)
-    .byte   %11001111 ; |##  ####|            $fbd2 (G)
-    .byte   %00111111 ; |  ######|            $fbd3 (G)
-    .byte   %11111111 ; |########|            $fbd4 (G)
-    .byte   %11111111 ; |########|            $fbd5 (G)
-    .byte   %00111101 ; |  #### #|            $fbd6 (G)
-    .byte   %11011101 ; |## ### #|            $fbd7 (G)
-    .byte   %11011101 ; |## ### #|            $fbd8 (G)
-    .byte   %00111000 ; |  ###   |            $fbd9 (G)
-    .byte   %11111111 ; |########|            $fbda (G)
-    .byte   %11111111 ; |########|            $fbdb (G)
-    .byte   %11111111 ; |########|            $fbdc (G)
-    .byte   %11111111 ; |########|            $fbdd (G)
-    .byte   %11111111 ; |########|            $fbde (G)
-    .byte   %11111111 ; |########|            $fbdf (G)
-    .byte   %11111111 ; |########|            $fbe0 (G)
+    .byte   %11101111 ; |### ####|            $dbc8 G)
+    .byte   %11101111 ; |### ####|            $dbc9 G)
+    .byte   %11111011 ; |##### ##|            $dbca G)
+    .byte   %10011100 ; |#  ###  |            $dbcb G)
+    .byte   %10111111 ; |# ######|            $dbcc G)
+    .byte   %10111111 ; |# ######|            $dbcd G)
+    .byte   %10111111 ; |# ######|            $dbce G)
+    .byte   %11111111 ; |########|            $dbcf G)
+    .byte   %11111100 ; |######  |            $dbd0 G)
+    .byte   %11110011 ; |####  ##|            $dbd1 G)
+    .byte   %11001111 ; |##  ####|            $dbd2 G)
+    .byte   %00111111 ; |  ######|            $dbd3 G)
+    .byte   %11111111 ; |########|            $dbd4 G)
+    .byte   %11111111 ; |########|            $dbd5 G)
+    .byte   %00111101 ; |  #### #|            $dbd6 G)
+    .byte   %11011101 ; |## ### #|            $dbd7 G)
+    .byte   %11011101 ; |## ### #|            $dbd8 G)
+    .byte   %00111000 ; |  ###   |            $dbd9 G)
+    .byte   %11111111 ; |########|            $dbda G)
+    .byte   %11111111 ; |########|            $dbdb G)
+    .byte   %11111111 ; |########|            $dbdc G)
+    .byte   %11111111 ; |########|            $dbdd G)
+    .byte   %11111111 ; |########|            $dbde G)
+    .byte   %11111111 ; |########|            $dbdf G)
+    .byte   %11111111 ; |########|            $dbe0 G)
 
 reentryScreen4	
-    .byte   %01111011 ; | #### ##|            $fbe1 (G)
-    .byte   %01111011 ; | #### ##|            $fbe2 (G)
-    .byte   %11111111 ; |########|            $fbe3 (G)
-    .byte   %11110011 ; |####  ##|            $fbe4 (G)
-    .byte   %00111011 ; |  ### ##|            $fbe5 (G)
-    .byte   %11011011 ; |## ## ##|            $fbe6 (G)
-    .byte   %11010011 ; |## #  ##|            $fbe7 (G)
-    .byte   %00111011 ; |  ### ##|            $fbe8 (G)
-    .byte   %11111011 ; |##### ##|            $fbe9 (G)
-    .byte   %11110011 ; |####  ##|            $fbea (G)
-    .byte   %11111011 ; |##### ##|            $fbeb (G)
-    .byte   %11111011 ; |##### ##|            $fbec (G)
-    .byte   %11110011 ; |####  ##|            $fbed (G)
-    .byte   %11111011 ; |##### ##|            $fbee (G)
-    .byte   %11111011 ; |##### ##|            $fbef (G)
-    .byte   %11110011 ; |####  ##|            $fbf0 (G)
-    .byte   %11111011 ; |##### ##|            $fbf1 (G)
-    .byte   %11111011 ; |##### ##|            $fbf2 (G)
-    .byte   %11110011 ; |####  ##|            $fbf3 (G)
-    .byte   %11111011 ; |##### ##|            $fbf4 (G)
-    .byte   %11111011 ; |##### ##|            $fbf5 (G)
-    .byte   %11110011 ; |####  ##|            $fbf6 (G)
-    .byte   %11111111 ; |########|            $fbf7 (G)
-    .byte   %11111111 ; |########|            $fbf8 (G)
-    .byte   %11111111 ; |########|            $fbf9 (G)
+    .byte   %01111011 ; | #### ##|            $dbe1 G)
+    .byte   %01111011 ; | #### ##|            $dbe2 G)
+    .byte   %11111111 ; |########|            $dbe3 G)
+    .byte   %11110011 ; |####  ##|            $dbe4 G)
+    .byte   %00111011 ; |  ### ##|            $dbe5 G)
+    .byte   %11011011 ; |## ## ##|            $dbe6 G)
+    .byte   %11010011 ; |## #  ##|            $dbe7 G)
+    .byte   %00111011 ; |  ### ##|            $dbe8 G)
+    .byte   %11111011 ; |##### ##|            $dbe9 G)
+    .byte   %11110011 ; |####  ##|            $dbea G)
+    .byte   %11111011 ; |##### ##|            $dbeb G)
+    .byte   %11111011 ; |##### ##|            $dbec G)
+    .byte   %11110011 ; |####  ##|            $dbed G)
+    .byte   %11111011 ; |##### ##|            $dbee G)
+    .byte   %11111011 ; |##### ##|            $dbef G)
+    .byte   %11110011 ; |####  ##|            $dbf0 G)
+    .byte   %11111011 ; |##### ##|            $dbf1 G)
+    .byte   %11111011 ; |##### ##|            $dbf2 G)
+    .byte   %11110011 ; |####  ##|            $dbf3 G)
+    .byte   %11111011 ; |##### ##|            $dbf4 G)
+    .byte   %11111011 ; |##### ##|            $dbf5 G)
+    .byte   %11110011 ; |####  ##|            $dbf6 G)
+    .byte   %11111111 ; |########|            $dbf7 G)
+    .byte   %11111111 ; |########|            $dbf8 G)
+    .byte   %11111111 ; |########|            $dbf9 G)
 
 
-    .byte   %10011001 ; |#  ##  #|            $fbfa (G)
-    .byte   %10011001 ; |#  ##  #|            $fbfb (G)
-    .byte   %00111100 ; |  ####  |            $fbfc (G)
-    .byte   %00111100 ; |  ####  |            $fbfd (G)
-    .byte   %01111110 ; | ###### |            $fbfe (G)
-    .byte   %01111110 ; | ###### |            $fbff (G)
+    .byte   %10011001 ; |#  ##  #|            $dbfa G)
+    .byte   %10011001 ; |#  ##  #|            $dbfb G)
+    .byte   %00111100 ; |  ####  |            $dbfc G)
+    .byte   %00111100 ; |  ####  |            $dbfd G)
+    .byte   %01111110 ; | ###### |            $dbfe G)
+    .byte   %01111110 ; | ###### |            $dbff G)
 
 ;======================
 ; Landing Screen
 ;======================
 landingScreen0	
-    .byte   %11111111 ; |########|            $fc00 (G)
-    .byte   %11111111 ; |########|            $fc01 (G) 
-    .byte   %10000000 ; |#       |            $fc02 (G)
-    .byte   %11111111 ; |########|            $fc03 (G)
-    .byte   %11111111 ; |########|            $fc04 (G)
-    .byte   %11100111 ; |###  ###|            $fc05 (G)
-    .byte   %11111001 ; |#####  #|            $fc06 (G)
-    .byte   %10111110 ; |# ##### |            $fc07 (G)
-    .byte   %11001111 ; |##  ####|            $fc08 (G)
-    .byte   %11110011 ; |####  ##|            $fc09 (G)
-    .byte   %11111101 ; |###### #|            $fc0a (G)
-    .byte   %11111110 ; |####### |            $fc0b (G)
-    .byte   %11111111 ; |########|            $fc0c (G)
-    .byte   %11111111 ; |########|            $fc0d (G)
-    .byte   %11111111 ; |########|            $fc0e (G)
-    .byte   %11111111 ; |########|            $fc0f (G)
-    .byte   %11111111 ; |########|            $fc10 (G)
-    .byte   %11111111 ; |########|            $fc11 (G)
-    .byte   %11111111 ; |########|            $fc12 (G)
-    .byte   %11001110 ; |##  ### |            $fc13 (G)
-    .byte   %11101110 ; |### ### |            $fc14 (G)
-    .byte   %11001010 ; |##  # # |            $fc15 (G)
-    .byte   %11011110 ; |## #### |            $fc16 (G)
-    .byte   %11001110 ; |##  ### |            $fc17 (G)
-    .byte   %11111111 ; |########|            $fc18 (G)
+    .byte   %11111111 ; |########|            $dc00 G)
+    .byte   %11111111 ; |########|            $dc01 G) 
+    .byte   %10000000 ; |#       |            $dc02 G)
+    .byte   %11111111 ; |########|            $dc03 G)
+    .byte   %11111111 ; |########|            $dc04 G)
+    .byte   %11100111 ; |###  ###|            $dc05 G)
+    .byte   %11111001 ; |#####  #|            $dc06 G)
+    .byte   %10111110 ; |# ##### |            $dc07 G)
+    .byte   %11001111 ; |##  ####|            $dc08 G)
+    .byte   %11110011 ; |####  ##|            $dc09 G)
+    .byte   %11111101 ; |###### #|            $dc0a G)
+    .byte   %11111110 ; |####### |            $dc0b G)
+    .byte   %11111111 ; |########|            $dc0c G)
+    .byte   %11111111 ; |########|            $dc0d G)
+    .byte   %11111111 ; |########|            $dc0e G)
+    .byte   %11111111 ; |########|            $dc0f G)
+    .byte   %11111111 ; |########|            $dc10 G)
+    .byte   %11111111 ; |########|            $dc11 G)
+    .byte   %11111111 ; |########|            $dc12 G)
+    .byte   %11001110 ; |##  ### |            $dc13 G)
+    .byte   %11101110 ; |### ### |            $dc14 G)
+    .byte   %11001010 ; |##  # # |            $dc15 G)
+    .byte   %11011110 ; |## #### |            $dc16 G)
+    .byte   %11001110 ; |##  ### |            $dc17 G)
+    .byte   %11111111 ; |########|            $dc18 G)
 
 LandingScreen1
-    .byte   %11111111 ; |########|            $fc19 (G)
-    .byte   %11111111 ; |########|            $fc1a (G)
-    .byte   %00000000 ; |        |            $fc1b (G)
-    .byte   %11111111 ; |########|            $fc1c (G)
-    .byte   %11111111 ; |########|            $fc1d (G)
-    .byte   %11111111 ; |########|            $fc1e (G)
-    .byte   %11111111 ; |########|            $fc1f (G)
-    .byte   %11111111 ; |########|            $fc20 (G)
-    .byte   %01111111 ; | #######|            $fc21 (G)
-    .byte   %10111111 ; |# ######|            $fc22 (G)
-    .byte   %11011111 ; |## #####|            $fc23 (G)
-    .byte   %11101111 ; |### ####|            $fc24 (G)
-    .byte   %01101111 ; | ## ####|            $fc25 (G)
-    .byte   %10110111 ; |# ## ###|            $fc26 (G)
-    .byte   %10110111 ; |# ## ###|            $fc27 (G)
-    .byte   %11011011 ; |## ## ##|            $fc28 (G)
-    .byte   %11011011 ; |## ## ##|            $fc29 (G)
-    .byte   %11101101 ; |### ## #|            $fc2a (G)
-    .byte   %11101110 ; |### ### |            $fc2b (G)
-    .byte   %11110111 ; |#### ###|            $fc2c (G)
-    .byte   %11110111 ; |#### ###|            $fc2d (G)
-    .byte   %01111011 ; | #### ##|            $fc2e (G)
-    .byte   %11111100 ; |######  |            $fc2f (G)
-    .byte   %01111111 ; | #######|            $fc30 (G)
-    .byte   %11111111 ; |########|            $fc31 (G)
+    .byte   %11111111 ; |########|            $dc19 G)
+    .byte   %11111111 ; |########|            $dc1a G)
+    .byte   %00000000 ; |        |            $dc1b G)
+    .byte   %11111111 ; |########|            $dc1c G)
+    .byte   %11111111 ; |########|            $dc1d G)
+    .byte   %11111111 ; |########|            $dc1e G)
+    .byte   %11111111 ; |########|            $dc1f G)
+    .byte   %11111111 ; |########|            $dc20 G)
+    .byte   %01111111 ; | #######|            $dc21 G)
+    .byte   %10111111 ; |# ######|            $dc22 G)
+    .byte   %11011111 ; |## #####|            $dc23 G)
+    .byte   %11101111 ; |### ####|            $dc24 G)
+    .byte   %01101111 ; | ## ####|            $dc25 G)
+    .byte   %10110111 ; |# ## ###|            $dc26 G)
+    .byte   %10110111 ; |# ## ###|            $dc27 G)
+    .byte   %11011011 ; |## ## ##|            $dc28 G)
+    .byte   %11011011 ; |## ## ##|            $dc29 G)
+    .byte   %11101101 ; |### ## #|            $dc2a G)
+    .byte   %11101110 ; |### ### |            $dc2b G)
+    .byte   %11110111 ; |#### ###|            $dc2c G)
+    .byte   %11110111 ; |#### ###|            $dc2d G)
+    .byte   %01111011 ; | #### ##|            $dc2e G)
+    .byte   %11111100 ; |######  |            $dc2f G)
+    .byte   %01111111 ; | #######|            $dc30 G)
+    .byte   %11111111 ; |########|            $dc31 G)
 
 LandingScreen2
-    .byte   %11111111 ; |########|            $fc32 (G)
-    .byte   %11100101 ; |###  # #|            $fc33 (G)
-    .byte   %00111101 ; |  #### #|            $fc34 (G)
-    .byte   %11111111 ; |########|            $fc35 (G)
-    .byte   %11100101 ; |###  # #|            $fc36 (G)
-    .byte   %11111110 ; |####### |            $fc37 (G)
-    .byte   %11111111 ; |########|            $fc38 (G)
-    .byte   %11100111 ; |###  ###|            $fc39 (G)
-    .byte   %11111111 ; |########|            $fc3a (G)
-    .byte   %11111111 ; |########|            $fc3b (G)
-    .byte   %11100111 ; |###  ###|            $fc3c (G)
-    .byte   %11111111 ; |########|            $fc3d (G)
-    .byte   %11111111 ; |########|            $fc3e (G)
-    .byte   %11100111 ; |###  ###|            $fc3f (G)
-    .byte   %11111111 ; |########|            $fc40 (G)
-    .byte   %11111111 ; |########|            $fc41 (G)
-    .byte   %11100111 ; |###  ###|            $fc42 (G)
-    .byte   %11111111 ; |########|            $fc43 (G)
-    .byte   %11111111 ; |########|            $fc44 (G)
-    .byte   %00100111 ; |  #  ###|            $fc45 (G)
-    .byte   %11111111 ; |########|            $fc46 (G)
-    .byte   %11111111 ; |########|            $fc47 (G)
-    .byte   %00100100 ; |  #  #  |            $fc48 (G)
-    .byte   %11111111 ; |########|            $fc49 (G)
-    .byte   %11111111 ; |########|            $fc4a (G)
+    .byte   %11111111 ; |########|            $dc32 G)
+    .byte   %11100101 ; |###  # #|            $dc33 G)
+    .byte   %00111101 ; |  #### #|            $dc34 G)
+    .byte   %11111111 ; |########|            $dc35 G)
+    .byte   %11100101 ; |###  # #|            $dc36 G)
+    .byte   %11111110 ; |####### |            $dc37 G)
+    .byte   %11111111 ; |########|            $dc38 G)
+    .byte   %11100111 ; |###  ###|            $dc39 G)
+    .byte   %11111111 ; |########|            $dc3a G)
+    .byte   %11111111 ; |########|            $dc3b G)
+    .byte   %11100111 ; |###  ###|            $dc3c G)
+    .byte   %11111111 ; |########|            $dc3d G)
+    .byte   %11111111 ; |########|            $dc3e G)
+    .byte   %11100111 ; |###  ###|            $dc3f G)
+    .byte   %11111111 ; |########|            $dc40 G)
+    .byte   %11111111 ; |########|            $dc41 G)
+    .byte   %11100111 ; |###  ###|            $dc42 G)
+    .byte   %11111111 ; |########|            $dc43 G)
+    .byte   %11111111 ; |########|            $dc44 G)
+    .byte   %00100111 ; |  #  ###|            $dc45 G)
+    .byte   %11111111 ; |########|            $dc46 G)
+    .byte   %11111111 ; |########|            $dc47 G)
+    .byte   %00100100 ; |  #  #  |            $dc48 G)
+    .byte   %11111111 ; |########|            $dc49 G)
+    .byte   %11111111 ; |########|            $dc4a G)
 
 LandingScreen3
-    .byte   %11111111 ; |########|            $fc4b (G)
-    .byte   %01010101 ; | # # # #|            $fc4c (G)
-    .byte   %01010101 ; | # # # #|            $fc4d (G)
-    .byte   %11111111 ; |########|            $fc4e (G)
-    .byte   %11111101 ; |###### #|            $fc4f (G)
-    .byte   %11111111 ; |########|            $fc50 (G)
-    .byte   %01111101 ; | ##### #|            $fc51 (G)
-    .byte   %01111111 ; | #######|            $fc52 (G)
-    .byte   %10111101 ; |# #### #|            $fc53 (G)
-    .byte   %10111111 ; |# ######|            $fc54 (G)
-    .byte   %10111101 ; |# #### #|            $fc55 (G)
-    .byte   %11011111 ; |## #####|            $fc56 (G)
-    .byte   %11011101 ; |## ### #|            $fc57 (G)
-    .byte   %11011111 ; |## #####|            $fc58 (G)
-    .byte   %11101101 ; |### ## #|            $fc59 (G)
-    .byte   %11101111 ; |### ####|            $fc5a (G)
-    .byte   %11101101 ; |### ## #|            $fc5b (G)
-    .byte   %11110111 ; |#### ###|            $fc5c (G)
-    .byte   %11110101 ; |#### # #|            $fc5d (G)
-    .byte   %11110111 ; |#### ###|            $fc5e (G)
-    .byte   %11111010 ; |##### # |            $fc5f (G)
-    .byte   %11111010 ; |##### # |            $fc60 (G)
-    .byte   %01111010 ; | #### # |            $fc61 (G)
-    .byte   %11111111 ; |########|            $fc62 (G)
-    .byte   %11111111 ; |########|            $fc63 (G)
+    .byte   %11111111 ; |########|            $dc4b G)
+    .byte   %01010101 ; | # # # #|            $dc4c G)
+    .byte   %01010101 ; | # # # #|            $dc4d G)
+    .byte   %11111111 ; |########|            $dc4e G)
+    .byte   %11111101 ; |###### #|            $dc4f G)
+    .byte   %11111111 ; |########|            $dc50 G)
+    .byte   %01111101 ; | ##### #|            $dc51 G)
+    .byte   %01111111 ; | #######|            $dc52 G)
+    .byte   %10111101 ; |# #### #|            $dc53 G)
+    .byte   %10111111 ; |# ######|            $dc54 G)
+    .byte   %10111101 ; |# #### #|            $dc55 G)
+    .byte   %11011111 ; |## #####|            $dc56 G)
+    .byte   %11011101 ; |## ### #|            $dc57 G)
+    .byte   %11011111 ; |## #####|            $dc58 G)
+    .byte   %11101101 ; |### ## #|            $dc59 G)
+    .byte   %11101111 ; |### ####|            $dc5a G)
+    .byte   %11101101 ; |### ## #|            $dc5b G)
+    .byte   %11110111 ; |#### ###|            $dc5c G)
+    .byte   %11110101 ; |#### # #|            $dc5d G)
+    .byte   %11110111 ; |#### ###|            $dc5e G)
+    .byte   %11111010 ; |##### # |            $dc5f G)
+    .byte   %11111010 ; |##### # |            $dc60 G)
+    .byte   %01111010 ; | #### # |            $dc61 G)
+    .byte   %11111111 ; |########|            $dc62 G)
+    .byte   %11111111 ; |########|            $dc63 G)
 LandingScreen4	
-    .byte   %11111111 ; |########|            $fc64 (G)
-    .byte   %01010101 ; | # # # #|            $fc65 (G)
-    .byte   %01010101 ; | # # # #|            $fc66 (G)
-    .byte   %11111111 ; |########|            $fc67 (G)
-    .byte   %11111101 ; |###### #|            $fc68 (G)
-    .byte   %11111011 ; |##### ##|            $fc69 (G)
-    .byte   %11110111 ; |#### ###|            $fc6a (G)
-    .byte   %11110111 ; |#### ###|            $fc6b (G)
-    .byte   %11101111 ; |### ####|            $fc6c (G)
-    .byte   %11101111 ; |### ####|            $fc6d (G)
-    .byte   %11101111 ; |### ####|            $fc6e (G)
-    .byte   %11011111 ; |## #####|            $fc6f (G)
-    .byte   %11011111 ; |## #####|            $fc70 (G)
-    .byte   %11011111 ; |## #####|            $fc71 (G)
-    .byte   %10111111 ; |# ######|            $fc72 (G)
-    .byte   %10111111 ; |# ######|            $fc73 (G)
-    .byte   %10111111 ; |# ######|            $fc74 (G)
-    .byte   %01111111 ; | #######|            $fc75 (G)
-    .byte   %01111111 ; | #######|            $fc76 (G)
-    .byte   %01111111 ; | #######|            $fc77 (G)
-    .byte   %11111111 ; |########|            $fc78 (G)
-    .byte   %11111011 ; |##### ##|            $fc79 (G)
-    .byte   %11110001 ; |####   #|            $fc7a (G)
-    .byte   %11111011 ; |##### ##|            $fc7b (G)
-    .byte   %11111111 ; |########|            $fc7c (G)
+    .byte   %11111111 ; |########|            $dc64 G)
+    .byte   %01010101 ; | # # # #|            $dc65 G)
+    .byte   %01010101 ; | # # # #|            $dc66 G)
+    .byte   %11111111 ; |########|            $dc67 G)
+    .byte   %11111101 ; |###### #|            $dc68 G)
+    .byte   %11111011 ; |##### ##|            $dc69 G)
+    .byte   %11110111 ; |#### ###|            $dc6a G)
+    .byte   %11110111 ; |#### ###|            $dc6b G)
+    .byte   %11101111 ; |### ####|            $dc6c G)
+    .byte   %11101111 ; |### ####|            $dc6d G)
+    .byte   %11101111 ; |### ####|            $dc6e G)
+    .byte   %11011111 ; |## #####|            $dc6f G)
+    .byte   %11011111 ; |## #####|            $dc70 G)
+    .byte   %11011111 ; |## #####|            $dc71 G)
+    .byte   %10111111 ; |# ######|            $dc72 G)
+    .byte   %10111111 ; |# ######|            $dc73 G)
+    .byte   %10111111 ; |# ######|            $dc74 G)
+    .byte   %01111111 ; | #######|            $dc75 G)
+    .byte   %01111111 ; | #######|            $dc76 G)
+    .byte   %01111111 ; | #######|            $dc77 G)
+    .byte   %11111111 ; |########|            $dc78 G)
+    .byte   %11111011 ; |##### ##|            $dc79 G)
+    .byte   %11110001 ; |####   #|            $dc7a G)
+    .byte   %11111011 ; |##### ##|            $dc7b G)
+    .byte   %11111111 ; |########|            $dc7c G)
 
 ;======================
 ; STS 101 Screen
 ;======================
 stsScreen0
-    .byte   %11111111 ; |########|            $fc7d (G)
-    .byte   %11111111 ; |########|            $fc7e (G)
-    .byte   %11111111 ; |########|            $fc7f (G)
-    .byte   %11111111 ; |########|            $fc80 (G)
-    .byte   %11111111 ; |########|            $fc81 (G)
-    .byte   %11111111 ; |########|            $fc82 (G)
-    .byte   %11111111 ; |########|            $fc83 (G)
-    .byte   %11111111 ; |########|            $fc84 (G)
-    .byte   %11111111 ; |########|            $fc85 (G)
-    .byte   %11111111 ; |########|            $fc86 (G)
-    .byte   %11111111 ; |########|            $fc87 (G)
-    .byte   %11111111 ; |########|            $fc88 (G)
-    .byte   %11111111 ; |########|            $fc89 (G)
-    .byte   %11111111 ; |########|            $fc8a (G)
-    .byte   %11111111 ; |########|            $fc8b (G)
-    .byte   %11111111 ; |########|            $fc8c (G)
-    .byte   %11111111 ; |########|            $fc8d (G)
-    .byte   %11111111 ; |########|            $fc8e (G)
-    .byte   %10001101 ; |#   ## #|            $fc8f (G)
-    .byte   %11101101 ; |### ## #|            $fc90 (G)
-    .byte   %10001101 ; |#   ## #|            $fc91 (G)
-    .byte   %10111101 ; |# #### #|            $fc92 (G)
-    .byte   %10001000 ; |#   #   |            $fc93 (G)
-    .byte   %11111111 ; |########|            $fc94 (G)
-    .byte   %11111111 ; |########|            $fc95 (G)
+    .byte   %11111111 ; |########|            $dc7d G)
+    .byte   %11111111 ; |########|            $dc7e G)
+    .byte   %11111111 ; |########|            $dc7f G)
+    .byte   %11111111 ; |########|            $dc80 G)
+    .byte   %11111111 ; |########|            $dc81 G)
+    .byte   %11111111 ; |########|            $dc82 G)
+    .byte   %11111111 ; |########|            $dc83 G)
+    .byte   %11111111 ; |########|            $dc84 G)
+    .byte   %11111111 ; |########|            $dc85 G)
+    .byte   %11111111 ; |########|            $dc86 G)
+    .byte   %11111111 ; |########|            $dc87 G)
+    .byte   %11111111 ; |########|            $dc88 G)
+    .byte   %11111111 ; |########|            $dc89 G)
+    .byte   %11111111 ; |########|            $dc8a G)
+    .byte   %11111111 ; |########|            $dc8b G)
+    .byte   %11111111 ; |########|            $dc8c G)
+    .byte   %11111111 ; |########|            $dc8d G)
+    .byte   %11111111 ; |########|            $dc8e G)
+    .byte   %10001101 ; |#   ## #|            $dc8f G)
+    .byte   %11101101 ; |### ## #|            $dc90 G)
+    .byte   %10001101 ; |#   ## #|            $dc91 G)
+    .byte   %10111101 ; |# #### #|            $dc92 G)
+    .byte   %10001000 ; |#   #   |            $dc93 G)
+    .byte   %11111111 ; |########|            $dc94 G)
+    .byte   %11111111 ; |########|            $dc95 G)
 
-stsScreen1
-    .byte   %11111111 ; |########|            $fc96 (G)
-    .byte   %00000000 ; |        |            $fc97 (G)
-    .byte   %01111111 ; | #######|            $fc98 (G)
-    .byte   %10011111 ; |#  #####|            $fc99 (G)
-    .byte   %10101111 ; |# # ####|            $fc9a (G)
-    .byte   %11010111 ; |## # ###|            $fc9b (G)
-    .byte   %11011011 ; |## ## ##|            $fc9c (G)
-    .byte   %11101101 ; |### ## #|            $fc9d (G)
-    .byte   %11101110 ; |### ### |            $fc9e (G)
-    .byte   %11110111 ; |#### ###|            $fc9f (G)
-    .byte   %11110111 ; |#### ###|            $fca0 (G)
-    .byte   %11111011 ; |##### ##|            $fca1 (G)
-    .byte   %11111011 ; |##### ##|            $fca2 (G)
-    .byte   %11111101 ; |###### #|            $fca3 (G)
-    .byte   %11111101 ; |###### #|            $fca4 (G)
-    .byte   %11111110 ; |####### |            $fca5 (G)
-    .byte   %11111110 ; |####### |            $fca6 (G)
-    .byte   %11111111 ; |########|            $fca7 (G)
-    .byte   %10001111 ; |#   ####|            $fca8 (G)
-    .byte   %11101111 ; |### ####|            $fca9 (G)
-    .byte   %10001111 ; |#   ####|            $fcaa (G)
-    .byte   %10111111 ; |# ######|            $fcab (G)
-    .byte   %10001111 ; |#   ####|            $fcac (G)
-    .byte   %11111111 ; |########|            $fcad (G)
-    .byte   %11111111 ; |########|            $fcae (G)
+stsScreen1 
+    .byte   %11111111 ; |########|            $dc96 G)
+    .byte   %00000000 ; |        |            $dc97 G)
+    .byte   %01111111 ; | #######|            $dc98 G)
+    .byte   %10011111 ; |#  #####|            $dc99 G)
+    .byte   %10101111 ; |# # ####|            $dc9a G)
+    .byte   %11010111 ; |## # ###|            $dc9b G)
+    .byte   %11011011 ; |## ## ##|            $dc9c G)
+    .byte   %11101101 ; |### ## #|            $dc9d G)
+    .byte   %11101110 ; |### ### |            $dc9e G)
+    .byte   %11110111 ; |#### ###|            $dc9f G)
+    .byte   %11110111 ; |#### ###|            $dca0 G)
+    .byte   %11111011 ; |##### ##|            $dca1 G)
+    .byte   %11111011 ; |##### ##|            $dca2 G)
+    .byte   %11111101 ; |###### #|            $dca3 G)
+    .byte   %11111101 ; |###### #|            $dca4 G)
+    .byte   %11111110 ; |####### |            $dca5 G)
+    .byte   %11111110 ; |####### |            $dca6 G)
+    .byte   %11111111 ; |########|            $dca7 G)
+    .byte   %10001111 ; |#   ####|            $dca8 G)
+    .byte   %11101111 ; |### ####|            $dca9 G)
+    .byte   %10001111 ; |#   ####|            $dcaa G)
+    .byte   %10111111 ; |# ######|            $dcab G)
+    .byte   %10001111 ; |#   ####|            $dcac G)
+    .byte   %11111111 ; |########|            $dcad G)
+    .byte   %11111111 ; |########|            $dcae G)
 
 stsScreen2
-    .byte   %11111111 ; |########|            $fcaf (G)
-    .byte   %00000000 ; |        |            $fcb0 (G)
-    .byte   %11111111 ; |########|            $fcb1 (G)
-    .byte   %11111111 ; |########|            $fcb2 (G)
-    .byte   %01010101 ; | # # # #|            $fcb3 (G)
-    .byte   %01101101 ; | ## ## #|            $fcb4 (G)
-    .byte   %10101011 ; |# # # ##|            $fcb5 (G)
-    .byte   %10111011 ; |# ### ##|            $fcb6 (G)
-    .byte   %10111010 ; |# ### # |            $fcb7 (G)
-    .byte   %00010001 ; |   #   #|            $fcb8 (G)
-    .byte   %10010011 ; |#  #  ##|            $fcb9 (G)
-    .byte   %10010011 ; |#  #  ##|            $fcba (G)
-    .byte   %10010011 ; |#  #  ##|            $fcbb (G)
-    .byte   %10010011 ; |#  #  ##|            $fcbc (G)
-    .byte   %10010011 ; |#  #  ##|            $fcbd (G)
-    .byte   %11010110 ; |## # ## |            $fcbe (G)
-    .byte   %11010110 ; |## # ## |            $fcbf (G)
-    .byte   %01010101 ; | # # # #|            $fcc0 (G)
-    .byte   %01101101 ; | ## ## #|            $fcc1 (G)
-    .byte   %10111011 ; |# ### ##|            $fcc2 (G)
-    .byte   %10111011 ; |# ### ##|            $fcc3 (G)
-    .byte   %11010111 ; |## # ###|            $fcc4 (G)
-    .byte   %11010111 ; |## # ###|            $fcc5 (G)
-    .byte   %11101111 ; |### ####|            $fcc6 (G)
-    .byte   %11101111 ; |### ####|            $fcc7 (G)
+    .byte   %11111111 ; |########|            $dcaf G)
+    .byte   %00000000 ; |        |            $dcb0 G)
+    .byte   %11111111 ; |########|            $dcb1 G)
+    .byte   %11111111 ; |########|            $dcb2 G)
+    .byte   %01010101 ; | # # # #|            $dcb3 G)
+    .byte   %01101101 ; | ## ## #|            $dcb4 G)
+    .byte   %10101011 ; |# # # ##|            $dcb5 G)
+    .byte   %10111011 ; |# ### ##|            $dcb6 G)
+    .byte   %10111010 ; |# ### # |            $dcb7 G)
+    .byte   %00010001 ; |   #   #|            $dcb8 G)
+    .byte   %10010011 ; |#  #  ##|            $dcb9 G)
+    .byte   %10010011 ; |#  #  ##|            $dcba G)
+    .byte   %10010011 ; |#  #  ##|            $dcbb G)
+    .byte   %10010011 ; |#  #  ##|            $dcbc G)
+    .byte   %10010011 ; |#  #  ##|            $dcbd G)
+    .byte   %11010110 ; |## # ## |            $dcbe G)
+    .byte   %11010110 ; |## # ## |            $dcbf G)
+    .byte   %01010101 ; | # # # #|            $dcc0 G)
+    .byte   %01101101 ; | ## ## #|            $dcc1 G)
+    .byte   %10111011 ; |# ### ##|            $dcc2 G)
+    .byte   %10111011 ; |# ### ##|            $dcc3 G)
+    .byte   %11010111 ; |## # ###|            $dcc4 G)
+    .byte   %11010111 ; |## # ###|            $dcc5 G)
+    .byte   %11101111 ; |### ####|            $dcc6 G)
+    .byte   %11101111 ; |### ####|            $dcc7 G)
 
 stsScreen3	
-    .byte   %11111111 ; |########|            $fcc8 (G)
-    .byte   %00000001 ; |       #|            $fcc9 (G)
-    .byte   %11111101 ; |###### #|            $fcca (G)
-    .byte   %11110011 ; |####  ##|            $fccb (G)
-    .byte   %11101011 ; |### # ##|            $fccc (G)
-    .byte   %11010111 ; |## # ###|            $fccd (G)
-    .byte   %10110111 ; |# ## ###|            $fcce (G)
-    .byte   %01101111 ; | ## ####|            $fccf (G)
-    .byte   %11101111 ; |### ####|            $fcd0 (G)
-    .byte   %11011111 ; |## #####|            $fcd1 (G)
-    .byte   %11011111 ; |## #####|            $fcd2 (G)
-    .byte   %10111111 ; |# ######|            $fcd3 (G)
-    .byte   %10111111 ; |# ######|            $fcd4 (G)
-    .byte   %01111111 ; | #######|            $fcd5 (G)
-    .byte   %01111111 ; | #######|            $fcd6 (G)
-    .byte   %11111111 ; |########|            $fcd7 (G)
-    .byte   %11111111 ; |########|            $fcd8 (G)
-    .byte   %11111111 ; |########|            $fcd9 (G)
-    .byte   %11110001 ; |####   #|            $fcda (G)
-    .byte   %11111011 ; |##### ##|            $fcdb (G)
-    .byte   %11111011 ; |##### ##|            $fcdc (G)
-    .byte   %11111011 ; |##### ##|            $fcdd (G)
-    .byte   %11110011 ; |####  ##|            $fcde (G)
-    .byte   %11111111 ; |########|            $fcdf (G)
-    .byte   %11111111 ; |########|            $fce0 (G)
+    .byte   %11111111 ; |########|            $dcc8 G)
+    .byte   %00000001 ; |       #|            $dcc9 G)
+    .byte   %11111101 ; |###### #|            $dcca G)
+    .byte   %11110011 ; |####  ##|            $dccb G)
+    .byte   %11101011 ; |### # ##|            $dccc G)
+    .byte   %11010111 ; |## # ###|            $dccd G)
+    .byte   %10110111 ; |# ## ###|            $dcce G)
+    .byte   %01101111 ; | ## ####|            $dccf G)
+    .byte   %11101111 ; |### ####|            $dcd0 G)
+    .byte   %11011111 ; |## #####|            $dcd1 G)
+    .byte   %11011111 ; |## #####|            $dcd2 G)
+    .byte   %10111111 ; |# ######|            $dcd3 G)
+    .byte   %10111111 ; |# ######|            $dcd4 G)
+    .byte   %01111111 ; | #######|            $dcd5 G)
+    .byte   %01111111 ; | #######|            $dcd6 G)
+    .byte   %11111111 ; |########|            $dcd7 G)
+    .byte   %11111111 ; |########|            $dcd8 G)
+    .byte   %11111111 ; |########|            $dcd9 G)
+    .byte   %11110001 ; |####   #|            $dcda G)
+    .byte   %11111011 ; |##### ##|            $dcdb G)
+    .byte   %11111011 ; |##### ##|            $dcdc G)
+    .byte   %11111011 ; |##### ##|            $dcdd G)
+    .byte   %11110011 ; |####  ##|            $dcde G)
+    .byte   %11111111 ; |########|            $dcdf G)
+    .byte   %11111111 ; |########|            $dce0 G)
 
 stsScreen4	
-    .byte   %11111111 ; |########|            $fce1 (G)
-    .byte   %11111111 ; |########|            $fce2 (G)
-    .byte   %11111111 ; |########|            $fce3 (G)
-    .byte   %11111111 ; |########|            $fce4 (G)
-    .byte   %11111111 ; |########|            $fce5 (G)
-    .byte   %11111111 ; |########|            $fce6 (G)
-    .byte   %11111111 ; |########|            $fce7 (G)
-    .byte   %11111111 ; |########|            $fce8 (G)
-    .byte   %11111111 ; |########|            $fce9 (G)
-    .byte   %11111111 ; |########|            $fcea (G)
-    .byte   %11111111 ; |########|            $fceb (G)
-    .byte   %11111111 ; |########|            $fcec (G)
-    .byte   %11111111 ; |########|            $fced (G)
-    .byte   %11111111 ; |########|            $fcee (G)
-    .byte   %11111111 ; |########|            $fcef (G)
-    .byte   %11111111 ; |########|            $fcf0 (G)
-    .byte   %11111111 ; |########|            $fcf1 (G)
-    .byte   %11111111 ; |########|            $fcf2 (G)
-    .byte   %10110001 ; |# ##   #|            $fcf3 (G)
-    .byte   %01011011 ; | # ## ##|            $fcf4 (G)
-    .byte   %01011011 ; | # ## ##|            $fcf5 (G)
-    .byte   %01011011 ; | # ## ##|            $fcf6 (G)
-    .byte   %10110011 ; |# ##  ##|            $fcf7 (G)
-    .byte   %11111111 ; |########|            $fcf8 (G)
-    .byte   %11111111 ; |########|            $fcf9 (G)
+    .byte   %11111111 ; |########|            $dce1 G)
+    .byte   %11111111 ; |########|            $dce2 G)
+    .byte   %11111111 ; |########|            $dce3 G)
+    .byte   %11111111 ; |########|            $dce4 G)
+    .byte   %11111111 ; |########|            $dce5 G)
+    .byte   %11111111 ; |########|            $dce6 G)
+    .byte   %11111111 ; |########|            $dce7 G)
+    .byte   %11111111 ; |########|            $dce8 G)
+    .byte   %11111111 ; |########|            $dce9 G)
+    .byte   %11111111 ; |########|            $dcea G)
+    .byte   %11111111 ; |########|            $dceb G)
+    .byte   %11111111 ; |########|            $dcec G)
+    .byte   %11111111 ; |########|            $dced G)
+    .byte   %11111111 ; |########|            $dcee G)
+    .byte   %11111111 ; |########|            $dcef G)
+    .byte   %11111111 ; |########|            $dcf0 G)
+    .byte   %11111111 ; |########|            $dcf1 G)
+    .byte   %11111111 ; |########|            $dcf2 G)
+    .byte   %10110001 ; |# ##   #|            $dcf3 G)
+    .byte   %01011011 ; | # ## ##|            $dcf4 G)
+    .byte   %01011011 ; | # ## ##|            $dcf5 G)
+    .byte   %01011011 ; | # ## ##|            $dcf6 G)
+    .byte   %10110011 ; |# ##  ##|            $dcf7 G)
+    .byte   %11111111 ; |########|            $dcf8 G)
+    .byte   %11111111 ; |########|            $dcf9 G)
 
 
 
 
-    .byte   %10010000 ; |#  #    |            $fcfa (G)
-    .byte   %11010000 ; |## #    |            $fcfb (G)
-    .byte   %11110000 ; |####    |            $fcfc (G)
-    .byte   %11111111 ; |########|            $fcfd (G)
-    .byte   %11111111 ; |########|            $fcfe (G)
-    .byte   %11111111 ; |########|            $fcff (G)
-    .byte   %11111111 ; |########|            $fd00 (G)
-    .byte   %11110111 ; |#### ###|            $fd01 (G)
-    .byte   %11110111 ; |#### ###|            $fd02 (G)
-    .byte   %11110011 ; |####  ##|            $fd03 (G)
-    .byte   %11110101 ; |#### # #|            $fd04 (G)
-    .byte   %11110011 ; |####  ##|            $fd05 (G)
-    .byte   %11111111 ; |########|            $fd06 (G)
-    .byte   %11110111 ; |#### ###|            $fd07 (G)
-    .byte   %11110111 ; |#### ###|            $fd08 (G)
-    .byte   %11110101 ; |#### # #|            $fd09 (G)
-    .byte   %11110010 ; |####  # |            $fd0a (G)
-    .byte   %11110111 ; |#### ###|            $fd0b (G)
-    .byte   %11111111 ; |########|            $fd0c (G)
-    .byte   %11110111 ; |#### ###|            $fd0d (G)
-    .byte   %11110111 ; |#### ###|            $fd0e (G)
-    .byte   %11110011 ; |####  ##|            $fd0f (G)
-    .byte   %11110101 ; |#### # #|            $fd10 (G)
-    .byte   %11110011 ; |####  ##|            $fd11 (G)
-    .byte   %11111111 ; |########|            $fd12 (G)
-    .byte   %10101010 ; |# # # # |            $fd13 (G)
-    .byte   %10101010 ; |# # # # |            $fd14 (G)
-    .byte   %10011000 ; |#  ##   |            $fd15 (G)
-    .byte   %10101010 ; |# # # # |            $fd16 (G)
-    .byte   %10011101 ; |#  ### #|            $fd17 (G)
-    .byte   %11111111 ; |########|            $fd18 (G)
-    .byte   %11111111 ; |########|            $fd19 (G)
-    .byte   %01011011 ; | # ## ##|            $fd1a (G)
-    .byte   %01011011 ; | # ## ##|            $fd1b (G)
-    .byte   %00011011 ; |   ## ##|            $fd1c (G)
-    .byte   %01010101 ; | # # # #|            $fd1d (G)
-    .byte   %10110101 ; |# ## # #|            $fd1e (G)
-    .byte   %11111111 ; |########|            $fd1f (G)
-    .byte   %01010001 ; | # #   #|            $fd20 (G)
-    .byte   %01011101 ; | # ### #|            $fd21 (G)
-    .byte   %01010001 ; | # #   #|            $fd22 (G)
-    .byte   %01010111 ; | # # ###|            $fd23 (G)
-    .byte   %01010001 ; | # #   #|            $fd24 (G)
-    .byte   %11111111 ; |########|            $fd25 (G)
-    .byte   %01000110 ; | #   ## |            $fd26 (G)
-    .byte   %01011101 ; | # ### #|            $fd27 (G)
-    .byte   %01011101 ; | # ### #|            $fd28 (G)
-    .byte   %01011101 ; | # ### #|            $fd29 (G)
-    .byte   %01011110 ; | # #### |            $fd2a (G)
-    .byte   %11111111 ; |########|            $fd2b (G)
-    .byte   %11011010 ; |## ## # |            $fd2c (G)
-    .byte   %11011010 ; |## ## # |            $fd2d (G)
-    .byte   %11011010 ; |## ## # |            $fd2e (G)
-    .byte   %11011010 ; |## ## # |            $fd2f (G)
-    .byte   %10001010 ; |#   # # |            $fd30 (G)
-    .byte   %11111111 ; |########|            $fd31 (G)
-    .byte   %11111111 ; |########|            $fd32 (G)
-    .byte   %00110110 ; |  ## ## |            $fd33 (G)
-    .byte   %01101010 ; | ## # # |            $fd34 (G)
-    .byte   %01101010 ; | ## # # |            $fd35 (G)
-    .byte   %01101010 ; | ## # # |            $fd36 (G)
-    .byte   %01110111 ; | ### ###|            $fd37 (G)
-    .byte   %11111111 ; |########|            $fd38 (G)
-    .byte   %00010110 ; |   # ## |            $fd39 (G)
-    .byte   %11010101 ; |## # # #|            $fd3a (G)
-    .byte   %00010101 ; |   # # #|            $fd3b (G)
-    .byte   %01110101 ; | ### # #|            $fd3c (G)
-    .byte   %00010110 ; |   # ## |            $fd3d (G)
-    .byte   %11111111 ; |########|            $fd3e (G)
-    .byte   %11101111 ; |### ####|            $fd3f (G)
-    .byte   %01101111 ; | ## ####|            $fd40 (G)
-    .byte   %01101111 ; | ## ####|            $fd41 (G)
-    .byte   %01101111 ; | ## ####|            $fd42 (G)
-    .byte   %11000111 ; |##   ###|            $fd43 (G)
-    .byte   %11111111 ; |########|            $fd44 (G)
-    .byte   %11010001 ; |## #   #|            $fd45 (G)
-    .byte   %11010101 ; |## # # #|            $fd46 (G)
-    .byte   %10010101 ; |#  # # #|            $fd47 (G)
-    .byte   %01010111 ; | # # ###|            $fd48 (G)
-    .byte   %11010001 ; |## #   #|            $fd49 (G)
-    .byte   %11111111 ; |########|            $fd4a (G)
-    .byte   %11111111 ; |########|            $fd4b (G)
-    .byte   %10100111 ; |# #  ###|            $fd4c (G)
-    .byte   %10101011 ; |# # # ##|            $fd4d (G)
-    .byte   %00101011 ; |  # # ##|            $fd4e (G)
-    .byte   %10101011 ; |# # # ##|            $fd4f (G)
-    .byte   %01100111 ; | ##  ###|            $fd50 (G)
-    .byte   %11111111 ; |########|            $fd51 (G)
-    .byte   %11011011 ; |## ## ##|            $fd52 (G)
-    .byte   %01011011 ; | # ## ##|            $fd53 (G)
-    .byte   %01010011 ; | # #  ##|            $fd54 (G)
-    .byte   %01001011 ; | #  # ##|            $fd55 (G)
-    .byte   %11011011 ; |## ## ##|            $fd56 (G)
-    .byte   %11111111 ; |########|            $fd57 (G)
-    .byte   %11111111 ; |########|            $fd58 (G)
-    .byte   %11111111 ; |########|            $fd59 (G)
-    .byte   %11111111 ; |########|            $fd5a (G)
-    .byte   %11111111 ; |########|            $fd5b (G)
-    .byte   %11111111 ; |########|            $fd5c (G)
-    .byte   %11111111 ; |########|            $fd5d (G)
-    .byte   %11111111 ; |########|            $fd5e (G)
-    .byte   %01111111 ; | #######|            $fd5f (G)
-    .byte   %11111111 ; |########|            $fd60 (G)
-    .byte   %01111111 ; | #######|            $fd61 (G)
-    .byte   %11111111 ; |########|            $fd62 (G)
-    .byte   %11111111 ; |########|            $fd63 (G)
-    .byte   %11111111 ; |########|            $fd64 (G)
-    .byte   %00010111 ; |   # ###|            $fd65 (G)
-    .byte   %11010111 ; |## # ###|            $fd66 (G)
-    .byte   %00010011 ; |   #  ##|            $fd67 (G)
-    .byte   %01110101 ; | ### # #|            $fd68 (G)
-    .byte   %00010011 ; |   #  ##|            $fd69 (G)
-    .byte   %11111111 ; |########|            $fd6a (G)
-    .byte   %00010111 ; |   # ###|            $fd6b (G)
-    .byte   %11010111 ; |## # ###|            $fd6c (G)
-    .byte   %00010011 ; |   #  ##|            $fd6d (G)
-    .byte   %01110101 ; | ### # #|            $fd6e (G)
-    .byte   %00010011 ; |   #  ##|            $fd6f (G)
-    .byte   %11111111 ; |########|            $fd70 (G)
-    .byte   %11111111 ; |########|            $fd71 (G)
-    .byte   %11111111 ; |########|            $fd72 (G)
-    .byte   %11111111 ; |########|            $fd73 (G)
-    .byte   %11111111 ; |########|            $fd74 (G)
-    .byte   %11111111 ; |########|            $fd75 (G)
-    .byte   %11111111 ; |########|            $fd76 (G)
-    .byte   %11111111 ; |########|            $fd77 (G)
-    .byte   %11111111 ; |########|            $fd78 (G)
-    .byte   %11111111 ; |########|            $fd79 (G)
-    .byte   %11111111 ; |########|            $fd7a (G)
-    .byte   %11111111 ; |########|            $fd7b (G)
-    .byte   %11111111 ; |########|            $fd7c (G)
+    .byte   %10010000 ; |#  #    |            $dcfa G)
+    .byte   %11010000 ; |## #    |            $dcfb G)
+    .byte   %11110000 ; |####    |            $dcfc G)
+    .byte   %11111111 ; |########|            $dcfd G)
+    .byte   %11111111 ; |########|            $dcfe G)
+    .byte   %11111111 ; |########|            $dcff G)
+    .byte   %11111111 ; |########|            $dd00 G)
+    .byte   %11110111 ; |#### ###|            $dd01 G)
+    .byte   %11110111 ; |#### ###|            $dd02 G)
+    .byte   %11110011 ; |####  ##|            $dd03 G)
+    .byte   %11110101 ; |#### # #|            $dd04 G)
+    .byte   %11110011 ; |####  ##|            $dd05 G)
+    .byte   %11111111 ; |########|            $dd06 G)
+    .byte   %11110111 ; |#### ###|            $dd07 G)
+    .byte   %11110111 ; |#### ###|            $dd08 G)
+    .byte   %11110101 ; |#### # #|            $dd09 G)
+    .byte   %11110010 ; |####  # |            $dd0a G)
+    .byte   %11110111 ; |#### ###|            $dd0b G)
+    .byte   %11111111 ; |########|            $dd0c G)
+    .byte   %11110111 ; |#### ###|            $dd0d G)
+    .byte   %11110111 ; |#### ###|            $dd0e G)
+    .byte   %11110011 ; |####  ##|            $dd0f G)
+    .byte   %11110101 ; |#### # #|            $dd10 G)
+    .byte   %11110011 ; |####  ##|            $dd11 G)
+    .byte   %11111111 ; |########|            $dd12 G)
+    .byte   %10101010 ; |# # # # |            $dd13 G)
+    .byte   %10101010 ; |# # # # |            $dd14 G)
+    .byte   %10011000 ; |#  ##   |            $dd15 G)
+    .byte   %10101010 ; |# # # # |            $dd16 G)
+    .byte   %10011101 ; |#  ### #|            $dd17 G)
+    .byte   %11111111 ; |########|            $dd18 G)
+    .byte   %11111111 ; |########|            $dd19 G)
+    .byte   %01011011 ; | # ## ##|            $dd1a G)
+    .byte   %01011011 ; | # ## ##|            $dd1b G)
+    .byte   %00011011 ; |   ## ##|            $dd1c G)
+    .byte   %01010101 ; | # # # #|            $dd1d G)
+    .byte   %10110101 ; |# ## # #|            $dd1e G)
+    .byte   %11111111 ; |########|            $dd1f G)
+    .byte   %01010001 ; | # #   #|            $dd20 G)
+    .byte   %01011101 ; | # ### #|            $dd21 G)
+    .byte   %01010001 ; | # #   #|            $dd22 G)
+    .byte   %01010111 ; | # # ###|            $dd23 G)
+    .byte   %01010001 ; | # #   #|            $dd24 G)
+    .byte   %11111111 ; |########|            $dd25 G)
+    .byte   %01000110 ; | #   ## |            $dd26 G)
+    .byte   %01011101 ; | # ### #|            $dd27 G)
+    .byte   %01011101 ; | # ### #|            $dd28 G)
+    .byte   %01011101 ; | # ### #|            $dd29 G)
+    .byte   %01011110 ; | # #### |            $dd2a G)
+    .byte   %11111111 ; |########|            $dd2b G)
+    .byte   %11011010 ; |## ## # |            $dd2c G)
+    .byte   %11011010 ; |## ## # |            $dd2d G)
+    .byte   %11011010 ; |## ## # |            $dd2e G)
+    .byte   %11011010 ; |## ## # |            $dd2f G)
+    .byte   %10001010 ; |#   # # |            $dd30 G)
+    .byte   %11111111 ; |########|            $dd31 G)
+    .byte   %11111111 ; |########|            $dd32 G)
+    .byte   %00110110 ; |  ## ## |            $dd33 G)
+    .byte   %01101010 ; | ## # # |            $dd34 G)
+    .byte   %01101010 ; | ## # # |            $dd35 G)
+    .byte   %01101010 ; | ## # # |            $dd36 G)
+    .byte   %01110111 ; | ### ###|            $dd37 G)
+    .byte   %11111111 ; |########|            $dd38 G)
+    .byte   %00010110 ; |   # ## |            $dd39 G)
+    .byte   %11010101 ; |## # # #|            $dd3a G)
+    .byte   %00010101 ; |   # # #|            $dd3b G)
+    .byte   %01110101 ; | ### # #|            $dd3c G)
+    .byte   %00010110 ; |   # ## |            $dd3d G)
+    .byte   %11111111 ; |########|            $dd3e G)
+    .byte   %11101111 ; |### ####|            $dd3f G)
+    .byte   %01101111 ; | ## ####|            $dd40 G)
+    .byte   %01101111 ; | ## ####|            $dd41 G)
+    .byte   %01101111 ; | ## ####|            $dd42 G)
+    .byte   %11000111 ; |##   ###|            $dd43 G)
+    .byte   %11111111 ; |########|            $dd44 G)
+    .byte   %11010001 ; |## #   #|            $dd45 G)
+    .byte   %11010101 ; |## # # #|            $dd46 G)
+    .byte   %10010101 ; |#  # # #|            $dd47 G)
+    .byte   %01010111 ; | # # ###|            $dd48 G)
+    .byte   %11010001 ; |## #   #|            $dd49 G)
+    .byte   %11111111 ; |########|            $dd4a G)
+    .byte   %11111111 ; |########|            $dd4b G)
+    .byte   %10100111 ; |# #  ###|            $dd4c G)
+    .byte   %10101011 ; |# # # ##|            $dd4d G)
+    .byte   %00101011 ; |  # # ##|            $dd4e G)
+    .byte   %10101011 ; |# # # ##|            $dd4f G)
+    .byte   %01100111 ; | ##  ###|            $dd50 G)
+    .byte   %11111111 ; |########|            $dd51 G)
+    .byte   %11011011 ; |## ## ##|            $dd52 G)
+    .byte   %01011011 ; | # ## ##|            $dd53 G)
+    .byte   %01010011 ; | # #  ##|            $dd54 G)
+    .byte   %01001011 ; | #  # ##|            $dd55 G)
+    .byte   %11011011 ; |## ## ##|            $dd56 G)
+    .byte   %11111111 ; |########|            $dd57 G)
+    .byte   %11111111 ; |########|            $dd58 G)
+    .byte   %11111111 ; |########|            $dd59 G)
+    .byte   %11111111 ; |########|            $dd5a G)
+    .byte   %11111111 ; |########|            $dd5b G)
+    .byte   %11111111 ; |########|            $dd5c G)
+    .byte   %11111111 ; |########|            $dd5d G)
+    .byte   %11111111 ; |########|            $dd5e G)
+    .byte   %01111111 ; | #######|            $dd5f G)
+    .byte   %11111111 ; |########|            $dd60 G)
+    .byte   %01111111 ; | #######|            $dd61 G)
+    .byte   %11111111 ; |########|            $dd62 G)
+    .byte   %11111111 ; |########|            $dd63 G)
+    .byte   %11111111 ; |########|            $dd64 G)
+    .byte   %00010111 ; |   # ###|            $dd65 G)
+    .byte   %11010111 ; |## # ###|            $dd66 G)
+    .byte   %00010011 ; |   #  ##|            $dd67 G)
+    .byte   %01110101 ; | ### # #|            $dd68 G)
+    .byte   %00010011 ; |   #  ##|            $dd69 G)
+    .byte   %11111111 ; |########|            $dd6a G)
+    .byte   %00010111 ; |   # ###|            $dd6b G)
+    .byte   %11010111 ; |## # ###|            $dd6c G)
+    .byte   %00010011 ; |   #  ##|            $dd6d G)
+    .byte   %01110101 ; | ### # #|            $dd6e G)
+    .byte   %00010011 ; |   #  ##|            $dd6f G)
+    .byte   %11111111 ; |########|            $dd70 G)
+    .byte   %11111111 ; |########|            $dd71 G)
+    .byte   %11111111 ; |########|            $dd72 G)
+    .byte   %11111111 ; |########|            $dd73 G)
+    .byte   %11111111 ; |########|            $dd74 G)
+    .byte   %11111111 ; |########|            $dd75 G)
+    .byte   %11111111 ; |########|            $dd76 G)
+    .byte   %11111111 ; |########|            $dd77 G)
+    .byte   %11111111 ; |########|            $dd78 G)
+    .byte   %11111111 ; |########|            $dd79 G)
+    .byte   %11111111 ; |########|            $dd7a G)
+    .byte   %11111111 ; |########|            $dd7b G)
+    .byte   %11111111 ; |########|            $dd7c G)
 
 unknownScreen0	
-    .byte   %11111111 ; |########|            $fd7d (G)
-    .byte   %11111111 ; |########|            $fd7e (G)
-    .byte   %11111111 ; |########|            $fd7f (G)
-    .byte   %11111111 ; |########|            $fd80 (G)
-    .byte   %11111111 ; |########|            $fd81 (G)
-    .byte   %11111111 ; |########|            $fd82 (G)
-    .byte   %11111111 ; |########|            $fd83 (G)
-    .byte   %11111111 ; |########|            $fd84 (G)
-    .byte   %11111111 ; |########|            $fd85 (G)
-    .byte   %11111111 ; |########|            $fd86 (G)
-    .byte   %11111111 ; |########|            $fd87 (G)
-    .byte   %11111110 ; |####### |            $fd88 (G)
-    .byte   %11111101 ; |###### #|            $fd89 (G)
-    .byte   %11111011 ; |##### ##|            $fd8a (G)
-    .byte   %11110111 ; |#### ###|            $fd8b (G)
-    .byte   %11101111 ; |### ####|            $fd8c (G)
-    .byte   %11101111 ; |### ####|            $fd8d (G)
-    .byte   %11011111 ; |## #####|            $fd8e (G)
-    .byte   %11011110 ; |## #### |            $fd8f (G)
-    .byte   %10111101 ; |# #### #|            $fd90 (G)
-    .byte   %10110000 ; |# ##    |            $fd91 (G)
-    .byte   %10001111 ; |#   ####|            $fd92 (G)
-    .byte   %11111111 ; |########|            $fd93 (G)
-    .byte   %11111111 ; |########|            $fd94 (G)
-    .byte   %11111111 ; |########|            $fd95 (G)
+    .byte   %11111111 ; |########|            $dd7d G)
+    .byte   %11111111 ; |########|            $dd7e G)
+    .byte   %11111111 ; |########|            $dd7f G)
+    .byte   %11111111 ; |########|            $dd80 G)
+    .byte   %11111111 ; |########|            $dd81 G)
+    .byte   %11111111 ; |########|            $dd82 G)
+    .byte   %11111111 ; |########|            $dd83 G)
+    .byte   %11111111 ; |########|            $dd84 G)
+    .byte   %11111111 ; |########|            $dd85 G)
+    .byte   %11111111 ; |########|            $dd86 G)
+    .byte   %11111111 ; |########|            $dd87 G)
+    .byte   %11111110 ; |####### |            $dd88 G)
+    .byte   %11111101 ; |###### #|            $dd89 G)
+    .byte   %11111011 ; |##### ##|            $dd8a G)
+    .byte   %11110111 ; |#### ###|            $dd8b G)
+    .byte   %11101111 ; |### ####|            $dd8c G)
+    .byte   %11101111 ; |### ####|            $dd8d G)
+    .byte   %11011111 ; |## #####|            $dd8e G)
+    .byte   %11011110 ; |## #### |            $dd8f G)
+    .byte   %10111101 ; |# #### #|            $dd90 G)
+    .byte   %10110000 ; |# ##    |            $dd91 G)
+    .byte   %10001111 ; |#   ####|            $dd92 G)
+    .byte   %11111111 ; |########|            $dd93 G)
+    .byte   %11111111 ; |########|            $dd94 G)
+    .byte   %11111111 ; |########|            $dd95 G)
 
 unknownScreen1
-    .byte   %11111111 ; |########|            $fd96 (G)
-    .byte   %11111111 ; |########|            $fd97 (G)
-    .byte   %11111111 ; |########|            $fd98 (G)
-    .byte   %11111111 ; |########|            $fd99 (G)
-    .byte   %11111111 ; |########|            $fd9a (G)
-    .byte   %11111100 ; |######  |            $fd9b (G)
-    .byte   %11111010 ; |##### # |            $fd9c (G)
-    .byte   %11110110 ; |#### ## |            $fd9d (G)
-    .byte   %11101110 ; |### ### |            $fd9e (G)
-    .byte   %10011110 ; |#  #### |            $fd9f (G)
-    .byte   %01111110 ; | ###### |            $fda0 (G)
-    .byte   %11111000 ; |#####   |            $fda1 (G)
-    .byte   %11110110 ; |#### ## |            $fda2 (G)
-    .byte   %11101110 ; |### ### |            $fda3 (G)
-    .byte   %11011100 ; |## ###  |            $fda4 (G)
-    .byte   %11011010 ; |## ## # |            $fda5 (G)
-    .byte   %11101010 ; |### # # |            $fda6 (G)
-    .byte   %00101011 ; |  # # ##|            $fda7 (G)
-    .byte   %11011101 ; |## ### #|            $fda8 (G)
-    .byte   %11111101 ; |###### #|            $fda9 (G)
-    .byte   %00001101 ; |    ## #|            $fdaa (G)
-    .byte   %11110011 ; |####  ##|            $fdab (G)
-    .byte   %11111111 ; |########|            $fdac (G)
-    .byte   %11111111 ; |########|            $fdad (G)
-    .byte   %11111111 ; |########|            $fdae (G)
+    .byte   %11111111 ; |########|            $dd96 G)
+    .byte   %11111111 ; |########|            $dd97 G)
+    .byte   %11111111 ; |########|            $dd98 G)
+    .byte   %11111111 ; |########|            $dd99 G)
+    .byte   %11111111 ; |########|            $dd9a G)
+    .byte   %11111100 ; |######  |            $dd9b G)
+    .byte   %11111010 ; |##### # |            $dd9c G)
+    .byte   %11110110 ; |#### ## |            $dd9d G)
+    .byte   %11101110 ; |### ### |            $dd9e G)
+    .byte   %10011110 ; |#  #### |            $dd9f G)
+    .byte   %01111110 ; | ###### |            $dda0 G)
+    .byte   %11111000 ; |#####   |            $dda1 G)
+    .byte   %11110110 ; |#### ## |            $dda2 G)
+    .byte   %11101110 ; |### ### |            $dda3 G)
+    .byte   %11011100 ; |## ###  |            $dda4 G)
+    .byte   %11011010 ; |## ## # |            $dda5 G)
+    .byte   %11101010 ; |### # # |            $dda6 G)
+    .byte   %00101011 ; |  # # ##|            $dda7 G)
+    .byte   %11011101 ; |## ### #|            $dda8 G)
+    .byte   %11111101 ; |###### #|            $dda9 G)
+    .byte   %00001101 ; |    ## #|            $ddaa G)
+    .byte   %11110011 ; |####  ##|            $ddab G)
+    .byte   %11111111 ; |########|            $ddac G)
+    .byte   %11111111 ; |########|            $ddad G)
+    .byte   %11111111 ; |########|            $ddae G)
 
 unknownScreen2
-    .byte   %11111111 ; |########|            $fdaf (G)
-    .byte   %11111111 ; |########|            $fdb0 (G)
-    .byte   %11101111 ; |### ####|            $fdb1 (G)
-    .byte   %11010111 ; |## # ###|            $fdb2 (G)
-    .byte   %00111001 ; |  ###  #|            $fdb3 (G)
-    .byte   %11101110 ; |### ### |            $fdb4 (G)
-    .byte   %10101010 ; |# # # # |            $fdb5 (G)
-    .byte   %10101010 ; |# # # # |            $fdb6 (G)
-    .byte   %10101010 ; |# # # # |            $fdb7 (G)
-    .byte   %10101010 ; |# # # # |            $fdb8 (G)
-    .byte   %10101010 ; |# # # # |            $fdb9 (G)
-    .byte   %10101010 ; |# # # # |            $fdba (G)
-    .byte   %10101010 ; |# # # # |            $fdbb (G)
-    .byte   %11111110 ; |####### |            $fdbc (G)
-    .byte   %10101010 ; |# # # # |            $fdbd (G)
-    .byte   %11111110 ; |####### |            $fdbe (G)
-    .byte   %10010010 ; |#  #  # |            $fdbf (G)
-    .byte   %01101101 ; | ## ## #|            $fdc0 (G)
-    .byte   %11111111 ; |########|            $fdc1 (G)
-    .byte   %11111111 ; |########|            $fdc2 (G)
-    .byte   %11111111 ; |########|            $fdc3 (G)
-    .byte   %11111111 ; |########|            $fdc4 (G)
-    .byte   %11111111 ; |########|            $fdc5 (G)
-    .byte   %11111111 ; |########|            $fdc6 (G)
-    .byte   %11111111 ; |########|            $fdc7 (G)
+    .byte   %11111111 ; |########|            $ddaf G)
+    .byte   %11111111 ; |########|            $ddb0 G)
+    .byte   %11101111 ; |### ####|            $ddb1 G)
+    .byte   %11010111 ; |## # ###|            $ddb2 G)
+    .byte   %00111001 ; |  ###  #|            $ddb3 G)
+    .byte   %11101110 ; |### ### |            $ddb4 G)
+    .byte   %10101010 ; |# # # # |            $ddb5 G)
+    .byte   %10101010 ; |# # # # |            $ddb6 G)
+    .byte   %10101010 ; |# # # # |            $ddb7 G)
+    .byte   %10101010 ; |# # # # |            $ddb8 G)
+    .byte   %10101010 ; |# # # # |            $ddb9 G)
+    .byte   %10101010 ; |# # # # |            $ddba G)
+    .byte   %10101010 ; |# # # # |            $ddbb G)
+    .byte   %11111110 ; |####### |            $ddbc G)
+    .byte   %10101010 ; |# # # # |            $ddbd G)
+    .byte   %11111110 ; |####### |            $ddbe G)
+    .byte   %10010010 ; |#  #  # |            $ddbf G)
+    .byte   %01101101 ; | ## ## #|            $ddc0 G)
+    .byte   %11111111 ; |########|            $ddc1 G)
+    .byte   %11111111 ; |########|            $ddc2 G)
+    .byte   %11111111 ; |########|            $ddc3 G)
+    .byte   %11111111 ; |########|            $ddc4 G)
+    .byte   %11111111 ; |########|            $ddc5 G)
+    .byte   %11111111 ; |########|            $ddc6 G)
+    .byte   %11111111 ; |########|            $ddc7 G)
 
 unknownScreen3
-    .byte   %11111111 ; |########|            $fdc8 (G)
-    .byte   %11111111 ; |########|            $fdc9 (G)
-    .byte   %11111111 ; |########|            $fdca (G)
-    .byte   %11111111 ; |########|            $fdcb (G)
-    .byte   %11111111 ; |########|            $fdcc (G)
-    .byte   %01111111 ; | #######|            $fdcd (G)
-    .byte   %10111111 ; |# ######|            $fdce (G)
-    .byte   %11011111 ; |## #####|            $fdcf (G)
-    .byte   %11101111 ; |### ####|            $fdd0 (G)
-    .byte   %11110011 ; |####  ##|            $fdd1 (G)
-    .byte   %11111100 ; |######  |            $fdd2 (G)
-    .byte   %00111111 ; |  ######|            $fdd3 (G)
-    .byte   %11011111 ; |## #####|            $fdd4 (G)
-    .byte   %11101111 ; |### ####|            $fdd5 (G)
-    .byte   %01110111 ; | ### ###|            $fdd6 (G)
-    .byte   %10110111 ; |# ## ###|            $fdd7 (G)
-    .byte   %10101111 ; |# # ####|            $fdd8 (G)
-    .byte   %10101000 ; |# # #   |            $fdd9 (G)
-    .byte   %01110111 ; | ### ###|            $fdda (G)
-    .byte   %01111111 ; | #######|            $fddb (G)
-    .byte   %01100000 ; | ##     |            $fddc (G)
-    .byte   %10011111 ; |#  #####|            $fddd (G)
-    .byte   %11111111 ; |########|            $fdde (G)
-    .byte   %11111111 ; |########|            $fddf (G)
-    .byte   %11111111 ; |########|            $fde0 (G)
+    .byte   %11111111 ; |########|            $ddc8 G)
+    .byte   %11111111 ; |########|            $ddc9 G)
+    .byte   %11111111 ; |########|            $ddca G)
+    .byte   %11111111 ; |########|            $ddcb G)
+    .byte   %11111111 ; |########|            $ddcc G)
+    .byte   %01111111 ; | #######|            $ddcd G)
+    .byte   %10111111 ; |# ######|            $ddce G)
+    .byte   %11011111 ; |## #####|            $ddcf G)
+    .byte   %11101111 ; |### ####|            $ddd0 G)
+    .byte   %11110011 ; |####  ##|            $ddd1 G)
+    .byte   %11111100 ; |######  |            $ddd2 G)
+    .byte   %00111111 ; |  ######|            $ddd3 G)
+    .byte   %11011111 ; |## #####|            $ddd4 G)
+    .byte   %11101111 ; |### ####|            $ddd5 G)
+    .byte   %01110111 ; | ### ###|            $ddd6 G)
+    .byte   %10110111 ; |# ## ###|            $ddd7 G)
+    .byte   %10101111 ; |# # ####|            $ddd8 G)
+    .byte   %10101000 ; |# # #   |            $ddd9 G)
+    .byte   %01110111 ; | ### ###|            $ddda G)
+    .byte   %01111111 ; | #######|            $dddb G)
+    .byte   %01100000 ; | ##     |            $dddc G)
+    .byte   %10011111 ; |#  #####|            $dddd G)
+    .byte   %11111111 ; |########|            $ddde G)
+    .byte   %11111111 ; |########|            $dddf G)
+    .byte   %11111111 ; |########|            $dde0 G)
 
 unknownScreen4
-    .byte   %11111111 ; |########|            $fde1 (G)
-    .byte   %11111111 ; |########|            $fde2 (G)
-    .byte   %11111111 ; |########|            $fde3 (G)
-    .byte   %11111111 ; |########|            $fde4 (G)
-    .byte   %11111111 ; |########|            $fde5 (G)
-    .byte   %11111111 ; |########|            $fde6 (G)
-    .byte   %11111111 ; |########|            $fde7 (G)
-    .byte   %11111111 ; |########|            $fde8 (G)
-    .byte   %11111111 ; |########|            $fde9 (G)
-    .byte   %11111111 ; |########|            $fdea (G)
-    .byte   %11111111 ; |########|            $fdeb (G)
-    .byte   %01111111 ; | #######|            $fdec (G)
-    .byte   %10111111 ; |# ######|            $fded (G)
-    .byte   %11011111 ; |## #####|            $fdee (G)
-    .byte   %11101111 ; |### ####|            $fdef (G)
-    .byte   %11110111 ; |#### ###|            $fdf0 (G)
-    .byte   %11110111 ; |#### ###|            $fdf1 (G)
-    .byte   %11111011 ; |##### ##|            $fdf2 (G)
-    .byte   %01111011 ; | #### ##|            $fdf3 (G)
-    .byte   %10111101 ; |# #### #|            $fdf4 (G)
-    .byte   %00001101 ; |    ## #|            $fdf5 (G)
-    .byte   %11110001 ; |####   #|            $fdf6 (G)
-    .byte   %11111111 ; |########|            $fdf7 (G)
-    .byte   %11111111 ; |########|            $fdf8 (G)
-    .byte   %11111111 ; |########|            $fdf9 (G)
+    .byte   %11111111 ; |########|            $dde1 G)
+    .byte   %11111111 ; |########|            $dde2 G)
+    .byte   %11111111 ; |########|            $dde3 G)
+    .byte   %11111111 ; |########|            $dde4 G)
+    .byte   %11111111 ; |########|            $dde5 G)
+    .byte   %11111111 ; |########|            $dde6 G)
+    .byte   %11111111 ; |########|            $dde7 G)
+    .byte   %11111111 ; |########|            $dde8 G)
+    .byte   %11111111 ; |########|            $dde9 G)
+    .byte   %11111111 ; |########|            $ddea G)
+    .byte   %11111111 ; |########|            $ddeb G)
+    .byte   %01111111 ; | #######|            $ddec G)
+    .byte   %10111111 ; |# ######|            $dded G)
+    .byte   %11011111 ; |## #####|            $ddee G)
+    .byte   %11101111 ; |### ####|            $ddef G)
+    .byte   %11110111 ; |#### ###|            $ddf0 G)
+    .byte   %11110111 ; |#### ###|            $ddf1 G)
+    .byte   %11111011 ; |##### ##|            $ddf2 G)
+    .byte   %01111011 ; | #### ##|            $ddf3 G)
+    .byte   %10111101 ; |# #### #|            $ddf4 G)
+    .byte   %00001101 ; |    ## #|            $ddf5 G)
+    .byte   %11110001 ; |####   #|            $ddf6 G)
+    .byte   %11111111 ; |########|            $ddf7 G)
+    .byte   %11111111 ; |########|            $ddf8 G)
+    .byte   %11111111 ; |########|            $ddf9 G)
 
 
 
-    .byte   %01001010 ; | #  # # |            $fdfa (G)
-    .byte   %01001010 ; | #  # # |            $fdfb (G)
-    .byte   %01001010 ; | #  # # |            $fdfc (G)
-    .byte   %01001010 ; | #  # # |            $fdfd (G)
-    .byte   %01001010 ; | #  # # |            $fdfe (G)
-    .byte   %01100000 ; | ##     |            $fdff (G)
+    .byte   %01001010 ; | #  # # |            $ddfa G)
+    .byte   %01001010 ; | #  # # |            $ddfb G)
+    .byte   %01001010 ; | #  # # |            $ddfc G)
+    .byte   %01001010 ; | #  # # |            $ddfd G)
+    .byte   %01001010 ; | #  # # |            $ddfe G)
+    .byte   %01100000 ; | ##     |            $ddff G)
 
 numberSprites
 zeroSprite
-    .byte   %00011000 ; |   ##   |            $fe00 (G)
-    .byte   %00100100 ; |  #  #  |            $fe01 (G)
-    .byte   %00100100 ; |  #  #  |            $fe02 (G)
-    .byte   %00000000 ; |        |            $fe03 (G)
-    .byte   %00100100 ; |  #  #  |            $fe04 (G)
-    .byte   %00100100 ; |  #  #  |            $fe05 (G)
-    .byte   %00011000 ; |   ##   |            $fe06 (G)
-    .byte   %00000000 ; |        |            $fe07 (G)
+    .byte   %00011000 ; |   ##   |            $de00 G)
+    .byte   %00100100 ; |  #  #  |            $de01 G)
+    .byte   %00100100 ; |  #  #  |            $de02 G)
+    .byte   %00000000 ; |        |            $de03 G)
+    .byte   %00100100 ; |  #  #  |            $de04 G)
+    .byte   %00100100 ; |  #  #  |            $de05 G)
+    .byte   %00011000 ; |   ##   |            $de06 G)
+    .byte   %00000000 ; |        |            $de07 G)
 oneSprite
-    .byte   %00000100 ; |     #  |            $fe08 (G)
-    .byte   %00000100 ; |     #  |            $fe09 (G)
-    .byte   %00000100 ; |     #  |            $fe0a (G)
-    .byte   %00000000 ; |        |            $fe0b (G)
-    .byte   %00000100 ; |     #  |            $fe0c (G)
-    .byte   %00000100 ; |     #  |            $fe0d (G)
-    .byte   %00000100 ; |     #  |            $fe0e (G)
-    .byte   %00000000 ; |        |            $fe0f (G)
+    .byte   %00000100 ; |     #  |            $de08 G)
+    .byte   %00000100 ; |     #  |            $de09 G)
+    .byte   %00000100 ; |     #  |            $de0a G)
+    .byte   %00000000 ; |        |            $de0b G)
+    .byte   %00000100 ; |     #  |            $de0c G)
+    .byte   %00000100 ; |     #  |            $de0d G)
+    .byte   %00000100 ; |     #  |            $de0e G)
+    .byte   %00000000 ; |        |            $de0f G)
 twoSprite
-    .byte   %00011000 ; |   ##   |            $fe10 (G)
-    .byte   %00100000 ; |  #     |            $fe11 (G)
-    .byte   %00100000 ; |  #     |            $fe12 (G)
-    .byte   %00011000 ; |   ##   |            $fe13 (G)
-    .byte   %00000100 ; |     #  |            $fe14 (G)
-    .byte   %00000100 ; |     #  |            $fe15 (G)
-    .byte   %00011000 ; |   ##   |            $fe16 (G)
-    .byte   %00000000 ; |        |            $fe17 (G)
+    .byte   %00011000 ; |   ##   |            $de10 G)
+    .byte   %00100000 ; |  #     |            $de11 G)
+    .byte   %00100000 ; |  #     |            $de12 G)
+    .byte   %00011000 ; |   ##   |            $de13 G)
+    .byte   %00000100 ; |     #  |            $de14 G)
+    .byte   %00000100 ; |     #  |            $de15 G)
+    .byte   %00011000 ; |   ##   |            $de16 G)
+    .byte   %00000000 ; |        |            $de17 G)
 threeSprite
-    .byte   %00011000 ; |   ##   |            $fe18 (G)
-    .byte   %00000100 ; |     #  |            $fe19 (G)
-    .byte   %00000100 ; |     #  |            $fe1a (G)
-    .byte   %00011000 ; |   ##   |            $fe1b (G)
-    .byte   %00000100 ; |     #  |            $fe1c (G)
-    .byte   %00000100 ; |     #  |            $fe1d (G)
-    .byte   %00011000 ; |   ##   |            $fe1e (G)
+    .byte   %00011000 ; |   ##   |            $de18 G)
+    .byte   %00000100 ; |     #  |            $de19 G)
+    .byte   %00000100 ; |     #  |            $de1a G)
+    .byte   %00011000 ; |   ##   |            $de1b G)
+    .byte   %00000100 ; |     #  |            $de1c G)
+    .byte   %00000100 ; |     #  |            $de1d G)
+    .byte   %00011000 ; |   ##   |            $de1e G)
 fourSprite
-    .byte   %00000000 ; |        |            $fe1f (G)
-    .byte   %00000100 ; |     #  |            $fe20 (G)
-    .byte   %00000100 ; |     #  |            $fe21 (G)
-    .byte   %00000100 ; |     #  |            $fe22 (G)
-    .byte   %00011000 ; |   ##   |            $fe23 (G)
-    .byte   %00100100 ; |  #  #  |            $fe24 (G)
-    .byte   %00100100 ; |  #  #  |            $fe25 (G)
-    .byte   %00100100 ; |  #  #  |            $fe26 (G)
+    .byte   %00000000 ; |        |            $de1f G)
+    .byte   %00000100 ; |     #  |            $de20 G)
+    .byte   %00000100 ; |     #  |            $de21 G)
+    .byte   %00000100 ; |     #  |            $de22 G)
+    .byte   %00011000 ; |   ##   |            $de23 G)
+    .byte   %00100100 ; |  #  #  |            $de24 G)
+    .byte   %00100100 ; |  #  #  |            $de25 G)
+    .byte   %00100100 ; |  #  #  |            $de26 G)
 fiveSprite
-    .byte   %00000000 ; |        |            $fe27 (G)
-    .byte   %00011000 ; |   ##   |            $fe28 (G)
-    .byte   %00000100 ; |     #  |            $fe29 (G)
-    .byte   %00000100 ; |     #  |            $fe2a (G)
-    .byte   %00011000 ; |   ##   |            $fe2b (G)
-    .byte   %00100000 ; |  #     |            $fe2c (G)
-    .byte   %00100000 ; |  #     |            $fe2d (G)
-    .byte   %00011000 ; |   ##   |            $fe2e (G)
+    .byte   %00000000 ; |        |            $de27 G)
+    .byte   %00011000 ; |   ##   |            $de28 G)
+    .byte   %00000100 ; |     #  |            $de29 G)
+    .byte   %00000100 ; |     #  |            $de2a G)
+    .byte   %00011000 ; |   ##   |            $de2b G)
+    .byte   %00100000 ; |  #     |            $de2c G)
+    .byte   %00100000 ; |  #     |            $de2d G)
+    .byte   %00011000 ; |   ##   |            $de2e G)
 sixSprite	
-    .byte   %00000000 ; |        |            $fe2f (G)
-    .byte   %00011000 ; |   ##   |            $fe30 (G)
-    .byte   %00100100 ; |  #  #  |            $fe31 (G)
-    .byte   %00100100 ; |  #  #  |            $fe32 (G)
-    .byte   %00011000 ; |   ##   |            $fe33 (G)
-    .byte   %00100000 ; |  #     |            $fe34 (G)
-    .byte   %00100000 ; |  #     |            $fe35 (G)
-    .byte   %00011000 ; |   ##   |            $fe36 (G)
+    .byte   %00000000 ; |        |            $de2f G)
+    .byte   %00011000 ; |   ##   |            $de30 G)
+    .byte   %00100100 ; |  #  #  |            $de31 G)
+    .byte   %00100100 ; |  #  #  |            $de32 G)
+    .byte   %00011000 ; |   ##   |            $de33 G)
+    .byte   %00100000 ; |  #     |            $de34 G)
+    .byte   %00100000 ; |  #     |            $de35 G)
+    .byte   %00011000 ; |   ##   |            $de36 G)
 sevenSprite
-    .byte   %00000000 ; |        |            $fe37 (G)
-    .byte   %00000100 ; |     #  |            $fe38 (G)
-    .byte   %00000100 ; |     #  |            $fe39 (G)
-    .byte   %00000100 ; |     #  |            $fe3a (G)
-    .byte   %00000000 ; |        |            $fe3b (G)
-    .byte   %00100100 ; |  #  #  |            $fe3c (G)
-    .byte   %00100100 ; |  #  #  |            $fe3d (G)
-    .byte   %00011000 ; |   ##   |            $fe3e (G)
+    .byte   %00000000 ; |        |            $de37 G)
+    .byte   %00000100 ; |     #  |            $de38 G)
+    .byte   %00000100 ; |     #  |            $de39 G)
+    .byte   %00000100 ; |     #  |            $de3a G)
+    .byte   %00000000 ; |        |            $de3b G)
+    .byte   %00100100 ; |  #  #  |            $de3c G)
+    .byte   %00100100 ; |  #  #  |            $de3d G)
+    .byte   %00011000 ; |   ##   |            $de3e G)
 eightSprite	
-    .byte   %00000000 ; |        |            $fe3f (G)
-    .byte   %00011000 ; |   ##   |            $fe40 (G)
-    .byte   %00100100 ; |  #  #  |            $fe41 (G)
-    .byte   %00100100 ; |  #  #  |            $fe42 (G)
-    .byte   %00011000 ; |   ##   |            $fe43 (G)
-    .byte   %00100100 ; |  #  #  |            $fe44 (G)
-    .byte   %00100100 ; |  #  #  |            $fe45 (G)
-    .byte   %00011000 ; |   ##   |            $fe46 (G)
+    .byte   %00000000 ; |        |            $de3f G)
+    .byte   %00011000 ; |   ##   |            $de40 G)
+    .byte   %00100100 ; |  #  #  |            $de41 G)
+    .byte   %00100100 ; |  #  #  |            $de42 G)
+    .byte   %00011000 ; |   ##   |            $de43 G)
+    .byte   %00100100 ; |  #  #  |            $de44 G)
+    .byte   %00100100 ; |  #  #  |            $de45 G)
+    .byte   %00011000 ; |   ##   |            $de46 G)
 nineSprite	
-    .byte   %00000000 ; |        |            $fe47 (G)
-    .byte   %00011000 ; |   ##   |            $fe48 (G)
-    .byte   %00000100 ; |     #  |            $fe49 (G)
-    .byte   %00000100 ; |     #  |            $fe4a (G)
-    .byte   %00011000 ; |   ##   |            $fe4b (G)
-    .byte   %00100100 ; |  #  #  |            $fe4c (G)
-    .byte   %00100100 ; |  #  #  |            $fe4d (G)
-    .byte   %00011000 ; |   ##   |            $fe4e (G)
-    .byte   %00000000 ; |        |            $fe4f (G)
+    .byte   %00000000 ; |        |            $de47 G)
+    .byte   %00011000 ; |   ##   |            $de48 G)
+    .byte   %00000100 ; |     #  |            $de49 G)
+    .byte   %00000100 ; |     #  |            $de4a G)
+    .byte   %00011000 ; |   ##   |            $de4b G)
+    .byte   %00100100 ; |  #  #  |            $de4c G)
+    .byte   %00100100 ; |  #  #  |            $de4d G)
+    .byte   %00011000 ; |   ##   |            $de4e G)
+    .byte   %00000000 ; |        |            $de4f G)
 
 
-    .byte   %00000000 ; |        |            $fe50 (G)
-    .byte   %00000000 ; |        |            $fe51 (G)
-    .byte   %00000000 ; |        |            $fe52 (G)
-    .byte   %00011000 ; |   ##   |            $fe53 (G)
-    .byte   %00000000 ; |        |            $fe54 (G)
-    .byte   %00000000 ; |        |            $fe55 (G)
-    .byte   %00000000 ; |        |            $fe56 (G)
-    .byte   %00000000 ; |        |            $fe57 (G)
-    .byte   %00000000 ; |        |            $fe58 (G)
-    .byte   %00000000 ; |        |            $fe59 (G)
-    .byte   %00000000 ; |        |            $fe5a (G)
+    .byte   %00000000 ; |        |            $de50 G)
+    .byte   %00000000 ; |        |            $de51 G)
+    .byte   %00000000 ; |        |            $de52 G)
+    .byte   %00011000 ; |   ##   |            $de53 G)
+    .byte   %00000000 ; |        |            $de54 G)
+    .byte   %00000000 ; |        |            $de55 G)
+    .byte   %00000000 ; |        |            $de56 G)
+    .byte   %00000000 ; |        |            $de57 G)
+    .byte   %00000000 ; |        |            $de58 G)
+    .byte   %00000000 ; |        |            $de59 G)
+    .byte   %00000000 ; |        |            $de5a G)
 
 displayTextSprites
 fuelSprite0
-    .byte   %11111111 ; |########|            $fe5b (G)
-    .byte   %10110001 ; |# ##   #|            $fe5c (G)
-    .byte   %10110101 ; |# ## # #|            $fe5d (G)
-    .byte   %10010101 ; |#  # # #|            $fe5e (G)
-    .byte   %10110101 ; |# ## # #|            $fe5f (G)
-    .byte   %10010101 ; |#  # # #|            $fe60 (G)
+    .byte   %11111111 ; |########|            $de5b G)
+    .byte   %10110001 ; |# ##   #|            $de5c G)
+    .byte   %10110101 ; |# ## # #|            $de5d G)
+    .byte   %10010101 ; |#  # # #|            $de5e G)
+    .byte   %10110101 ; |# ## # #|            $de5f G)
+    .byte   %10010101 ; |#  # # #|            $de60 G)
 fuelSprite1	
-    .byte   %11111111 ; |########|            $fe61 (G)
-    .byte   %00100111 ; |  #  ###|            $fe62 (G)
-    .byte   %01101101 ; | ## ## #|            $fe63 (G)
-    .byte   %00101111 ; |  # ####|            $fe64 (G)
-    .byte   %01101101 ; | ## ## #|            $fe65 (G)
-    .byte   %00101111 ; |  # ####|            $fe66 (G)
+    .byte   %11111111 ; |########|            $de61 G)
+    .byte   %00100111 ; |  #  ###|            $de62 G)
+    .byte   %01101101 ; | ## ## #|            $de63 G)
+    .byte   %00101111 ; |  # ####|            $de64 G)
+    .byte   %01101101 ; | ## ## #|            $de65 G)
+    .byte   %00101111 ; |  # ####|            $de66 G)
 
 metSprite0	
-    .byte   %11111111 ; |########|            $fe67 (G)
-    .byte   %10111010 ; |# ### # |            $fe68 (G)
-    .byte   %10111010 ; |# ### # |            $fe69 (G)
-    .byte   %10101010 ; |# # # # |            $fe6a (G)
-    .byte   %10010010 ; |#  #  # |            $fe6b (G)
-    .byte   %10111010 ; |# ### # |            $fe6c (G)
+    .byte   %11111111 ; |########|            $de67 G)
+    .byte   %10111010 ; |# ### # |            $de68 G)
+    .byte   %10111010 ; |# ### # |            $de69 G)
+    .byte   %10101010 ; |# # # # |            $de6a G)
+    .byte   %10010010 ; |#  #  # |            $de6b G)
+    .byte   %10111010 ; |# ### # |            $de6c G)
 metSprite1
-    .byte   %11111111 ; |########|            $fe6d (G)
-    .byte   %00110111 ; |  ## ###|            $fe6e (G)
-    .byte   %11110111 ; |#### ###|            $fe6f (G)
-    .byte   %01110111 ; | ### ###|            $fe70 (G)
-    .byte   %11110111 ; |#### ###|            $fe71 (G)
-    .byte   %00100011 ; |  #   ##|            $fe72 (G)
+    .byte   %11111111 ; |########|            $de6d G)
+    .byte   %00110111 ; |  ## ###|            $de6e G)
+    .byte   %11110111 ; |#### ###|            $de6f G)
+    .byte   %01110111 ; | ### ###|            $de70 G)
+    .byte   %11110111 ; |#### ###|            $de71 G)
+    .byte   %00100011 ; |  #   ##|            $de72 G)
 
 altSprite0	
-    .byte   %11111111 ; |########|            $fe73 (G)
-    .byte   %11010110 ; |## # ## |            $fe74 (G)
-    .byte   %11010110 ; |## # ## |            $fe75 (G)
-    .byte   %11000110 ; |##   ## |            $fe76 (G)
-    .byte   %11010110 ; |## # ## |            $fe77 (G)
-    .byte   %11101110 ; |### ### |            $fe78 (G)
+    .byte   %11111111 ; |########|            $de73 G)
+    .byte   %11010110 ; |## # ## |            $de74 G)
+    .byte   %11010110 ; |## # ## |            $de75 G)
+    .byte   %11000110 ; |##   ## |            $de76 G)
+    .byte   %11010110 ; |## # ## |            $de77 G)
+    .byte   %11101110 ; |### ### |            $de78 G)
 altSprite1
-    .byte   %11111111 ; |########|            $fe79 (G)
-    .byte   %00110111 ; |  ## ###|            $fe7a (G)
-    .byte   %11110111 ; |#### ###|            $fe7b (G)
-    .byte   %11110111 ; |#### ###|            $fe7c (G)
-    .byte   %11110111 ; |#### ###|            $fe7d (G)
-    .byte   %11100011 ; |###   ##|            $fe7e (G)
+    .byte   %11111111 ; |########|            $de79 G)
+    .byte   %00110111 ; |  ## ###|            $de7a G)
+    .byte   %11110111 ; |#### ###|            $de7b G)
+    .byte   %11110111 ; |#### ###|            $de7c G)
+    .byte   %11110111 ; |#### ###|            $de7d G)
+    .byte   %11100011 ; |###   ##|            $de7e G)
 
 sppermeterSprite0	
-    .byte   %11111111 ; |########|            $fe7f (G)
-    .byte   %10010110 ; |#  # ## |            $fe80 (G)
-    .byte   %11010111 ; |## # ###|            $fe81 (G)
-    .byte   %10010001 ; |#  #   #|            $fe82 (G)
-    .byte   %10110101 ; |# ## # #|            $fe83 (G)
-    .byte   %10010001 ; |#  #   #|            $fe84 (G)
+    .byte   %11111111 ; |########|            $de7f G)
+    .byte   %10010110 ; |#  # ## |            $de80 G)
+    .byte   %11010111 ; |## # ###|            $de81 G)
+    .byte   %10010001 ; |#  #   #|            $de82 G)
+    .byte   %10110101 ; |# ## # #|            $de83 G)
+    .byte   %10010001 ; |#  #   #|            $de84 G)
 sppermeterSprite1	
-    .byte   %11111111 ; |########|            $fe85 (G)
-    .byte   %11010101 ; |## # # #|            $fe86 (G)
-    .byte   %01010101 ; | # # # #|            $fe87 (G)
-    .byte   %01101011 ; | ## # ##|            $fe88 (G)
-    .byte   %01111111 ; | #######|            $fe89 (G)
-    .byte   %10111111 ; |# ######|            $fe8a (G)
+    .byte   %11111111 ; |########|            $de85 G)
+    .byte   %11010101 ; |## # # #|            $de86 G)
+    .byte   %01010101 ; | # # # #|            $de87 G)
+    .byte   %01101011 ; | ## # ##|            $de88 G)
+    .byte   %01111111 ; | #######|            $de89 G)
+    .byte   %10111111 ; |# ######|            $de8a G)
 
 statSprite0	
-    .byte   %11111111 ; |########|            $fe8b (G)
-    .byte   %10011011 ; |#  ## ##|            $fe8c (G)
-    .byte   %11011011 ; |## ## ##|            $fe8d (G)
-    .byte   %10011011 ; |#  ## ##|            $fe8e (G)
-    .byte   %10111011 ; |# ### ##|            $fe8f (G)
-    .byte   %10010001 ; |#  #   #|            $fe90 (G)
+    .byte   %11111111 ; |########|            $de8b G)
+    .byte   %10011011 ; |#  ## ##|            $de8c G)
+    .byte   %11011011 ; |## ## ##|            $de8d G)
+    .byte   %10011011 ; |#  ## ##|            $de8e G)
+    .byte   %10111011 ; |# ### ##|            $de8f G)
+    .byte   %10010001 ; |#  #   #|            $de90 G)
 statSprite1	
-    .byte   %11111111 ; |########|            $fe91 (G)
-    .byte   %01011011 ; | # ## ##|            $fe92 (G)
-    .byte   %01011011 ; | # ## ##|            $fe93 (G)
-    .byte   %00011011 ; |   ## ##|            $fe94 (G)
-    .byte   %01011011 ; | # ## ##|            $fe95 (G)
-    .byte   %00010001 ; |   #   #|            $fe96 (G)
+    .byte   %11111111 ; |########|            $de91 G)
+    .byte   %01011011 ; | # ## ##|            $de92 G)
+    .byte   %01011011 ; | # ## ##|            $de93 G)
+    .byte   %00011011 ; |   ## ##|            $de94 G)
+    .byte   %01011011 ; | # ## ##|            $de95 G)
+    .byte   %00010001 ; |   #   #|            $de96 G)
 
 xminusAxSprite0	
-    .byte   %11111111 ; |########|            $fe97 (G)
-    .byte   %10101111 ; |# # ####|            $fe98 (G)
-    .byte   %10101111 ; |# # ####|            $fe99 (G)
-    .byte   %11011001 ; |## ##  #|            $fe9a (G)
-    .byte   %10101111 ; |# # ####|            $fe9b (G)
-    .byte   %10101111 ; |# # ####|            $fe9c (G)
+    .byte   %11111111 ; |########|            $de97 G)
+    .byte   %10101111 ; |# # ####|            $de98 G)
+    .byte   %10101111 ; |# # ####|            $de99 G)
+    .byte   %11011001 ; |## ##  #|            $de9a G)
+    .byte   %10101111 ; |# # ####|            $de9b G)
+    .byte   %10101111 ; |# # ####|            $de9c G)
 xminusAxSprite1	
-    .byte   %11111111 ; |########|            $fe9d (G)
-    .byte   %01010101 ; | # # # #|            $fe9e (G)
-    .byte   %01011011 ; | # ## ##|            $fe9f (G)
-    .byte   %00010101 ; |   # # #|            $fea0 (G)
-    .byte   %01011111 ; | # #####|            $fea1 (G)
-    .byte   %10111111 ; |# ######|            $fea2 (G)
+    .byte   %11111111 ; |########|            $de9d G)
+    .byte   %01010101 ; | # # # #|            $de9e G)
+    .byte   %01011011 ; | # ## ##|            $de9f G)
+    .byte   %00010101 ; |   # # #|            $dea0 G)
+    .byte   %01011111 ; | # #####|            $dea1 G)
+    .byte   %10111111 ; |# ######|            $dea2 G)
 
 yminusAxSprite0	
-    .byte   %11111111 ; |########|            $fea3 (G)
-    .byte   %11011111 ; |## #####|            $fea4 (G)
-    .byte   %11011111 ; |## #####|            $fea5 (G)
-    .byte   %11011001 ; |## ##  #|            $fea6 (G)
-    .byte   %10101111 ; |# # ####|            $fea7 (G)
-    .byte   %10101111 ; |# # ####|            $fea8 (G)
+    .byte   %11111111 ; |########|            $dea3 G)
+    .byte   %11011111 ; |## #####|            $dea4 G)
+    .byte   %11011111 ; |## #####|            $dea5 G)
+    .byte   %11011001 ; |## ##  #|            $dea6 G)
+    .byte   %10101111 ; |# # ####|            $dea7 G)
+    .byte   %10101111 ; |# # ####|            $dea8 G)
 yminusAxSprite1	
-    .byte   %11111111 ; |########|            $fea9 (G)
-    .byte   %01010101 ; | # # # #|            $feaa (G)
-    .byte   %01011011 ; | # ## ##|            $feab (G)
-    .byte   %00010101 ; |   # # #|            $feac (G)
-    .byte   %01011111 ; | # #####|            $fead (G)
-    .byte   %10111111 ; |# ######|            $feae (G)
+    .byte   %11111111 ; |########|            $dea9 G)
+    .byte   %01010101 ; | # # # #|            $deaa G)
+    .byte   %01011011 ; | # ## ##|            $deab G)
+    .byte   %00010101 ; |   # # #|            $deac G)
+    .byte   %01011111 ; | # #####|            $dead G)
+    .byte   %10111111 ; |# ######|            $deae G)
 
 zminusAxSprite0	
-    .byte   %11111111 ; |########|            $feaf (G)
-    .byte   %10001111 ; |#   ####|            $feb0 (G)
-    .byte   %10111111 ; |# ######|            $feb1 (G)
-    .byte   %11011001 ; |## ##  #|            $feb2 (G)
-    .byte   %11101111 ; |### ####|            $feb3 (G)
-    .byte   %10001111 ; |#   ####|            $feb4 (G)
+    .byte   %11111111 ; |########|            $deaf G)
+    .byte   %10001111 ; |#   ####|            $deb0 G)
+    .byte   %10111111 ; |# ######|            $deb1 G)
+    .byte   %11011001 ; |## ##  #|            $deb2 G)
+    .byte   %11101111 ; |### ####|            $deb3 G)
+    .byte   %10001111 ; |#   ####|            $deb4 G)
 zminusAxSprite1	
-    .byte   %11111111 ; |########|            $feb5 (G)
-    .byte   %01010101 ; | # # # #|            $feb6 (G)
-    .byte   %01011011 ; | # ## ##|            $feb7 (G)
-    .byte   %00010101 ; |   # # #|            $feb8 (G)
-    .byte   %01011111 ; | # #####|            $feb9 (G)
-    .byte   %10111111 ; |# ######|            $feba (G)
+    .byte   %11111111 ; |########|            $deb5 G)
+    .byte   %01010101 ; | # # # #|            $deb6 G)
+    .byte   %01011011 ; | # ## ##|            $deb7 G)
+    .byte   %00010101 ; |   # # #|            $deb8 G)
+    .byte   %01011111 ; | # #####|            $deb9 G)
+    .byte   %10111111 ; |# ######|            $deba G)
 
 pitDegSprite0
-    .byte   %11111111 ; |########|            $febb (G)
-    .byte   %10111011 ; |# ### ##|            $febc (G)
-    .byte   %10111011 ; |# ### ##|            $febd (G)
-    .byte   %10001011 ; |#   # ##|            $febe (G)
-    .byte   %10101011 ; |# # # ##|            $febf (G)
-    .byte   %10001010 ; |#   # # |            $fec0 (G)
+    .byte   %11111111 ; |########|            $debb G)
+    .byte   %10111011 ; |# ### ##|            $debc G)
+    .byte   %10111011 ; |# ### ##|            $debd G)
+    .byte   %10001011 ; |#   # ##|            $debe G)
+    .byte   %10101011 ; |# # # ##|            $debf G)
+    .byte   %10001010 ; |#   # # |            $dec0 G)
 pitDegSprite1	
-    .byte   %11111111 ; |########|            $fec1 (G)
-    .byte   %01111111 ; | #######|            $fec2 (G)
-    .byte   %01111111 ; | #######|            $fec3 (G)
-    .byte   %01110001 ; | ###   #|            $fec4 (G)
-    .byte   %01110101 ; | ### # #|            $fec5 (G)
-    .byte   %00110001 ; |  ##   #|            $fec6 (G)
+    .byte   %11111111 ; |########|            $dec1 G)
+    .byte   %01111111 ; | #######|            $dec2 G)
+    .byte   %01111111 ; | #######|            $dec3 G)
+    .byte   %01110001 ; | ###   #|            $dec4 G)
+    .byte   %01110101 ; | ### # #|            $dec5 G)
+    .byte   %00110001 ; |  ##   #|            $dec6 G)
 
 yawSprite0
-    .byte   %11111111 ; |########|            $fec7 (G)
-    .byte   %11011010 ; |## ## # |            $fec8 (G)
-    .byte   %11011010 ; |## ## # |            $fec9 (G)
-    .byte   %11011000 ; |## ##   |            $feca (G)
-    .byte   %10101010 ; |# # # # |            $fecb (G)
-    .byte   %10101000 ; |# # #   |            $fecc (G)
+    .byte   %11111111 ; |########|            $dec7 G)
+    .byte   %11011010 ; |## ## # |            $dec8 G)
+    .byte   %11011010 ; |## ## # |            $dec9 G)
+    .byte   %11011000 ; |## ##   |            $deca G)
+    .byte   %10101010 ; |# # # # |            $decb G)
+    .byte   %10101000 ; |# # #   |            $decc G)
 yawSprite1
-    .byte   %11111111 ; |########|            $fecd (G)
+    .byte   %11111111 ; |########|            $decd G)
 ;-----------------------------------------------------------
 ;      Graphic Data: Number & Sprite Fonts
 ;-----------------------------------------------------------
 
 largeNumberSprite0	
-    .byte   %11010111 ; |## # ###|            $fece (G)
-    .byte   %10101011 ; |# # # ##|            $fecf (G)
-    .byte   %10101011 ; |# # # ##|            $fed0 (G)
-    .byte   %10111011 ; |# ### ##|            $fed1 (G)
-    .byte   %10111011 ; |# ### ##|            $fed2 (G)
+    .byte   %11010111 ; |## # ###|            $dece G)
+    .byte   %10101011 ; |# # # ##|            $decf G)
+    .byte   %10101011 ; |# # # ##|            $ded0 G)
+    .byte   %10111011 ; |# ### ##|            $ded1 G)
+    .byte   %10111011 ; |# ### ##|            $ded2 G)
 
 rngSprite0
-    .byte   %11111111 ; |########|            $fed3 (G)
-    .byte   %10110101 ; |# ## # #|            $fed4 (G)
-    .byte   %10101101 ; |# # ## #|            $fed5 (G)
-    .byte   %10001101 ; |#   ## #|            $fed6 (G)
-    .byte   %10110100 ; |# ## #  |            $fed7 (G)
-    .byte   %10001101 ; |#   ## #|            $fed8 (G)
+    .byte   %11111111 ; |########|            $ded3 G)
+    .byte   %10110101 ; |# ## # #|            $ded4 G)
+    .byte   %10101101 ; |# # ## #|            $ded5 G)
+    .byte   %10001101 ; |#   ## #|            $ded6 G)
+    .byte   %10110100 ; |# ## #  |            $ded7 G)
+    .byte   %10001101 ; |#   ## #|            $ded8 G)
 rngSprite1	
-    .byte   %11111111 ; |########|            $fed9 (G)
-    .byte   %10100001 ; |# #    #|            $feda (G)
-    .byte   %10101101 ; |# # ## #|            $fedb (G)
-    .byte   %00101001 ; |  # #  #|            $fedc (G)
-    .byte   %10101111 ; |# # ####|            $fedd (G)
-    .byte   %10100001 ; |# #    #|            $fede (G)
+    .byte   %11111111 ; |########|            $ded9 G)
+    .byte   %10100001 ; |# #    #|            $deda G)
+    .byte   %10101101 ; |# # ## #|            $dedb G)
+    .byte   %00101001 ; |  # #  #|            $dedc G)
+    .byte   %10101111 ; |# # ####|            $dedd G)
+    .byte   %10100001 ; |# #    #|            $dede G)
 
 fltNumberSprite0	
-    .byte   %11111111 ; |########|            $fedf (G)
-    .byte   %10110010 ; |# ##  # |            $fee0 (G)
-    .byte   %10110110 ; |# ## ## |            $fee1 (G)
-    .byte   %10010110 ; |#  # ## |            $fee2 (G)
-    .byte   %10110110 ; |# ## ## |            $fee3 (G)
-    .byte   %10010100 ; |#  # #  |            $fee4 (G)
+    .byte   %11111111 ; |########|            $dedf G)
+    .byte   %10110010 ; |# ##  # |            $dee0 G)
+    .byte   %10110110 ; |# ## ## |            $dee1 G)
+    .byte   %10010110 ; |#  # ## |            $dee2 G)
+    .byte   %10110110 ; |# ## ## |            $dee3 G)
+    .byte   %10010100 ; |#  # #  |            $dee4 G)
 fltNumberSprite1	
-    .byte   %11111111 ; |########|            $fee5 (G)
-    .byte   %11101011 ; |### # ##|            $fee6 (G)
-    .byte   %11000001 ; |##     #|            $fee7 (G)
-    .byte   %11101011 ; |### # ##|            $fee8 (G)
-    .byte   %11000001 ; |##     #|            $fee9 (G)
-    .byte   %01101011 ; | ## # ##|            $feea (G)
-    .byte   %11111111 ; |########|            $feeb (G)
+    .byte   %11111111 ; |########|            $dee5 G)
+    .byte   %11101011 ; |### # ##|            $dee6 G)
+    .byte   %11000001 ; |##     #|            $dee7 G)
+    .byte   %11101011 ; |### # ##|            $dee8 G)
+    .byte   %11000001 ; |##     #|            $dee9 G)
+    .byte   %01101011 ; | ## # ##|            $deea G)
+    .byte   %11111111 ; |########|            $deeb G)
 	
 	
-	.byte	$0e,$0f,$10,$11,$12,$13 ; $feea (*)
-    .byte   $13,$13,$13,$13,$13,$12,$11,$10 ; $fef2 (*)
-    .byte   $0f,$0e,$0d,$0c,$0b,$0a,$09,$08 ; $fefa (*)
-    .byte   $07,$07,$07,$07,$08,$09,$0a,$0b ; $ff02 (*)
+	.byte	$0e,$0f,$10,$11,$12,$13 ; $deea *)
+    .byte   $13,$13,$13,$13,$13,$12,$11,$10 ; $def2 *)
+    .byte   $0f,$0e,$0d,$0c,$0b,$0a,$09,$08 ; $defa *)
+    .byte   $07,$07,$07,$07,$08,$09,$0a,$0b ; $df02 *)
     .byte   $0c,$19
 
 messageTextSpritea
 launchSprite0	
-    .byte   %00000000 ; |        |            $ff0c (G)
-    .byte   %00110101 ; |  ## # #|            $ff0d (G)
-    .byte   %00100101 ; |  #  # #|            $ff0e (G)
-    .byte   %00100111 ; |  #  ###|            $ff0f (G)
-    .byte   %00100101 ; |  #  # #|            $ff10 (G)
-    .byte   %00100111 ; |  #  ###|            $ff11 (G)
-    .byte   %00000000 ; |        |            $ff12 (G)
+    .byte   %00000000 ; |        |            $df0c G)
+    .byte   %00110101 ; |  ## # #|            $df0d G)
+    .byte   %00100101 ; |  #  # #|            $df0e G)
+    .byte   %00100111 ; |  #  ###|            $df0f G)
+    .byte   %00100101 ; |  #  # #|            $df10 G)
+    .byte   %00100111 ; |  #  ###|            $df11 G)
+    .byte   %00000000 ; |        |            $df12 G)
 
 launchSprite1
-    .byte   %00000000 ; |        |            $ff13 (G)
-    .byte   %01110100 ; | ### #  |            $ff14 (G)
-    .byte   %01010100 ; | # # #  |            $ff15 (G)
-    .byte   %01010101 ; | # # # #|            $ff16 (G)
-    .byte   %01010110 ; | # # ## |            $ff17 (G)
-    .byte   %01010100 ; | # # #  |            $ff18 (G)
-    .byte   %00000000 ; |        |            $ff19 (G)
+    .byte   %00000000 ; |        |            $df13 G)
+    .byte   %01110100 ; | ### #  |            $df14 G)
+    .byte   %01010100 ; | # # #  |            $df15 G)
+    .byte   %01010101 ; | # # # #|            $df16 G)
+    .byte   %01010110 ; | # # ## |            $df17 G)
+    .byte   %01010100 ; | # # #  |            $df18 G)
+    .byte   %00000000 ; |        |            $df19 G)
 
 launchSprite2	
-    .byte   %00000000 ; |        |            $ff1a (G)
-    .byte   %10110101 ; |# ## # #|            $ff1b (G)
-    .byte   %10100101 ; |# #  # #|            $ff1c (G)
-    .byte   %10100111 ; |# #  ###|            $ff1d (G)
-    .byte   %10100101 ; |# #  # #|            $ff1e (G)
-    .byte   %10110101 ; |# ## # #|            $ff1f (G)
-    .byte   %00000000 ; |        |            $ff20 (G)
+    .byte   %00000000 ; |        |            $df1a G)
+    .byte   %10110101 ; |# ## # #|            $df1b G)
+    .byte   %10100101 ; |# #  # #|            $df1c G)
+    .byte   %10100111 ; |# #  ###|            $df1d G)
+    .byte   %10100101 ; |# #  # #|            $df1e G)
+    .byte   %10110101 ; |# ## # #|            $df1f G)
+    .byte   %00000000 ; |        |            $df20 G)
 
 scrubSprite0	
 
-    .byte   %00000000 ; |        |            $ff21 (G)
-    .byte   %00011011 ; |   ## ##|            $ff22 (G)
-    .byte   %00001010 ; |    # # |            $ff23 (G)
-    .byte   %00011010 ; |   ## # |            $ff24 (G)
-    .byte   %00010010 ; |   #  # |            $ff25 (G)
-    .byte   %00011011 ; |   ## ##|            $ff26 (G)
-    .byte   %00000000 ; |        |            $ff27 (G)
+    .byte   %00000000 ; |        |            $df21 G)
+    .byte   %00011011 ; |   ## ##|            $df22 G)
+    .byte   %00001010 ; |    # # |            $df23 G)
+    .byte   %00011010 ; |   ## # |            $df24 G)
+    .byte   %00010010 ; |   #  # |            $df25 G)
+    .byte   %00011011 ; |   ## ##|            $df26 G)
+    .byte   %00000000 ; |        |            $df27 G)
 scrubSprite1	
-    .byte   %00000000 ; |        |            $ff28 (G)
-    .byte   %01010111 ; | # # ###|            $ff29 (G)
-    .byte   %01010101 ; | # # # #|            $ff2a (G)
-    .byte   %01100101 ; | ##  # #|            $ff2b (G)
-    .byte   %01010101 ; | # # # #|            $ff2c (G)
-    .byte   %01100101 ; | ##  # #|            $ff2d (G)
-    .byte   %00000000 ; |        |            $ff2e (G)
+    .byte   %00000000 ; |        |            $df28 G)
+    .byte   %01010111 ; | # # ###|            $df29 G)
+    .byte   %01010101 ; | # # # #|            $df2a G)
+    .byte   %01100101 ; | ##  # #|            $df2b G)
+    .byte   %01010101 ; | # # # #|            $df2c G)
+    .byte   %01100101 ; | ##  # #|            $df2d G)
+    .byte   %00000000 ; |        |            $df2e G)
 scrubSprite2
-    .byte   %00000000 ; |        |            $ff2f (G)
-    .byte   %01100000 ; | ##     |            $ff30 (G)
-    .byte   %01010000 ; | # #    |            $ff31 (G)
-    .byte   %01100000 ; | ##     |            $ff32 (G)
-    .byte   %01010000 ; | # #    |            $ff33 (G)
-    .byte   %01100000 ; | ##     |            $ff34 (G)
+    .byte   %00000000 ; |        |            $df2f G)
+    .byte   %01100000 ; | ##     |            $df30 G)
+    .byte   %01010000 ; | # #    |            $df31 G)
+    .byte   %01100000 ; | ##     |            $df32 G)
+    .byte   %01010000 ; | # #    |            $df33 G)
+    .byte   %01100000 ; | ##     |            $df34 G)
 
 welcomeHomeSprite0
-    .byte   %00000000 ; |        |            $ff35 (G)
-    .byte   %10001011 ; |#   # ##|            $ff36 (G)
-    .byte   %11011010 ; |## ## # |            $ff37 (G)
-    .byte   %10101011 ; |# # # ##|            $ff38 (G)
-    .byte   %10001010 ; |#   # # |            $ff39 (G)
-    .byte   %10001011 ; |#   # ##|            $ff3a (G)
-    .byte   %00000000 ; |        |            $ff3b (G)
+    .byte   %00000000 ; |        |            $df35 G)
+    .byte   %10001011 ; |#   # ##|            $df36 G)
+    .byte   %11011010 ; |## ## # |            $df37 G)
+    .byte   %10101011 ; |# # # ##|            $df38 G)
+    .byte   %10001010 ; |#   # # |            $df39 G)
+    .byte   %10001011 ; |#   # ##|            $df3a G)
+    .byte   %00000000 ; |        |            $df3b G)
 
 welcomeHomeSprite1	
-    .byte   %00000000 ; |        |            $ff3c (G)
-    .byte   %01101101 ; | ## ## #|            $ff3d (G)
-    .byte   %01001001 ; | #  #  #|            $ff3e (G)
-    .byte   %01001001 ; | #  #  #|            $ff3f (G)
-    .byte   %01001001 ; | #  #  #|            $ff40 (G)
-    .byte   %01001101 ; | #  ## #|            $ff41 (G)
-    .byte   %00000000 ; |        |            $ff42 (G)
+    .byte   %00000000 ; |        |            $df3c G)
+    .byte   %01101101 ; | ## ## #|            $df3d G)
+    .byte   %01001001 ; | #  #  #|            $df3e G)
+    .byte   %01001001 ; | #  #  #|            $df3f G)
+    .byte   %01001001 ; | #  #  #|            $df40 G)
+    .byte   %01001101 ; | #  ## #|            $df41 G)
+    .byte   %00000000 ; |        |            $df42 G)
 
 welcomeHomeSprite2	
-    .byte   %00000000 ; |        |            $ff43 (G)
-    .byte   %11010001 ; |## #   #|            $ff44 (G)
-    .byte   %01010001 ; | # #   #|            $ff45 (G)
-    .byte   %01010101 ; | # # # #|            $ff46 (G)
-    .byte   %01011011 ; | # ## ##|            $ff47 (G)
-    .byte   %11010001 ; |## #   #|            $ff48 (G)
-    .byte   %00000000 ; |        |            $ff49 (G)
+    .byte   %00000000 ; |        |            $df43 G)
+    .byte   %11010001 ; |## #   #|            $df44 G)
+    .byte   %01010001 ; | # #   #|            $df45 G)
+    .byte   %01010101 ; | # # # #|            $df46 G)
+    .byte   %01011011 ; | # ## ##|            $df47 G)
+    .byte   %11010001 ; |## #   #|            $df48 G)
+    .byte   %00000000 ; |        |            $df49 G)
 
 welcomeHomeSprite3	
-    .byte   %00000000 ; |        |            $ff4a (G)
-    .byte   %01100010 ; | ##   # |            $ff4b (G)
-    .byte   %01000010 ; | #    # |            $ff4c (G)
-    .byte   %01100011 ; | ##   ##|            $ff4d (G)
-    .byte   %01000010 ; | #    # |            $ff4e (G)
-    .byte   %01100010 ; | ##   # |            $ff4f (G)
-    .byte   %00000000 ; |        |            $ff50 (G)
+    .byte   %00000000 ; |        |            $df4a G)
+    .byte   %01100010 ; | ##   # |            $df4b G)
+    .byte   %01000010 ; | #    # |            $df4c G)
+    .byte   %01100011 ; | ##   ##|            $df4d G)
+    .byte   %01000010 ; | #    # |            $df4e G)
+    .byte   %01100010 ; | ##   # |            $df4f G)
+    .byte   %00000000 ; |        |            $df50 G)
 
 welcomeHomeSprite4
-    .byte   %00000000 ; |        |            $ff51 (G)
-    .byte   %10111010 ; |# ### # |            $ff52 (G)
-    .byte   %10101010 ; |# # # # |            $ff53 (G)
-    .byte   %10101010 ; |# # # # |            $ff54 (G)
-    .byte   %10101011 ; |# # # ##|            $ff55 (G)
-    .byte   %10111010 ; |# ### # |            $ff56 (G)
-    .byte   %00000000 ; |        |            $ff57 (G)
+    .byte   %00000000 ; |        |            $df51 G)
+    .byte   %10111010 ; |# ### # |            $df52 G)
+    .byte   %10101010 ; |# # # # |            $df53 G)
+    .byte   %10101010 ; |# # # # |            $df54 G)
+    .byte   %10101011 ; |# # # ##|            $df55 G)
+    .byte   %10111010 ; |# ### # |            $df56 G)
+    .byte   %00000000 ; |        |            $df57 G)
 
 welcomeHomeSprite5
-    .byte   %00000000 ; |        |            $ff58 (G)
-    .byte   %00101100 ; |  # ##  |            $ff59 (G)
-    .byte   %00101000 ; |  # #   |            $ff5a (G)
-    .byte   %10101100 ; |# # ##  |            $ff5b (G)
-    .byte   %01101000 ; | ## #   |            $ff5c (G)
-    .byte   %00101100 ; |  # ##  |            $ff5d (G)
+    .byte   %00000000 ; |        |            $df58 G)
+    .byte   %00101100 ; |  # ##  |            $df59 G)
+    .byte   %00101000 ; |  # #   |            $df5a G)
+    .byte   %10101100 ; |# # ##  |            $df5b G)
+    .byte   %01101000 ; | ## #   |            $df5c G)
+    .byte   %00101100 ; |  # ##  |            $df5d G)
 
 rendezvousSprite0
-    .byte   %00000000 ; |        |            $ff5e (G)
-    .byte   %00001010 ; |    # # |            $ff5f (G)
-    .byte   %00001010 ; |    # # |            $ff60 (G)
-    .byte   %00001100 ; |    ##  |            $ff61 (G)
-    .byte   %00001010 ; |    # # |            $ff62 (G)
-    .byte   %00001100 ; |    ##  |            $ff63 (G)
-    .byte   %00000000 ; |        |            $ff64 (G)
+    .byte   %00000000 ; |        |            $df5e G)
+    .byte   %00001010 ; |    # # |            $df5f G)
+    .byte   %00001010 ; |    # # |            $df60 G)
+    .byte   %00001100 ; |    ##  |            $df61 G)
+    .byte   %00001010 ; |    # # |            $df62 G)
+    .byte   %00001100 ; |    ##  |            $df63 G)
+    .byte   %00000000 ; |        |            $df64 G)
 
 rendezvousSprite1
-    .byte   %00000000 ; |        |            $ff65 (G)
-    .byte   %11010010 ; |## #  # |            $ff66 (G)
-    .byte   %10010010 ; |#  #  # |            $ff67 (G)
-    .byte   %11010110 ; |## # ## |            $ff68 (G)
-    .byte   %10011010 ; |#  ## # |            $ff69 (G)
-    .byte   %11010010 ; |## #  # |            $ff6a (G)
-    .byte   %00000000 ; |        |            $ff6b (G)
+    .byte   %00000000 ; |        |            $df65 G)
+    .byte   %11010010 ; |## #  # |            $df66 G)
+    .byte   %10010010 ; |#  #  # |            $df67 G)
+    .byte   %11010110 ; |## # ## |            $df68 G)
+    .byte   %10011010 ; |#  ## # |            $df69 G)
+    .byte   %11010010 ; |## #  # |            $df6a G)
+    .byte   %00000000 ; |        |            $df6b G)
 
 rendezvousSprite2
-    .byte   %00000000 ; |        |            $ff6c (G)
-    .byte   %11001101 ; |##  ## #|            $ff6d (G)
-    .byte   %10101001 ; |# # #  #|            $ff6e (G)
-    .byte   %10101100 ; |# # ##  |            $ff6f (G)
-    .byte   %10101000 ; |# # #   |            $ff70 (G)
-    .byte   %11001101 ; |##  ## #|            $ff71 (G)
-    .byte   %00000000 ; |        |            $ff72 (G)
+    .byte   %00000000 ; |        |            $df6c G)
+    .byte   %11001101 ; |##  ## #|            $df6d G)
+    .byte   %10101001 ; |# # #  #|            $df6e G)
+    .byte   %10101100 ; |# # ##  |            $df6f G)
+    .byte   %10101000 ; |# # #   |            $df70 G)
+    .byte   %11001101 ; |##  ## #|            $df71 G)
+    .byte   %00000000 ; |        |            $df72 G)
 
 rendezvousSprite3
-    .byte   %00000000 ; |        |            $ff73 (G)
-    .byte   %11001001 ; |##  #  #|            $ff74 (G)
-    .byte   %00010101 ; |   # # #|            $ff75 (G)
-    .byte   %10010101 ; |#  # # #|            $ff76 (G)
-    .byte   %01010101 ; | # # # #|            $ff77 (G)
-    .byte   %11010101 ; |## # # #|            $ff78 (G)
-    .byte   %00000000 ; |        |            $ff79 (G)
+    .byte   %00000000 ; |        |            $df73 G)
+    .byte   %11001001 ; |##  #  #|            $df74 G)
+    .byte   %00010101 ; |   # # #|            $df75 G)
+    .byte   %10010101 ; |#  # # #|            $df76 G)
+    .byte   %01010101 ; | # # # #|            $df77 G)
+    .byte   %11010101 ; |## # # #|            $df78 G)
+    .byte   %00000000 ; |        |            $df79 G)
 
 rendezvousSprite4
-    .byte   %00000000 ; |        |            $ff7a (G)
-    .byte   %11011101 ; |## ### #|            $ff7b (G)
-    .byte   %01010100 ; | # # #  |            $ff7c (G)
-    .byte   %01010101 ; | # # # #|            $ff7d (G)
-    .byte   %01010101 ; | # # # #|            $ff7e (G)
-    .byte   %11010101 ; |## # # #|            $ff7f (G)
-    .byte   %00000000 ; |        |            $ff80 (G)
+    .byte   %00000000 ; |        |            $df7a G)
+    .byte   %11011101 ; |## ### #|            $df7b G)
+    .byte   %01010100 ; | # # #  |            $df7c G)
+    .byte   %01010101 ; | # # # #|            $df7d G)
+    .byte   %01010101 ; | # # # #|            $df7e G)
+    .byte   %11010101 ; |## # # #|            $df7f G)
+    .byte   %00000000 ; |        |            $df80 G)
 
 rendezvousSprite5
-    .byte   %00000000 ; |        |            $ff81 (G)
-    .byte   %11000000 ; |##      |            $ff82 (G)
-    .byte   %01000000 ; | #      |            $ff83 (G)
-    .byte   %11000000 ; |##      |            $ff84 (G)
-    .byte   %00000000 ; |        |            $ff85 (G)
-    .byte   %11000000 ; |##      |            $ff86 (G)
+    .byte   %00000000 ; |        |            $df81 G)
+    .byte   %11000000 ; |##      |            $df82 G)
+    .byte   %01000000 ; | #      |            $df83 G)
+    .byte   %11000000 ; |##      |            $df84 G)
+    .byte   %00000000 ; |        |            $df85 G)
+    .byte   %11000000 ; |##      |            $df86 G)
 
 missionAbortSprite0	
-    .byte   %00000000 ; |        |            $ff87 (G)
-    .byte   %10001010 ; |#   # # |            $ff88 (G)
-    .byte   %10001010 ; |#   # # |            $ff89 (G)
-    .byte   %10101010 ; |# # # # |            $ff8a (G)
-    .byte   %11011010 ; |## ## # |            $ff8b (G)
-    .byte   %10001010 ; |#   # # |            $ff8c (G)
-    .byte   %00000000 ; |        |            $ff8d (G)
+    .byte   %00000000 ; |        |            $df87 G)
+    .byte   %10001010 ; |#   # # |            $df88 G)
+    .byte   %10001010 ; |#   # # |            $df89 G)
+    .byte   %10101010 ; |# # # # |            $df8a G)
+    .byte   %11011010 ; |## ## # |            $df8b G)
+    .byte   %10001010 ; |#   # # |            $df8c G)
+    .byte   %00000000 ; |        |            $df8d G)
 
 missionAbortSprite1	
-    .byte   %00000000 ; |        |            $ff8e (G)
-    .byte   %11101110 ; |### ### |            $ff8f (G)
-    .byte   %00100010 ; |  #   # |            $ff90 (G)
-    .byte   %11101110 ; |### ### |            $ff91 (G)
-    .byte   %10001000 ; |#   #   |            $ff92 (G)
-    .byte   %11101110 ; |### ### |            $ff93 (G)
-    .byte   %00000000 ; |        |            $ff94 (G)
+    .byte   %00000000 ; |        |            $df8e G)
+    .byte   %11101110 ; |### ### |            $df8f G)
+    .byte   %00100010 ; |  #   # |            $df90 G)
+    .byte   %11101110 ; |### ### |            $df91 G)
+    .byte   %10001000 ; |#   #   |            $df92 G)
+    .byte   %11101110 ; |### ### |            $df93 G)
+    .byte   %00000000 ; |        |            $df94 G)
 
 missionAbortSprite2
-    .byte   %00000000 ; |        |            $ff95 (G)
-    .byte   %10111010 ; |# ### # |            $ff96 (G)
-    .byte   %10101010 ; |# # # # |            $ff97 (G)
-    .byte   %10101010 ; |# # # # |            $ff98 (G)
-    .byte   %10101011 ; |# # # ##|            $ff99 (G)
-    .byte   %10111010 ; |# ### # |            $ff9a (G)
-    .byte   %00000000 ; |        |            $ff9b (G)
+    .byte   %00000000 ; |        |            $df95 G)
+    .byte   %10111010 ; |# ### # |            $df96 G)
+    .byte   %10101010 ; |# # # # |            $df97 G)
+    .byte   %10101010 ; |# # # # |            $df98 G)
+    .byte   %10101011 ; |# # # ##|            $df99 G)
+    .byte   %10111010 ; |# ### # |            $df9a G)
+    .byte   %00000000 ; |        |            $df9b G)
 
 missionAbortSprite3	
-    .byte   %00000000 ; |        |            $ff9c (G)
-    .byte   %01000101 ; | #   # #|            $ff9d (G)
-    .byte   %01000101 ; | #   # #|            $ff9e (G)
-    .byte   %11000111 ; |##   ###|            $ff9f (G)
-    .byte   %01000101 ; | #   # #|            $ffa0 (G)
-    .byte   %01000111 ; | #   ###|            $ffa1 (G)
-    .byte   %00000000 ; |        |            $ffa2 (G)
+    .byte   %00000000 ; |        |            $df9c G)
+    .byte   %01000101 ; | #   # #|            $df9d G)
+    .byte   %01000101 ; | #   # #|            $df9e G)
+    .byte   %11000111 ; |##   ###|            $df9f G)
+    .byte   %01000101 ; | #   # #|            $dfa0 G)
+    .byte   %01000111 ; | #   ###|            $dfa1 G)
+    .byte   %00000000 ; |        |            $dfa2 G)
 
 missionAbortSprite4	
-    .byte   %00000000 ; |        |            $ffa3 (G)
-    .byte   %01100111 ; | ##  ###|            $ffa4 (G)
-    .byte   %01010101 ; | # # # #|            $ffa5 (G)
-    .byte   %01100101 ; | ##  # #|            $ffa6 (G)
-    .byte   %01010101 ; | # # # #|            $ffa7 (G)
-    .byte   %01100111 ; | ##  ###|            $ffa8 (G)
-    .byte   %00000000 ; |        |            $ffa9 (G)
+    .byte   %00000000 ; |        |            $dfa3 G)
+    .byte   %01100111 ; | ##  ###|            $dfa4 G)
+    .byte   %01010101 ; | # # # #|            $dfa5 G)
+    .byte   %01100101 ; | ##  # #|            $dfa6 G)
+    .byte   %01010101 ; | # # # #|            $dfa7 G)
+    .byte   %01100111 ; | ##  ###|            $dfa8 G)
+    .byte   %00000000 ; |        |            $dfa9 G)
 
 missionAbortSprite5
-    .byte   %00000000 ; |        |            $ffaa (G)
-    .byte   %01010010 ; | # #  # |            $ffab (G)
-    .byte   %01010010 ; | # #  # |            $ffac (G)
-    .byte   %01100010 ; | ##   # |            $ffad (G)
-    .byte   %01010010 ; | # #  # |            $ffae (G)
-    .byte   %01100111 ; | ##  ###|            $ffaf (G)
+    .byte   %00000000 ; |        |            $dfaa G)
+    .byte   %01010010 ; | # #  # |            $dfab G)
+    .byte   %01010010 ; | # #  # |            $dfac G)
+    .byte   %01100010 ; | ##   # |            $dfad G)
+    .byte   %01010010 ; | # #  # |            $dfae G)
+    .byte   %01100111 ; | ##  ###|            $dfaf G)
 
 
-    .byte   %00000000 ; |        |            $ffb0 (G)
-    .byte   %00000011 ; |      ##|            $ffb1 (G)
-    .byte   %00000010 ; |      # |            $ffb2 (G)
-    .byte   %00000001 ; |       #|            $ffb3 (G)
+    .byte   %00000000 ; |        |            $dfb0 G)
+    .byte   %00000011 ; |      ##|            $dfb1 G)
+    .byte   %00000010 ; |      # |            $dfb2 G)
+    .byte   %00000001 ; |       #|            $dfb3 G)
 
 nasaLogo  
-    .byte   %00000000 ; |        |            $ffb4 (G)
-    .byte   %00000000 ; |        |            $ffb5 (G)
-    .byte   %00000000 ; |        |            $ffb6 (G)
-    .byte   %00000000 ; |        |            $ffb7 (G)
-    .byte   %00000000 ; |        |            $ffb8 (G)
-    .byte   %00000000 ; |        |            $ffb9 (G)
-    .byte   %00000000 ; |        |            $ffba (G)
-    .byte   %00001001 ; |    #  #|            $ffbb (G)
-    .byte   %00001010 ; |    # # |            $ffbc (G)
-    .byte   %00001010 ; |    # # |            $ffbd (G)
-    .byte   %00001010 ; |    # # |            $ffbe (G)
-    .byte   %00001010 ; |    # # |            $ffbf (G)
-    .byte   %00001010 ; |    # # |            $ffc0 (G)
-    .byte   %00000100 ; |     #  |            $ffc1 (G)
-    .byte   %00100011 ; |  #   ##|            $ffc2 (G)
-    .byte   %10100010 ; |# #   # |            $ffc3 (G)
-    .byte   %10100010 ; |# #   # |            $ffc4 (G)
-    .byte   %10010100 ; |#  # #  |            $ffc5 (G)
-    .byte   %10010100 ; |#  # #  |            $ffc6 (G)
-    .byte   %10010100 ; |#  # #  |            $ffc7 (G)
-    .byte   %10001000 ; |#   #   |            $ffc8 (G)
-    .byte   %11100100 ; |###  #  |            $ffc9 (G)
-    .byte   %00010100 ; |   # #  |            $ffca (G)
-    .byte   %00010100 ; |   # #  |            $ffcb (G)
-    .byte   %01100010 ; | ##   # |            $ffcc (G)
-    .byte   %10000010 ; |#     # |            $ffcd (G)
-    .byte   %10000010 ; |#     # |            $ffce (G)
-    .byte   %01110001 ; | ###   #|            $ffcf (G)
-    .byte   %01000000 ; | #      |            $ffd0 (G)
-    .byte   %01000000 ; | #      |            $ffd1 (G)
-    .byte   %01000000 ; | #      |            $ffd2 (G)
-    .byte   %10000000 ; |#       |            $ffd3 (G)
-    .byte   %10000000 ; |#       |            $ffd4 (G)
-    .byte   %10000000 ; |#       |            $ffd5 (G)
-    .byte   %00000000 ; |        |            $ffd6 (G)
+    .byte   %00000000 ; |        |            $dfb4 G)
+    .byte   %00000000 ; |        |            $dfb5 G)
+    .byte   %00000000 ; |        |            $dfb6 G)
+    .byte   %00000000 ; |        |            $dfb7 G)
+    .byte   %00000000 ; |        |            $dfb8 G)
+    .byte   %00000000 ; |        |            $dfb9 G)
+    .byte   %00000000 ; |        |            $dfba G)
+    .byte   %00001001 ; |    #  #|            $dfbb G)
+    .byte   %00001010 ; |    # # |            $dfbc G)
+    .byte   %00001010 ; |    # # |            $dfbd G)
+    .byte   %00001010 ; |    # # |            $dfbe G)
+    .byte   %00001010 ; |    # # |            $dfbf G)
+    .byte   %00001010 ; |    # # |            $dfc0 G)
+    .byte   %00000100 ; |     #  |            $dfc1 G)
+    .byte   %00100011 ; |  #   ##|            $dfc2 G)
+    .byte   %10100010 ; |# #   # |            $dfc3 G)
+    .byte   %10100010 ; |# #   # |            $dfc4 G)
+    .byte   %10010100 ; |#  # #  |            $dfc5 G)
+    .byte   %10010100 ; |#  # #  |            $dfc6 G)
+    .byte   %10010100 ; |#  # #  |            $dfc7 G)
+    .byte   %10001000 ; |#   #   |            $dfc8 G)
+    .byte   %11100100 ; |###  #  |            $dfc9 G)
+    .byte   %00010100 ; |   # #  |            $dfca G)
+    .byte   %00010100 ; |   # #  |            $dfcb G)
+    .byte   %01100010 ; | ##   # |            $dfcc G)
+    .byte   %10000010 ; |#     # |            $dfcd G)
+    .byte   %10000010 ; |#     # |            $dfce G)
+    .byte   %01110001 ; | ###   #|            $dfcf G)
+    .byte   %01000000 ; | #      |            $dfd0 G)
+    .byte   %01000000 ; | #      |            $dfd1 G)
+    .byte   %01000000 ; | #      |            $dfd2 G)
+    .byte   %10000000 ; |#       |            $dfd3 G)
+    .byte   %10000000 ; |#       |            $dfd4 G)
+    .byte   %10000000 ; |#       |            $dfd5 G)
+    .byte   %00000000 ; |        |            $dfd6 G)
     
-    .byte   $00,$00,$00,$00,$00,$00,$00,$ce ; $ffd7 (D)
-    .byte   $ae,$8e,$6e,$4e,$2e,$0e,$0e     ; $ffdf (*)
-    .byte   $26                             ; $ffe6 (D)
-    .byte   $32,$3d,$43,$46,$48,$4a,$4c     ; $ffe7 (*)
+    .byte   $00,$00,$00,$00,$00,$00,$00,$ce ; $dfd7 D)
+    .byte   $ae,$8e,$6e,$4e,$2e,$0e,$0e     ; $dfdf *)
+    .byte   $26                             ; $dfe6 D)
+    .byte   $32,$3d,$43,$46,$48,$4a,$4c     ; $dfe7 *)
 
 thrustPointer    
-    .byte   %11111110 ; |####### |            $ffee (G)
-    .byte   %10010010 ; |#  #  # |            $ffef (G)
-    .byte   %10010010 ; |#  #  # |            $fff0 (G)
-    .byte   %00010000 ; |   #    |            $fff1 (G)
-    .byte   %10010010 ; |#  #  # |            $fff2 (G)
-    .byte   %01111100 ; | #####  |            $fff3 (G)
-    .byte   %00111000 ; |  ###   |            $fff4 (G)
-    .byte   %10010010 ; |#  #  # |            $fff5 (G)
+    .byte   %11111110 ; |####### |            $dfee G)
+    .byte   %10010010 ; |#  #  # |            $dfef G)
+    .byte   %10010010 ; |#  #  # |            $dff0 G)
+    .byte   %00010000 ; |   #    |            $dff1 G)
+    .byte   %10010010 ; |#  #  # |            $dff2 G)
+    .byte   %01111100 ; | #####  |            $dff3 G)
+    .byte   %00111000 ; |  ###   |            $dff4 G)
+    .byte   %10010010 ; |#  #  # |            $dff5 G)
     
-    .byte   $00,$00,$00                     ; $fff6 (*)
+    .byte   $00,$00,$00                     ; $dff6 *)
 BANK1STROBE
-    .byte   $00                             ; $fff9 (D)
+    .byte   $00                             ; $dff9 D)
     .byte   $00,$00
 	.byte	$00,$d0                 
     .byte   $00,$00                         ;
@@ -3422,7 +3422,7 @@ Lf011
     bne     Lf050
 Lf04a
     dec     ram_B6
-    sta     ram_84
+    sta     currentScreenId
     ldx     #$07
 Lf050
     sta     ram_9E
@@ -3508,7 +3508,7 @@ Lf0cb
 Lf0d5
     sta     ram_B2
     inc     ram_ED
-    inc     ram_84
+    inc     currentScreenId
 Lf0db
     lda     ram_B4
     beq     Lf0e8
@@ -3519,17 +3519,17 @@ Lf0db
 Lf0e6
     beq     Lf0fd
 Lf0e8
-    ldx     ram_83
+    ldx     targetAuxX
     lsr
     bcs     Lf0f5
 Lf0ed
-    dec     ram_82
-    dec     ram_83
+    dec     targetX
+    dec     targetAuxX
     cpx     #$0d
     bne     Lf0fd
 Lf0f5
-    inc     ram_82
-    inc     ram_83
+    inc     targetX
+    inc     targetAuxX
     cpx     #$81
     beq     Lf0ed
 Lf0fd
@@ -3548,8 +3548,8 @@ Lf10f
     ldx     ram_A9
     bne     Lf121
     inx
-    lda     ram_82
-    cmp     ram_81
+    lda     targetX
+    cmp     crosshairX
     bcs     Lf11f
     inx
 Lf11f
@@ -3560,11 +3560,11 @@ Lf123
     lsr
     bcs     Lf129
 Lf126
-    dec     ram_81
+    dec     crosshairX
     .byte   $2c ;bit                ;4-5 =   4
 Lf129
-    inc     ram_81
-    lda     ram_81
+    inc     crosshairX
+    lda     crosshairX
     cmp     #$0f
     bcc     Lf129
     cmp     #$8c
@@ -3714,7 +3714,7 @@ Lf20c
     sbc     #$01
     sta     ram_9C
     bne     Lf238
-    ldx     ram_81
+    ldx     crosshairX
     cpx     #$75
     bcc     Lf23c
     sta     ram_9D
@@ -3774,7 +3774,7 @@ Lf286
     bne     Lf29a
     inx
     stx     ram_B4
-    inc     ram_81
+    inc     crosshairX
 Lf29a
     lda     ram_BB
     cmp     #$03
@@ -3783,7 +3783,7 @@ Lf2a0
     jmp     Lf32c
     
 Lf2a3
-    lda     ram_81
+    lda     crosshairX
     cmp     #$10
     bcs     Lf2ad
     ldx     ram_B4
@@ -4310,7 +4310,7 @@ Lf5de
     ldx     #$03
     stx     ram_B5
     stx     ram_85
-    stx     ram_84
+    stx     currentScreenId
     ldx     #$09
     stx     ram_AA
     stx     ram_F6
@@ -4336,7 +4336,7 @@ Lf61c
     and     #$0c
     ora     #$01
     sta     ram_AB
-    lda     ram_84
+    lda     currentScreenId
     cmp     #$04
     bne     Lf635
     lda     ram_88
@@ -4369,7 +4369,7 @@ Lf65b
     cmp     #$1e
     bne     Lf68a
     inc     ram_B5
-    inc     ram_84
+    inc     currentScreenId
     ldx     #$02
     stx     ram_F2
     lda     #$40
@@ -4412,7 +4412,7 @@ Lf6a0
     sta     ram_C3
     jsr     Lfeea
 Lf6ab
-    lda     ram_84
+    lda     currentScreenId
     cmp     #$04
     bne     Lf6c9
     dec     ram_EB
@@ -4519,7 +4519,7 @@ Lf753
     bcc     Lf76b
     inx
 Lf76b
-    stx     ram_84
+    stx     currentScreenId
     sty     ram_F8
 Lf76f
     ldy     ram_F4
@@ -4637,9 +4637,9 @@ Lf808
     ldx     #$06
     ldy     #$54
 Lf825
-    lda     dashboardPtr1L,x
+    lda     screenPtr1L,x
     bne     Lf82f
-    sty     dashboardPtr1L,x
+    sty     screenPtr1L,x
     dex
     dex
     bne     Lf825
@@ -4647,23 +4647,23 @@ Lf82f
     lda     ram_FA
     lsr
     tax
-    lda     dashboardGraphicOffsetTable,x
+    lda     graphicOffsetTable,x
     cpx     #$0c
     bcs     Lf848
-    sta     dashboardPtr6L
+    sta     screenPtr6L
     adc     #$06
-    sta     dashboardPtr5L
+    sta     screenPtr5L
     lda     #$de
-    sta     dashboardPtr6H
-    sta     dashboardPtr5H
+    sta     screenPtr6H
+    sta     screenPtr5H
     bne     Lf857
 Lf848
     ldx     #$0a
     ldy     #$df
     clc
 Lf84d
-    sta     dashboardPtr1L,x
-    sty     dashboardPtr1H,x
+    sta     screenPtr1L,x
+    sty     screenPtr1H,x
     adc     #$07
     dex
     dex
@@ -4774,7 +4774,7 @@ Lf8fb
     lda     Lfec5,y
 Lf903
     sta     COLUBK
-    sta     ram_FD
+    sta     starfieldVerticalCounter
 Lf907
     sta     WSYNC
 ;---------------------------------------
@@ -5055,7 +5055,7 @@ Lfacf
     bcc     Lfad7
     ldy     #$f0
 Lfad7
-    sty     ram_E4,x
+    sty     starfieldHorizontalMotion,x
     sta     WSYNC
 ;---------------------------------------
     lda     #$20
@@ -5085,7 +5085,7 @@ Lfb02
     eor     #$ff
     clc
     adc     #$36
-    sta     ram_FD
+    sta     starfieldVerticalCounter
     sta     WSYNC
 ;---------------------------------------
     lda     #$28
@@ -5106,40 +5106,56 @@ Lfb25
     sty     COLUP1
     sty     CXCLR
     ldy     #$00
-Lfb2d
+    ;-----------------------------------------------------------
+    ; Main Space View Loop (Window Effect)
+    ; Draws the starfield/dashboard lines visible through the cockpit.
+    ;-----------------------------------------------------------
+kernelDrawCockpitWindow
     sta     WSYNC
 ;---------------------------------------
-    sta     HMOVE
+    sta     HMOVE                       ; Apply fine motion (moves stars left/right).
     iny
-    cpy     ram_FA
-    bcc     Lfb3e
+    cpy     ram_FA                      ; Compare loop counter to Motion Threshold?
+    bcc     Lfb3e                       ; Branch if "fast motion" update not needed yet.
     ldy     #$00
-    lda     ram_E4,x
-    sta     HMM0,x
+    lda     starfieldHorizontalMotion,x ; Load motion value from table.
+    sta     HMM0,x                      ; Apply to HMM0 (or HMM1 if X=1).
     bcs     Lfb42
 Lfb3e
     lda     #$00
-    sta     HMM0,x
+    sta     HMM0,x                      ; Clear motion if below threshold.
 Lfb42
     lda     #$00
-    dec     ram_FD
+    dec     starfieldVerticalCounter    ; Decrement the star/line pattern counter.
     bpl     Lfb4c
-    sta     ENAM0
-    bmi     Lfb5c
+    sta     ENAM0                       ; If counter wrapped, clear ENAM0.
+    bmi     Lfb5c                       ; And clear ENAM1 (via fallthrough/branch logic).
 Lfb4c
-    bit     CXM0FB
-    bmi     Lfb52
-    lda     #$02
+    ;-----------------------------------------------------------
+    ; Masking Trick:
+    ; The code attempts to enable the Missiles (Stars/Lines)
+    ; every scanline inside the window area.
+    ; However, it checks collision with the Playfield (Window Frame).
+    ; If a missile hits the frame, it is disabled (masked).
+    ; This makes the stars appear "behind" the cockpit.
+    ;-----------------------------------------------------------
+    
+    ; Check Missile 0 (Orange vertical lines).
+    bit     CXM0FB                      ; Check M0 collision with Playfield/Player.
+    bmi     Lfb52                       ; If hit (inside wall/frame), skip enable (keep 0/Off).
+    lda     #$02                        ; Else, Enable M0 (1 pixel).
 Lfb52
     sta     ENAM0
-    lda     #$00
-    bit     CXM1FB
-    bmi     Lfb5c
-    lda     #$02
+
+    lda     #$00                        ; Prepare 0 (Off).
+    ; Check Missile 1 (Green Stars).
+    bit     CXM1FB                      ; Check M1 collision with Playfield/Player.
+    bmi     Lfb5c                       ; If hit (inside wall/frame), skip enable (keep 0/Off).
+    lda     #$02                        ; Else, Enable M1 (1 pixel).
 Lfb5c
     sta     ENAM1
-    dec     ram_FC
-    bpl     Lfb2d
+    dec     ram_FC                      ; Decrement scanline counter.
+    bpl     kernelDrawCockpitWindow     ; Loop for next scanline.
     txs
     ldx     #$0a
 Lfb65
@@ -5158,14 +5174,14 @@ Lfb65
     cpy     ram_FA
     bcc     Lfb88
     ldy     #$00
-    lda     ram_E4,x
+    lda     starfieldHorizontalMotion,x
     sta     HMM0,x
     bcs     Lfb8c
 Lfb88
     lda     #$00
     sta     HMM0,x
 Lfb8c
-    dec     ram_FD
+    dec     starfieldVerticalCounter
     bpl     Lfb94
     sta     ENAM0
     sta     ENAM1
@@ -5195,7 +5211,7 @@ Lfba7
     lda     #$10
     ldy     ram_B5
     beq     Lfbc2
-    ldy     ram_FD
+    ldy     starfieldVerticalCounter
     cpy     #$90
     bne     Lfbc2
     lda     ram_88
@@ -5244,7 +5260,7 @@ Lfc01
     ldy     #$0f
 Lfc0a
     sta     HMCLR
-    lda     ram_FD
+    lda     starfieldVerticalCounter
     dec     ram_FC
     bpl     Lfc18
     lda     Lfe55,y
@@ -5504,9 +5520,9 @@ Lfddc
     bpl     Lfde6
     lda     #$50
 Lfde6
-    sta     dashboardPtr1L,x
+    sta     screenPtr1L,x
     lda     #$de
-    sta     dashboardPtr1H,x
+    sta     screenPtr1H,x
     dex
     rts
     
@@ -5544,7 +5560,7 @@ Lfe03
 ;      Graphic Pointers (Low Bytes?)
 ;      Point to $FE7F, $FE73, etc.
 ;-----------------------------------------------------------
-dashboardGraphicOffsetTable
+graphicOffsetTable
     .byte   $7f,$73,$5b,$67,$8b,$df,$97,$a3 ; $fe16 (*)
     .byte   $af,$bb,$c7,$d3                 ; $fe1e (*)
     .byte   $b4                             ; $fe22 (D)
