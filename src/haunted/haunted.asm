@@ -1,15 +1,25 @@
-	LIST OFF
-; Disassembly of C:\Games\Atari\MANUFACTURER\Atari\Haunted House (1982) (Atari).bin
-; Disassembled 02/09/22 04:50:23
-; Using Stella 6.6
-;
-; ROM Name : Haunted House (1982) (Atari)
-; ROM MD5  : f0a6e99f5875891246c3dbecbf2d2cea
-; ROM Type : 4K* (4K) 
+
+    ;============================================================
+    ; Haunted House (1982) (Atari 2600) - Disassembly & Analysis
+    ;------------------------------------------------------------
+    ; Disassembled: 02/09/22 04:50:23
+    ; Disassembler: Stella 6.6
+    ; ROM Name   : Haunted House (1982) (Atari)
+    ; ROM MD5    : f0a6e99f5875891246c3dbecbf2d2cea
+    ; ROM Type   : 4K
+    ;
+    ; This file contains the full disassembly and reverse engineering
+    ; of the Haunted House Atari 2600 game. It includes detailed
+    ; comments, variable explanations, and subroutine documentation
+    ; to aid in understanding the game logic and hardware interactions.
+    ;============================================================
+
+    LIST OFF
 
 	processor 6502
 	include "tia_constants.h"
 	include "vcs_constants.h"
+	
 
 ;-----------------------------------------------------------
 ;      COLOR and GAME Constants
@@ -53,7 +63,7 @@ PLAYER_INIT_HPOS = 128
 PLAYER_INIT_VPOS = 134
 
 DOOR_LEFT_XPOS   = $3F
-DOOR_RIGHT_XPOS  = $4F
+DOORrIGHT_XPOS  = $4F
 
 ;---AUDCx CONSTANTS
 
@@ -72,270 +82,311 @@ TWILIGHTSOUND	=	12
 ;      RIOT RAM (zero-page) labels
 ;-----------------------------------------------------------
 
-rollingEyesTimer              = $80
-itemGatheredFlag              = $81
-torchesUsed                   = $82
-ram_83          = $83
-colorCycTimer                 = $84
-ram_85          = $85
-itemLastSeen                  = $86
-
-secondsCounter                = $87 ; counts down from 60 every 60th frame
-
-doorwayCrossingStatus         = $88
-frameCount                    = $89
-torchAnimationIdx             = $8a
-ram_8B          = $8b
-ram_8C          = $8c
-playerCurrentFloor            = $8d
-movementValue                 = $8e
-
-audioFrequency0Value          = $8f
-audioVolume1Value             = $90
-
-ram_91          = $91 ; seems to be movement related
-audioWindSoundBit             = $92
-audioSoundIndex               = $93
-
-ram_94          = $94
-ram_95          = $95
-
-playerLives                   = $96
-playerDoorCrossing            = $97
-ram_98          = $98
-gameState                     = $99
-itemBeingCarried              = $9a
-
-;=====================================
-roomStairsStatus              = $9b
-playerCurrentRoom             = $9c
-; (5) | (4)
-; ----+----
-; (3) | (2) ; illustrate room #'s above
-; ----+----
-; (1) | (0)
-urnAssembly_0                 = $9d ; equals 8 when urn complete   (2 before)
-urnAssembly_1                 = $9e ; equals $ff when urn complete (3 before)
-urnAssembly_2                 = $9f ; equals $ff when urn complete (4 before)
-;=====================================
 
 
-;=====================================
-objectFloorLocations          = $a0
-masterKeyFloorLocation        = $a0 ; 0 Key 
-                              ; $a1 ; 1 Scepter
-                              ; $a2 ; 2 Urn Left
-                              ; $a3 ; 3 Urn Center
-                              ; $a4 ; 4 Urn Right
-;-------------------------------------
-_randomFloorLocations         = $a5
-_randomFloorLocation0         = $a5 ; 0
-_randomFloorLocation1         = $a6 ; 1
-                              ; $a7 ; 2
-                              ; $a8 ; 3
-                              ; $a9 ; 4
+
+
+
+
+
+; Zero-page variables (clarifying comments only, no renaming)
+rollingEyesTimer              = $80    ; Timer for rolling eyes animation
+itemGatheredFlag              = $81    ; Flag: item has been gathered
+torchesUsed                   = $82    ; Number of torches used
+creaturesInRoom               = $83    ; Number of creatures present in room
+colorCycTimer                 = $84    ; Timer for color cycling effects
+collisionIndex                = $85    ; Index for collision detection
+itemLastSeen                  = $86    ; Last item seen by player
+
+secondsCounter                = $87    ; Counts down from 60 every 60th frame (timing)
+
+doorwayCrossingStatus         = $88    ; Status of doorway crossing
+frameCount                    = $89    ; Frame counter (increments every frame)
+rollingEyesTimer              = $80    ; Timer for rolling eyes animation
+itemGatheredFlag              = $81    ; Flag: item has been gathered
+torchesUsed                   = $82    ; Number of torches used
+creaturesInRoom               = $83    ; Number of creatures present in room
+colorCycTimer                 = $84    ; Timer for color cycling effects
+collisionIndex                = $85    ; Index for collision detection
+itemLastSeen                  = $86    ; Last item seen by player
+secondsCounter                = $87    ; Counts down from 60 every 60th frame (timing)
+doorwayCrossingStatus         = $88    ; Status of doorway crossing
+frameCount                    = $89    ; Frame counter (increments every frame)
+torchAnimationIdx             = $8a    ; Index for torch animation
+pfScrollOffsetA               = $8b    ; Playfield scroll offset A
+pfScrollOffsetB               = $8c    ; Playfield scroll offset B
+playerCurrentFloor            = $8d    ; Player's current floor
+movementValue                 = $8e    ; Value representing player movement
+audioFrequency0Value          = $8f    ; Audio frequency value (channel 0)
+audioVolume1Value             = $90    ; Audio volume value (channel 1)
+doorwayMovementFlag           = $91    ; Flag for doorway movement
+audioWindSoundBit             = $92    ; Bit for wind sound effect
+audioSoundIndex               = $93    ; Index for audio sound
+creaturesPresentMask          = $94    ; Bitmask for creatures present
+creatureProcessMask           = $95    ; Bitmask for creatures being processed
+playerLives                   = $96    ; Player's remaining lives
+playerDoorCrossing            = $97    ; Player's doorway crossing status
+windSoundCounter              = $98    ; Counter for wind sound effect
+gameState                     = $99    ; Current game state
+itemBeingCarried              = $9a    ; Item currently being carried by player
+roomStairsStatus              = $9b    ; Bitfield: status of stairs in current room
+playerCurrentRoom             = $9c    ; Player's current room number
+urnAssembly0                  = $9d    ; Urn assembly progress (equals 8 when complete)
+urnAssembly1                  = $9e    ; Urn assembly progress (equals $ff when complete)
+urnAssembly2                  = $9f    ; Urn assembly progress (equals $ff when complete)
+objFloorLoc                   = $a0    ; Floor location for objects (key, scepter, urn pieces)
+masterKeyFloorLocation        = $a0    ; Floor location for master key
+randFloorLoc                  = $a5    ; Randomized floor locations for objects
+randFloorLoc0                 = $a5    ; Random floor location 0
+randFloorLoc1                 = $a6    ; Random floor location 1
+playerPosX                    = $aa    ; Player horizontal position
+objPosX                       = $ab    ; Horizontal position for objects (key, scepter, urn pieces)
+masterKeyPosX                 = $ab    ; Horizontal position for master key
+randPosX                      = $b0    ; Randomized horizontal positions for objects
+randPosX1                     = $b1    ; Random horizontal position 1
+playerScrollY                 = $b5    ; Player vertical scroll position
+objPosY                       = $b6    ; Vertical position for objects (key, scepter, urn pieces)
+masterKeyPosY                 = $b6    ; Vertical position for master key
+randPosY                      = $bb    ; Randomized vertical positions for objects
+randPosY1                     = $bc    ; Random vertical position 1
+objectRoomLocations           = $c0    ; Room location for objects (key, scepter, urn pieces)
+randomRoomLocations           = $c5    ; Randomized room locations for objects
+creatureCollisionFlag          = $ca    ; Set when player collides with a creature
+playerAbsPosY                 = $cb    ; Player absolute vertical position
+gameSelection                 = $cc    ; Game selection (0-8 for games 1-9)
+scanline                      = $cd    ; Current scanline
+tmpBallHorizPosition            = $cf    ; Temporary ball horizontal position
+temporaryOne                    = $d0    ; Temporary variable (multi-use)
+tmpColorTableIndex              = $d0    ; Temporary color table index
+tmpRandomValue                  = $d0    ; Temporary random value
+colorEOR                        = $d1    ; Color EOR (also temporaryOne + 1)
+colorCycleMode                  = $d2    ; Color cycle mode
+lightningColorMask              = $d3    ; Lightning color mask
+calculatedFineValue             = $d4    ; Calculated fine value
+torchesHNumberPTRs              = $d4    ; Torch H number pointers (with $d5)
+tmpYRegisterSaveLocation        = $d5    ; Temporary Y register save location
+torchesLNumberPTRs              = $d6    ; Torch L number pointers (with $d7)
+tmpFloorNumber                  = $d7    ; Temporary floor number
+eyeRam                          = $d8    ; Eye RAM (with $d9 and $da)
+livesNumberPtrs                 = $d8    ; Lives number pointers (with $d9)
+tmpRoomNumber                   = $d8    ; Temporary room number
+floorNumberPtrs                 = $da    ; Floor number pointers (with $db)
+spriteHorizPositions            = $dc    ; Sprite horizontal positions
+p0PosY                        = $dc    ; Player 0 position Y
+player1HorizPosition            = $dd    ; Player 1 horizontal position
+missile0HorizPosition           = $de    ; Missile 0 horizontal position
+torchTimer                      = $df    ; Torch timer (Missile 1 unused)
+ballHorizPosition               = $e0    ; Ball horizontal position
+sprite0GraphicPtrs               = $e1    ; Sprite 0 graphic pointers (with $e2)
+sprite1GraphicPtrs               = $e3    ; Sprite 1 graphic pointers (with $e4)
+selectSwitchDebounce            = $e5    ; Debounce for select switch
+actionButtonDebounce            = $e6    ; Debounce for action button
+playerDeltaX                   = $e7    ; Player horizontal delta (left/right movement)
+playerDeltaY                   = $e8    ; Player vertical delta (up/down movement)
+itemActionIndex                = $e9    ; Index for item action (urn piece pickup)
+numberOfCreatures              = $ea    ; Number of creatures
+randomSeed                     = $eb    ; Random seed
+randomSeedAlternate            = $ec    ; Alternate random seed
+spriteHeight                   = $ed    ; Sprite height
+playerVertSize                  = $ee    ; Player vertical size
+playerPfScrollValue             = $ef    ; Player playfield scroll value
+playerVertOffset                = $f0    ; Player vertical offset
+colorTableRam                  = $f1    ; Color table RAM
+object1Color                   = $f1    ; Creature color (alternates/flickers if two onscreen)
+object2Color                   = $f2    ; Player eye/torch color (alternates as needed)
+object3Color                   = $f3    ; Third object color
+statusBackgroundColor          = $f4    ; Status background color
+wallColor                      = $f5    ; Wall color
+stack                          = $f6    ; Stack (and up to $ff)
 ;======================================
 
-playerHorizPos                = $aa
+creatureCollisionFlag          = $ca    ; Set when player collides with a creature
 
-;======================================
-objectHorizPositions          = $ab
-masterKeyHorizPos             = $ab ; 0 Key
-                              ; $ac ; 1 Scepter
-                              ; $ad ; 2 Urn Left
-                              ; $ae ; 3 Urn Center
-                              ; $af ; 4 Urn Right
-;-------------------------------------
-_randomHPositions             = $b0 ; 0
-_randomHPosition1             = $b1 ; 1
-                              ; $b2 ; 2
-                              ; $b3 ; 3
-                              ; $b4 ; 4
-;======================================
-
-playerVertPosScroll     = $b5
-
-;======================================
-objectVertPositions           = $b6
-masterKeyVertPos              = $b6 ; 0 Key
-                              ; $b7 ; 1 Scepter
-                              ; $b8 ; 2 Urn Left
-                              ; $b9 ; 3 Urn Center
-                              ; $ba ; 4 Urn Right
-;-------------------------------------
-_randomVPositions             = $bb ; 0
-_randomVPosition1             = $bc ; 1
-                              ; $bd ; 2
-                              ; $be ; 3
-                              ; $bf ; 4
-;======================================
-objectRoomLocations           = $c0 ; 0 Key
-                              ; $c1 ; 1 Scepter
-                              ; $c2 ; 2 Urn Left
-                              ; $c3 ; 3 Urn Center
-                              ; $c4 ; 4 Urn Right
-;-------------------------------------
-_randomRoomLocations          = $c5 ; 0
-                              ; $c6 ; 1
-                              ; $c7 ; 2
-                              ; $c8 ; 3
-                              ; $c9 ; 4
-;======================================
-
-ram_CA          = $ca ; collision with creature flag thing
-
-playerVertPosAbs            = $cb
-gameSelection               = $cc ; 0-8 representing games 1 thru 9
-scanline                    = $cd
+playerAbsPosY                 = $cb    ; Player absolute vertical position
+gameSelection                 = $cc    ; Game selection (0-8 for games 1-9)
+scanline                      = $cd    ; Current scanline
 
 ; MANY OF THESE HAVE TEMPORARY USES
 ;*@*@*@*@*@*@*@*@*@*@*@*@*@*@*@*@*
-tmpBallHorizPosition        = $cf ; [dedicated to that use, I think]
+tmpBallHorizPosition            = $cf    ; Temporary ball horizontal position
 
-temporaryOne                = $d0 ; [used for many, many things]
-tmpColorTableIndex          = $d0
-tmpRandomValue              = $d0
-colorEOR                    = $d1 ; also referenced as temporaryOne + 1
+temporaryOne                    = $d0    ; Temporary variable (multi-use)
+tmpColorTableIndex              = $d0    ; Temporary color table index
+tmpRandomValue                  = $d0    ; Temporary random value
+colorEOR                        = $d1    ; Color EOR (also temporaryOne + 1)
 
-colorCycleMode              = $d2
-lightningColorMask          = $d3
+colorCycleMode                  = $d2    ; Color cycle mode
+lightningColorMask              = $d3    ; Lightning color mask
 
-calculatedFineValue         = $d4
-torchesHNumberPTRs          = $d4 ; (with $d5)
+calculatedFineValue             = $d4    ; Calculated fine value
+torchesHNumberPTRs              = $d4    ; Torch H number pointers (with $d5)
 
-tmpYRegisterSaveLocation    = $d5
+tmpYRegisterSaveLocation        = $d5    ; Temporary Y register save location
 
-torchesLNumberPTRs          = $d6 ; (with $d7)
-tmpFloorNumber              = $d7
+torchesLNumberPTRs              = $d6    ; Torch L number pointers (with $d7)
+tmpFloorNumber                  = $d7    ; Temporary floor number
 
-eyeRAM                      = $d8 ; (with $d9 and $da)
-livesNumberPTRs             = $d8 ; (with $d9)
-tmpRoomNumber               = $d8
+eyeRAM                          = $d8    ; Eye RAM (with $d9 and $da)
+livesNumberPTRs                 = $d8    ; Lives number pointers (with $d9)
+tmpRoomNumber                   = $d8    ; Temporary room number
 
-floorNumberPTRs             = $da ; (with $db)
+floorNumberPTRs                 = $da    ; Floor number pointers (with $db)
 ;*@*@*@*@*@*@*@*@*@*@*@*@*@*@*@*@*
 
 ;======================================
 ; RAM Table for P0,P1,M0,M1,BL
-SpriteHorizPositions        = $dc
-Player0HorizPosition        = $dc
-Player1HorizPosition        = $dd
-Missile0HorizPosition       = $de
-torchTimer                  = $df ; (Note: Missile 1 Unused)
-BallHorizPosition           = $e0
+spriteHorizPositions            = $dc    ; Sprite horizontal positions
+p0PosY                        = $dc    ; Player 0 position Y
+player1HorizPosition            = $dd    ; Player 1 horizontal position
+missile0HorizPosition           = $de    ; Missile 0 horizontal position
+torchTimer                      = $df    ; Torch timer (Missile 1 unused)
+ballHorizPosition               = $e0    ; Ball horizontal position
 ;======================================
 
-sprite0GraphicPTRs          = $e1 ; (with $e2)
+sprite0GraphicPTRs               = $e1    ; Sprite 0 graphic pointers (with $e2)
 
-sprite1GraphicPTRs          = $e3 ; (with $e4)
+sprite1GraphicPTRs               = $e3    ; Sprite 1 graphic pointers (with $e4)
 
-selectSwitchDebounce        = $e5
-actionButtonDebounce        = $e6
+selectSwitchDebounce            = $e5    ; Debounce for select switch
+actionButtonDebounce            = $e6    ; Debounce for action button
 
-ram_E7          = $e7 ; left/right movement of player/eyes 0, 1, or -1 ($ff)
-ram_E8          = $e8 ;  up/down   movement of player/eyes 0, 1, or -1 ($ff)
+playerDeltaX                   = $e7    ; Player horizontal delta (left/right movement)
+playerDeltaY                   = $e8    ; Player vertical delta (up/down movement)
 
-ram_E9          = $e9 ; location written to when urn piece is picked up
-numberOfCreatures           = $ea
+itemActionIndex                = $e9    ; Index for item action (urn piece pickup)
+numberOfCreatures              = $ea    ; Number of creatures
 
-randomSeed                  = $eb
-randomSeedAlternate         = $ec
-spriteHeight                = $ed
+randomSeed                     = $eb    ; Random seed
+randomSeedAlternate            = $ec    ; Alternate random seed
+spriteHeight                   = $ed    ; Sprite height
 
-playerVertSize              = $ee
-playerPFScrollValue         = $ef
-playerVertOffset            = $f0
+playerVertSize                  = $ee    ; Player vertical size
+playerPFScrollValue             = $ef    ; Player playfield scroll value
+playerVertOffset                = $f0    ; Player vertical offset
 
-colorTableRAM               = $f1
-object1Color                = $f1 ; represents creature color, alternates/flickers if two onscreen
-object2Color                = $f2 ; player eye / torch color, alternates between them as needed
-object3Color                = $f3
-statusBackgroundColor       = $f4
-wallColor                   = $f5
+colorTableRAM                  = $f1    ; Color table RAM
+object1Color                   = $f1    ; Creature color (alternates/flickers if two onscreen)
+object2Color                   = $f2    ; Player eye/torch color (alternates as needed)
+object3Color                   = $f3    ; Third object color
+statusBackgroundColor          = $f4    ; Status background color
+wallColor                      = $f5    ; Wall color
 
-STACK                       = $f6 ; [and up to $ff]
+STACK                          = $f6    ; Stack (and up to $ff)
 
 ;-----------------------------------------------------------
 ;      User Defined Labels
 ;-----------------------------------------------------------
 
-Start           = $f000
+
+;-----------------------------------------------------------
+; Program Entry Point & System Initialization
+;-----------------------------------------------------------
+; The 'start' label marks the beginning of program execution.
+; This section disables interrupts, clears decimal mode, initializes
+; the stack, random seed, and game selection, and clears key RAM.
+; It then calls resetPressed and sets up game selection variables.
+;-----------------------------------------------------------
+
+start           = $f000
 
     SEG     CODE
     ORG     $f000
 
-Start
-    sei                             ; disable interrupts        
-    cld                             ; clear decimal mode        
-    ldx     #$ff
+start
+    sei                             ; Disable interrupts        
+    cld                             ; Clear decimal mode        
+    ldx     #$ff                    ; Prepare stack pointer
     txs
-    stx     randomSeed
+    stx     randomSeed              ; Initialize random seed
     inx
-    stx     gameSelection
+    stx     gameSelection           ; Initialize game selection
     txa
 .clearLoop
-    sta     VSYNC,x
+    sta     VSYNC,x                 ; Clear RAM region
     inx
     bpl     .clearLoop
-    jsr     resetPressed
-    jsr     SetSelectionVariables
+    jsr     resetPressed            ; Initialize/reset variables
+    jsr     setSelectionVariables   ; Set up game selection
 
-MainGameLoop
-    lda     #START_VERT_SYNC | DUMP_PORTS        
-    sta     WSYNC
-    sta     VBLANK
-    sta     VSYNC
-    sta     WSYNC
-    sta     WSYNC
-    lda     #STOP_VERT_SYNC
-    sta     WSYNC
-    sta     VSYNC
-    inc     frameCount              ; increment every frame        
-    lda     #(45)
+
+;-----------------------------------------------------------
+; Main Game Loop
+;-----------------------------------------------------------
+; This is the core loop that runs every frame. It handles:
+; - Vertical sync and blanking
+; - Frame timing and counters
+; - Reading console switches (reset, select)
+; - Player movement and win condition checks
+; - Updating game visuals and state
+; - Drawing the playfield and sprites
+; - Handling player death, stairs, collisions, and doorways
+; The loop repeats indefinitely, driving the game logic.
+;-----------------------------------------------------------
+mainGameLoop
+    lda     #START_VERT_SYNC | DUMP_PORTS        ; Begin vertical sync and dump ports
+    sta     WSYNC                                ; Wait for sync (timing)
+    sta     VBLANK                               ; Start vertical blank
+    sta     VSYNC                                ; Start vertical sync
+    sta     WSYNC                                ; Wait for sync
+    sta     WSYNC                                ; Wait for sync
+    lda     #STOP_VERT_SYNC                      ; End vertical sync
+    sta     WSYNC                                ; Wait for sync
+    sta     VSYNC                                ; End vertical sync
+    inc     frameCount                           ; Increment frame counter
+    lda     #(45)                                ; Set timer for VBLANK duration
     sta     TIM64T
-    jsr     ReadSwitches            ; read console switches        
+
+    jsr     readSwitches                         ; Read console switches (reset, select, etc.)
+
     lda     gameState
-    and     #$43
-    bne     .skipSubroutines
-    jsr     Lf1a5
-    jsr     CheckForWinning
+    and     #$43                                 ; Mask for relevant game state bits
+    bne     .skipSubroutines                     ; If not in main play state, skip movement/win logic
+
+    jsr     handlePlayerMovement                 ; Handle player input and movement
+    jsr     checkForWinning                      ; Check if win conditions are met
+
 .skipSubroutines
-    jsr     Lf2b7
+    jsr     updateGameVisualsAndState            ; Update graphics, torch, and game state
+
 .waitTime1  
-    lda     INTIM
+    lda     INTIM                                ; Wait for timer to expire (VBLANK period)
     bne     .waitTime1
-    sta     VBLANK
-    lda     #(228)
+    sta     VBLANK                               ; End vertical blank
+    lda     #(228)                               ; Set timer for visible frame duration
     sta     TIM64T
-    jsr     PlayfieldKernel
+    jsr     playfieldKernel                      ; Draw the playfield and sprites
+
 .waitTime2
-    lda     INTIM 
+    lda     INTIM                                ; Wait for timer to expire (visible frame)
     bne     .waitTime2
-    sta     WSYNC
-;---------------------------------------
-    lda     #DUMP_PORTS | DISABLE_TIA
+    sta     WSYNC                                ; Wait for sync
+
+    ;---------------------------------------
+    lda     #DUMP_PORTS | DISABLE_TIA            ; Prepare to disable TIA and dump ports
     sta     VBLANK
-    lda     #(36)
+    lda     #(36)                                ; Set timer for overscan period
     sta     TIM64T
-    bit     gameState
+    bit     gameState                            ; Check if in special game state (e.g., game over)
     bvs     .waitTime3
-    jsr     HandlePlayerDeath 
-    jsr     Lfb68
-    jsr     CheckP0P1Collision
-    jsr     CheckDoorwayPassages
+
+    jsr     handlePlayerDeath                    ; Handle player death and lives
+    jsr     handleStairs                         ; Handle stair logic and transitions
+    jsr     checkP0P1Collision                   ; Check for player/enemy collisions
+    jsr     checkDoorwayPassages                 ; Handle doorway transitions
+
 .waitTime3
-    lda     INTIM 
+    lda     INTIM                                ; Wait for timer to expire (overscan)
     bne     .waitTime3
-    sta     VBLANK 
-    beq     MainGameLoop            ; unconditional
+    sta     VBLANK                               ; End overscan
+    beq     mainGameLoop                         ; Repeat main loop (unconditional branch)
 
 ; ******************************************************************
 
-ReadSwitches SUBROUTINE
+readSwitches SUBROUTINE
     lda     SWCHB                   ; read console switches        
     ror                             ; put reset into carry        
     bcc     resetPressed      
-    jmp     ResetNotPressed
+    jmp     resetNotPressed
     
 resetPressed
     ldx     randomSeed
@@ -353,23 +404,23 @@ resetPressed
 
     ldx     #$09
 .initVariablesLoop
-    lda     InitialGameVariables,x
+    lda     initialGameVariables,x
     sta     playerLives,x
     dex
     bpl     .initVariablesLoop
 
-    jsr     ScatterTheItems
+    jsr     scatterTheItems
     ldx     #$03
-    stx     _randomFloorLocation0	; master key "always" on floor 4?? (except game 3)
+    stx     randFloorLoc0	; master key "always" on floor 4?? (except game 3)
     inx
 
 .setItemLocationsLoop
-    lda     _randomFloorLocations,x
-    sta     objectFloorLocations,x
-    lda     _randomHPositions,x
-    sta     objectHorizPositions,x
-    lda     _randomVPositions,x
-    sta     objectVertPositions,x
+    lda     randFloorLoc,x
+    sta     objFloorLoc,x
+    lda     randPosX,x
+    sta     objPosX,x
+    lda     randPosY,x
+    sta     objPosY,x
     dex
     bpl     .setItemLocationsLoop
 
@@ -379,13 +430,13 @@ resetPressed
     inx
     stx     masterKeyFloorLocation	; x = 0, put key on player's floor (1)
     ldx     #PLAYER_INIT_HPOS - 12
-    stx     masterKeyHorizPos
+    stx     masterKeyPosX
     ldx     #PLAYER_INIT_VPOS - 2
-    stx     masterKeyVertPos		; set master key position for level 3
+    stx     masterKeyPosY		; set master key position for level 3
 .notOnGame3
     lda     #MSBL_SIZE8 | PF_PRIORITY | PF_REFLECT        
     sta     CTRLPF
-    jsr     Lfd0a
+    jsr     initRoom
     ldx     #$04			     ; five creatures on >= level 5
     lda     gameSelection
     cmp     #$04
@@ -394,26 +445,26 @@ resetPressed
 .lessThanGame5
     stx     numberOfCreatures
     lda     #PLAYER_INIT_HPOS
-    sta     playerHorizPos
+    sta     playerPosX
     lda     #PLAYER_INIT_VPOS
-    sta     playerVertPosScroll		; set player init pos.
+    sta     playerScrollY		; set player init pos.
     lda     #$26
-    sta     playerVertPosAbs
+    sta     playerAbsPosY
     rts
 
 ; ******************************************************************
     
-ScatterTheItems SUBROUTINE
+scatterTheItems SUBROUTINE
     jsr     nextRandom			; get a random value
     and     #$07				; make it from 0 to 7
     cmp     #$06				
-    bcs     ScatterTheItems		; keep value from 0 to 5
+    bcs     scatterTheItems		; keep value from 0 to 5
     sta     tmpRandomValue			; save in temp.
     ldx     #$04				; loop x from 4 down to 0
 .randomizeLoop
     jsr     nextRandom			; get a random value
     and     #$03				; make it from 0 to 3
-    sta     _randomFloorLocations,x	; setup objects on random floor numbers
+    sta     randFloorLoc,x	; setup objects on random floor numbers
     tay 
     txa
 .valueNotOK
@@ -430,20 +481,20 @@ ScatterTheItems SUBROUTINE
     lda     #$05
     bne     .valueNotOK			; otherwise start with 5 and do it again (unconditional)
 .valueIsOK
-    sta     _randomRoomLocations,x 
+    sta     randomRoomLocations,x 
     sta     objectRoomLocations,x	; setup objects in random rooms
     tay 
-    lda     RandomLocationsTableH,y
-    sta     _randomHPositions,x		; and random horiz positions
-    lda     RandomLocationsTableV,y
-    sta     _randomVPositions,x		; and random vert positions
+    lda     randomLocationsTableH,y
+    sta     randPosX,x		; and random horiz positions
+    lda     randomLocationsTableV,y
+    sta     randPosY,x		; and random vert positions
     dex
     bpl     .randomizeLoop
     rts
 
 ; ******************************************************************
     
-ResetNotPressed SUBROUTINE
+resetNotPressed SUBROUTINE
     ror
     bcc     .selectPressed
     ldx     #$01
@@ -462,21 +513,21 @@ ResetNotPressed SUBROUTINE
     lda     #$00
 .notGame9
     sta     gameSelection
-SetSelectionVariables
+setSelectionVariables
     jsr     unlightTorch
     lda     #$40
     sta     gameState
     lda     #$10
     sta     colorCycTimer
     lda     #0
-    sta     ram_85
+    sta     collisionIndex
     sta     rollingEyesTimer
-    sta     ram_83
+    sta     creaturesInRoom
     rts
 
 ; ******************************************************************
     
-CheckForWinning SUBROUTINE
+checkForWinning SUBROUTINE
     bit     roomStairsStatus
     bpl     .countDownTorch
     lda     playerCurrentFloor		; check for lowest floor
@@ -486,7 +537,7 @@ CheckForWinning SUBROUTINE
     bne     .countDownTorch
     cmp     itemBeingCarried		; check for completed urn
     bne     .justBonk
-    lda     urnAssembly_0
+    lda     urnAssembly0
     cmp     #$08				; 8 means urn complete
     bne     .justBonk 
     lda     #$01
@@ -497,7 +548,7 @@ CheckForWinning SUBROUTINE
     bne     .countDownTorch		; unconditional
 .justBonk
     ldx     #THUNKSOUND			; sound #2
-    jsr     Lf88c
+    jsr     playSound
 .countDownTorch
     dec     secondsCounter
     bne     .dontResetSeconds
@@ -507,13 +558,13 @@ CheckForWinning SUBROUTINE
 .dontResetSeconds
     bit     torchAnimationIdx
     bvc     .doTheFlickering
-    lda     ram_83
+    lda     creaturesInRoom
     bne     unlightTorch
     lda     torchTimer 
     bne     .doTheFlickering
 unlightTorch
     lda     #0
-    sta     ram_85
+    sta     collisionIndex
     lda     torchAnimationIdx
     and     #$07
     sta     torchAnimationIdx
@@ -525,141 +576,143 @@ unlightTorch
 
 ; ******************************************************************
     
-Lf1a5 SUBROUTINE
-    jsr     Lf1bf
+
+handlePlayerMovement SUBROUTINE
+    jsr     updatePlayerDelta
     lda     #0
-    sta     ram_91
-    lda     playerVertPosScroll
+    sta     doorwayMovementFlag
+    lda     playerScrollY
     cmp     #$26
-    bcc     Lf1bc
+    bcc     SetPlayerAbsPosY
     cmp     #$d7
-    bcs     Lf1ba
+    bcs     AdjustPlayerAbsPosY
     lda     #$26
-    bne     Lf1bc                   ; unconditional
-Lf1ba
+    bne     SetPlayerAbsPosY                   ; unconditional
+AdjustPlayerAbsPosY
     sbc     #$af
-Lf1bc
-    sta     playerVertPosAbs
+SetPlayerAbsPosY
+    sta     playerAbsPosY
     rts
 
 ; ******************************************************************
     
-Lf1bf SUBROUTINE
+
+updatePlayerDelta SUBROUTINE
     lda     #0
-    sta     ram_E7
-    sta     ram_E8
+    sta     playerDeltaX
+    sta     playerDeltaY
     lda     roomStairsStatus
     and     #$7f
     sta     roomStairsStatus
-    bit     ram_91
-    bvs     Lf206
+    bit     doorwayMovementFlag
+    bvs     endPlayerDelta
     bit     movementValue 
-    bvs     Lf1e3
-    bpl     Lf206
-    inc     ram_E7
-    lda     playerHorizPos
+    bvs     handleLeftMovement
+    bpl     endPlayerDelta
+    inc     playerDeltaX
+    lda     playerPosX
     cmp     #$94
-    beq     Lf254
-    jsr     Add_8_toHPos
-    jmp     Lf1ee
-    
-Lf1e3
-    dec     ram_E7
-    lda     playerHorizPos
+    beq     handleStairCollision
+    jsr     add_8_toHPos
+    jmp     afterLeftRight
+
+handleLeftMovement
+    dec     playerDeltaX
+    lda     playerPosX
     cmp     #$04
-    beq     Lf254
-    jsr     DoPlayerFineCalc
-Lf1ee
-    jsr     Add_2_toVPos
-    bne     Lf201                   ; unconditional?
+    beq     handleStairCollision
+    jsr     doPlayerFineCalc
+afterLeftRight
+    jsr     add_2_toVPos
+    bne     playNoisySound                   ; unconditional?
      
-    jsr     Add_0_toVPos
-    bne     Lf201                   ; unconditional?
+    jsr     add_0_toVPos
+    bne     playNoisySound                   ; unconditional?
     
-    lda     playerHorizPos
+    lda     playerPosX
     clc
-    adc     ram_E7
-    sta     playerHorizPos
-    bne     Lf206                   ; unconditional?
-Lf201
-    ldx     #NOISY3SOUND		    ; sound #3
-    jsr     Lf88c
-Lf206
-    bit     ram_91
+    adc     playerDeltaX
+    sta     playerPosX
+    bne     endPlayerDelta                   ; unconditional?
+playNoisySound
+    ldx     #NOISY3SOUND	    ; sound #3
+    jsr     playSound
+endPlayerDelta
+    bit     doorwayMovementFlag
     bmi     .noMovement
     lda     movementValue
     and     #$30
     beq     .noMovement
     cmp     #$20
-    beq     Lf22e
-    inc     ram_E8
-    lda     playerVertPosScroll
+    beq     handleUpMovement
+    inc     playerDeltaY
+    lda     playerScrollY
     cmp     #$fb
-    beq     Lf260
-    jsr     Add_7_toHPos
-    jsr     Add_3_toVPos
-    bne     Lf24e
-    jsr     Add_0_toHPos
-    jsr     Add_3_toVPos
-    bne     Lf24e
-    beq     Lf246                   ; unconditional
-Lf22e
-    dec     ram_E8
-    lda     playerVertPosScroll
+    beq     handleStairExit
+    jsr     add_7_toHPos
+    jsr     add_3_toVPos
+    bne     playNoisySound2
+    jsr     add_0_toHPos
+    jsr     add_3_toVPos
+    bne     playNoisySound2
+    beq     applyVerticalDelta                   ; unconditional
+handleUpMovement
+    dec     playerDeltaY
+    lda     playerScrollY
     cmp     #$01
-    beq     Lf260
-    jsr     Add_7_toHPos
-    jsr     Lf28e
-    bne     Lf24e
-    jsr     Add_0_toHPos
-    jsr     Lf28e
-    bne     Lf24e
-Lf246
-    lda     playerVertPosScroll 
+    beq     handleStairExit
+    jsr     add_7_toHPos
+    jsr     adjustNegativeY
+    bne     playNoisySound2
+    jsr     add_0_toHPos
+    jsr     adjustNegativeY
+    bne     playNoisySound2
+applyVerticalDelta
+    lda     playerScrollY 
     clc 
-    adc     ram_E8
-    sta     playerVertPosScroll
+    adc     playerDeltaY
+    sta     playerScrollY
     rts
-Lf24e
-    ldx     #NOISY3SOUND			; sound #3
-    jsr     Lf88c
+playNoisySound2
+    ldx     #NOISY3SOUND	    ; sound #3
+    jsr     playSound
 .noMovement
     rts
 
-Lf254
+handleStairCollision
     lda     roomStairsStatus
     ora     #$80
     sta     roomStairsStatus
     cmp     #$8f
-    beq     Lf201
-    bne     Lf206                   ; unconditional
+    beq     playNoisySound
+    bne     endPlayerDelta                   ; unconditional
 
-Lf260
+handleStairExit
     lda     roomStairsStatus
     ora     #$80
     sta     roomStairsStatus
     cmp     #$8f
-    beq     Lf24e
+    beq     playNoisySound2
     rts
 
 ; ******************************************************************
     
-Add_7_toHPos
-    lda     playerHorizPos
+add_7_toHPos
+    lda     playerPosX
     clc
     adc     #$07
     bne     .doFineCalculation       ; unconditional?
-Add_8_toHPos
-    lda     playerHorizPos
+add_8_toHPos
+    lda     playerPosX
     clc
     adc     #$08
     bne     .doFineCalculation       ; unconditional?
-Add_0_toHPos
-    lda     playerHorizPos
+add_0_toHPos
+    lda     playerPosX
     bne     .doFineCalculation       ; unconditional?
 
-DoPlayerFineCalc
-    ldy     playerHorizPos
+doPlayerFineCalc
+    ldy     playerPosX
     dey 
     tya
 .doFineCalculation
@@ -674,25 +727,25 @@ DoPlayerFineCalc
 
 ; ******************************************************************
     
-Add_0_toVPos
-    lda     playerVertPosScroll
-    bne     DoorCheck               ; unconditional?
-Lf28e
-    ldy     playerVertPosScroll
+add_0_toVPos
+    lda     playerScrollY
+    bne     doorCheck               ; unconditional?
+adjustNegativeY
+    ldy     playerScrollY
     dey
     tya
-    jmp     DoorCheck
-Add_2_toVPos
-    lda     playerVertPosScroll
+    jmp     doorCheck
+add_2_toVPos
+    lda     playerScrollY
     clc
     adc     #$02
-    bne     DoorCheck               ; unconditional?
-Add_3_toVPos
-    lda     playerVertPosScroll
+    bne     doorCheck               ; unconditional?
+add_3_toVPos
+    lda     playerScrollY
     clc
     adc     #$03
 
-DoorCheck
+doorCheck
     lsr
     lsr
     lsr
@@ -701,94 +754,110 @@ DoorCheck
     ldy     calculatedFineValue
     tya
     and     #$08
-    beq     DoorCheckBitmask
+    beq     doorCheckBitmask
     cpx     #$08
     rts
-DoorCheckBitmask
-    lda     WallBitPattern,x
-    and     BitmaskThing,y
+doorCheckBitmask
+    lda     wallBitPattern,x
+    and     bitmaskThing,y
     rts
 
 ; ******************************************************************
     
-Lf2b7
-    lda     #MSBL_SIZE8
+;-----------------------------------------------------------
+; updateGameVisualsAndState
+;-----------------------------------------------------------
+; Handles all visual updates for the game each frame:
+; - Sets up sprite sizes, colors, and enables/disables objects
+; - Handles game state transitions and selection logic
+; - Manages rolling eyes animation and item drawing
+; - Updates torch/eye graphics and checks item visibility
+; - Prepares playfield, torch, and wall colors
+;-----------------------------------------------------------
+updateGameVisualsAndState
+    ; Set up sprite sizes and initial colors
+    lda     #MSBL_SIZE8            ; Set player sprite size
     sta     NUSIZ0
-    lda     #BLACK
+    lda     #BLACK                 ; Set background and object color to black
     sta     COLUBK
     sta     object1Color
-    sta     ENAM0
-    sta     ENABL
-    sta     NUSIZ1
+    sta     ENAM0                  ; Disable missile 0
+    sta     ENABL                  ; Disable ball
+    sta     NUSIZ1                 ; Set secondary sprite size
+
+    ; Handle game state transitions and selection logic
     lda     gameState
     cmp     #$02
-    beq     Lf2d8
+    beq     skipLogic              ; If in selection state, skip logic
     and     #$04
-    beq     DoRollingEyes
+    beq     doRollingEyes          ; If rolling eyes animation, branch
     lda     frameCount
-    bne     Lf2d8
-    jsr     SetSelectionVariables
-Lf2d8
-    jmp     Lf315
-    
-DoRollingEyes
+    bne     skipLogic              ; Only run selection logic on frame 0
+    jsr     setSelectionVariables  ; Set up variables for new game selection
+skipLogic
+    jmp     readInput              ; Jump to input handling
+
+doRollingEyes
+    ; Handles rolling eyes animation and item drawing
     lda     rollingEyesTimer
-    beq     .rollingDone
-    jsr     Lf57d
+    beq     .rollingDone           ; If timer is zero, skip animation
+    jsr     checkCollisions        ; Check for collisions during animation
     lda     frameCount
     lsr
     and     #$07
     tax
-    lda     RollingEyesTable,x
-    bne     ResetEyeGraphics
+    lda     rollingEyesTable,x
+    bne     resetEyeGraphics       ; If table value nonzero, reset eye graphics
 .rollingDone
     ldx     itemGatheredFlag
-    beq     Lf300
-    ldx     ram_E9
+    beq     skipItemDraw           ; If no item gathered, skip drawing
+    ldx     itemActionIndex
     lda     #H_FONT
     sta     spriteHeight
     lda     playerCurrentFloor
-    sta     objectFloorLocations,x
-    jsr     Lf526
-    bpl     Lf315
-Lf300
+    sta     objFloorLoc,x
+    jsr     drawItem               ; Draw item at current floor
+    bpl     readInput              ; If positive, jump to input
+skipItemDraw
+    ; Handle torch/eye graphics and item visibility
     bit     torchAnimationIdx
-    bvc     Lf312
+    bvc     eyesCommon
     bit     torchAnimationIdx
-    bmi     Lf30d
-    jsr     Lf4f1
-    bpl     Lf315
-Lf30d
-    jsr     Lf57d
-    bpl     Lf34d
-Lf312
-    jsr     Lf57d 
-Lf315
-    lda     SWCHA                   ; get joystick value
+    bmi     eyesWithTorch
+    jsr     checkItemVisibility
+    bpl     readInput
+eyesWithTorch
+    jsr     checkCollisions
+    bpl     preparePlayfield
+eyesCommon
+    jsr     checkCollisions 
+readInput
+    lda     SWCHA                  ; get joystick value
 
-ResetEyeGraphics
-    ldy     #%11100111              ; no pupils
+resetEyeGraphics
+    ; Resets eye graphics for rolling eyes animation
+    ldy     #%11100111             ; no pupils
     sty     eyeRAM
     sty     eyeRAM + 1
     sty     eyeRAM + 2
-    ldy     #%10100101              ; center pupils
+    ldy     #%10100101             ; center pupils
     ldx     #$01
     rol
-    bcs     Lf329
-    ldy     #%11000110              ; right pupils
-Lf329
+    bcs     setRightEyes
+    ldy     #%11000110             ; right pupils
+setRightEyes
     rol
-    bcs     Lf32e
-    ldy     #%01100011              ; left pupils
-Lf32e
+    bcs     setLeftEyes
+    ldy     #%01100011             ; left pupils
+setLeftEyes
     rol
-    bcs     Lf332
+    bcs     adjustEyeX
     dex 
-Lf332
+adjustEyeX
     rol
-    bcs     Lf336
+    bcs     storeEyeGraphic
     inx
-Lf336
+storeEyeGraphic
     tya
     sta     eyeRAM,x
     lda     #<eyeRAM
@@ -798,13 +867,25 @@ Lf336
     lda     #H_EYES
     sta     playerVertSize
     ldy     #$01
-    lda     playerVertPosAbs
-    ldx     playerHorizPos
-    bne     Lf397                   ; unconditional?
+    lda     playerAbsPosY
+    ldx     playerPosX
+    bne     setPlayerVertOffset    ; unconditional
 
-Lf34d
+
+;-----------------------------------------------------------
+; preparePlayfield
+;-----------------------------------------------------------
+; Sets up the playfield and related visual elements for the frame:
+; - Updates ball position and enables/disables objects
+; - Handles torch sprite graphics and position
+; - Sets wall and background colors, including lightning effects
+;-----------------------------------------------------------
+preparePlayfield
+    ; Update ball position from temporary value
     lda     tmpBallHorizPosition
-    sta     BallHorizPosition
+    sta     ballHorizPosition
+
+    ; Enable/disable objects based on game state and doorway status
     lda     gameSelection
     beq     .noDoors
     bit     doorwayCrossingStatus
@@ -813,49 +894,56 @@ Lf34d
     sta     ENABL
     sta     ENAM0
 .noDoors
+
+    ; Set torch sprite graphics based on frame
     lda     frameCount
     and     #$06
     lsr
-    tax					    ; x = torch sprite LSB index
-    lda     TorchLSBValues,x
+    tax                            ; x = torch sprite LSB index
+    lda     torchLSBValues,x
     sta     sprite1GraphicPTRs
-    lda     #>TorchGraphics
+    lda     #>torchGraphics
     sta     sprite1GraphicPTRs + 1
-    lda     playerHorizPos
+
+    ; Calculate ball position based on player position
+    lda     playerPosX
     sec
     sbc     #$0d
-    bcs     Lf37b
+    bcs     ballLeftBound
     adc     #$a0
     ldx     #XMAX
-    bne     Lf381                   ; unconditional
+    bne     setBallPos              ; unconditional
 
-Lf37b
+ballLeftBound
     cmp     #$84
-    bcc     Lf387
+    bcc     setTorchHeight
     ldx     #XMIN
-Lf381
-    stx     BallHorizPosition
+setBallPos
+    stx     ballHorizPosition
     ldx     #ENABLE_BM
     stx     ENABL
-Lf387
+
+setTorchHeight
     tax
     lda     #H_TORCH
     sta     playerVertSize
     lda     #QUAD_SIZE
     sta     NUSIZ1
     ldy     #$04
-    lda     playerVertPosAbs
+    lda     playerAbsPosY
     sec
     sbc     #$0c
-Lf397
+setPlayerVertOffset
     sta     playerVertOffset
-    stx     Player1HorizPosition
+    stx     player1HorizPosition
     sty     object2Color
     ldy     #$01
     sty     object3Color
     dey
     sty     statusBackgroundColor   ; y = 0      
     sty     wallColor               ; make walls black        
+
+    ; Set wall/background color based on floor and game selection
     lda     #$08
     clc
     adc     playerCurrentFloor
@@ -870,15 +958,15 @@ Lf397
     lda     rollingEyesTimer
     beq     .notRolling
     lda     #$03
-    bne     Lf3c8                   ; unconditional
+    bne     checkLightning                   ; unconditional
 
 .notRolling
-    lda     ram_83
+    lda     creaturesInRoom
     beq     .skipRandomLightning
     bit     SWCHB
     bvs     .skipRandomLightning
     lda     #$27
-Lf3c8
+checkLightning
     and     frameCount
     bne     .skipRandomLightning
     lda     randomSeed
@@ -900,19 +988,19 @@ Lf3c8
     stx     lightningColorMask 
     lda     colorCycTimer
     and     #$10
-    beq     Lf3ff
+    beq     resetColorCycle
     lda     frameCount
-    bne     Lf3f6
+    bne     incColorCycle
     inc     colorCycTimer
-Lf3f6
+incColorCycle
     lda     colorCycTimer
     ora     #$10
     sta     colorCycTimer
     tay 
-    bne     Lf401
-Lf3ff
+    bne     setColorMode
+resetColorCycle
     ldx     #$ff
-Lf401
+setColorMode
     sty     colorEOR
     stx     colorCycleMode
         
@@ -922,7 +1010,7 @@ Lf401
     clc 
     adc     tmpColorTableIndex		; add palette index
     tay 
-    lda     GameColorTable,y
+    lda     gameColorTable,y
     eor     colorEOR
     and     colorCycleMode
     sta     colorTableRAM,x
@@ -941,12 +1029,12 @@ Lf401
     sta     COLUP0
     lda     gameState
     and     #$04
-    beq     PositionObjects
+    beq     positionObjects
     lda     frameCount
     and     lightningColorMask
     sta     wallColor
 
-PositionObjects
+positionObjects
     ldx     #$04
     lda     gameState
     cmp     #$02
@@ -959,7 +1047,7 @@ PositionObjects
     lsr
 .skipDiv2
     clc
-    adc     SpriteHorizPositions,x 
+    adc     spriteHorizPositions,x 
     ldy     #$02
     sec 
 .remainderLoop
@@ -974,273 +1062,326 @@ PositionObjects
     asl
     sta     WSYNC
 ;---------------------------------------
-.PositionObjectsDly
-    dey                             ;2        
-    bpl     .PositionObjectsDly     ;2/3      
-    sta     RESP0,x                 ;4        
-    sta     HMP0,x                  ;4        
-    dex                             ;2        
-    bpl     .positionObjectsLoop    ;2/3      
-    sta     WSYNC                   ;3   =  19
+.positionObjectsDly
+    dey
+    bpl     .positionObjectsDly
+    sta     RESP0,x
+    sta     HMP0,x
+    dex
+    bpl     .positionObjectsLoop
+    sta     WSYNC
 ;---------------------------------------
-    sta     HMOVE                   ;3        
-    lda     #$4f                    ;2        
-    sta     scanline                ;3        
-    sta     lightningColorMask      ;3        
-    lda     #0                      ;2        
-    sta     calculatedFineValue     ;3        
-    bit     torchAnimationIdx       ;3        
-    bvc     Lf4a1                   ;2/3      
-    bit     doorwayCrossingStatus   ;3        
-    bmi     Lf4a1                   ;2/3      
-    lda     gameSelection           ;3        
-    beq     Lf4a1                   ;2/3      
-    lda     ram_8C                  ;3        
-    beq     Lf48c                   ;2/3      
-    jsr     HandlePlayfieldScrolling ;6        
-    bmi     Lf48c                   ;2/3      
-    sta     calculatedFineValue     ;3 = 47
-Lf48c
-    lda     ram_8B                  ;3        
-    beq     Lf4a1                   ;2/3      
-    tax                             ;2        
-    jsr     HandlePlayfieldScrolling ;6        
-    cmp     #$50                    ;2        
-    bcs     Lf4a1                   ;2/3      
-    sta     lightningColorMask      ;3        
-    lda     #$08                    ;2        
-    sta     temporaryOne            ;3        
-    txa                             ;2        
-    bne     Lf4af                   ;2/3 = 29
-Lf4a1
-    lda     playerVertPosScroll     ;3        playfield gfx scoll calculations
-    cmp     #$26                    ;2        
-    bcc     Lf4bd                   ;2/3      
-    cmp     #$d6                    ;2        
-    bcs     Lf4c3                   ;2/3      
-    adc     #$2a                    ;2        
-    sta     temporaryOne            ;3 = 16
-Lf4af
-    lsr                             ;2        
-    lsr                             ;2        
-    lsr                             ;2        
-    lsr                             ;2        
-    eor     #$0f                    ;2        
-    sta     temporaryOne + 1        ;3        
-    asl                             ;2        
-    adc     temporaryOne + 1        ;3        
-    tax                             ;2        
-    bpl     nextRandom              ;2/3 = 22
-Lf4bd
-    ldx     #$1e                    ;2        
-    lda     #$00                    ;2        
-    beq     Lf4c7                   ;2/3 = 6 unconditional
+    sta     HMOVE
+    lda     #$4f
+    sta     scanline
+    sta     lightningColorMask
+    lda     #0
+    sta     calculatedFineValue
+    bit     torchAnimationIdx
+    bvc     checkPfScroll
+    bit     doorwayCrossingStatus
+    bmi     checkPfScroll
+    lda     gameSelection
+    beq     checkPfScroll
+    lda     pfScrollOffsetB
+    beq     checkScrollB
+    jsr     handlePlayfieldScrolling
+    bmi     checkScrollB
+    sta     calculatedFineValue
+checkScrollB
+    lda     pfScrollOffsetA
+    beq     checkPfScroll
+    tax
+    jsr     handlePlayfieldScrolling
+    cmp     #$50
+    bcs     checkPfScroll
+    sta     lightningColorMask
+    lda     #$08
+    sta     temporaryOne
+    txa
+    bne     calcFineScroll
+checkPfScroll
+    lda     playerScrollY
+    cmp     #$26
+    bcc     setFineScrollHigh
+    cmp     #$d6
+    bcs     setFineScrollLow
+    adc     #$2a
+    sta     temporaryOne
+calcFineScroll
+    lsr
+    lsr
+    lsr
+    lsr
+    eor     #$0f
+    sta     temporaryOne + 1
+    asl
+    adc     temporaryOne + 1
+    tax
+    bpl     nextRandom
+setFineScrollHigh
+    ldx     #$1e
+    lda     #$00
+    beq     storeFineScroll
 
-Lf4c3
-    ldx     #$00                    ;2        
-    lda     #$0f                    ;2 = 4
-Lf4c7
-    sta     temporaryOne            ;3 = 3
+setFineScrollLow
+    ldx     #$00
+    lda     #$0f
+storeFineScroll
+    sta     temporaryOne
 nextRandom
-    lda     randomSeedAlternate     ;3      random generator  
-    eor     randomSeed              ;3        
-    asl                             ;2        
-    asl                             ;2        
-    rol     randomSeed              ;5        
-    rol     randomSeedAlternate     ;5        
-    lda     randomSeed              ;3        
-    rts                             ;6 = 29
+    lda     randomSeedAlternate
+    eor     randomSeed
+    asl
+    asl
+    rol     randomSeed
+    rol     randomSeedAlternate
+    lda     randomSeed
+    rts
 
 ; ******************************************************************
     
-ItemIDTable
+itemIDTable
     .byte   $07,$01,$06,$06,$06    ; key, scepter, urn, urn, urn
 
 ; ******************************************************************
     
-HandlePlayfieldScrolling SUBROUTINE
-    clc                             ;2        
-    adc     playerVertPosAbs        ;3        
-    sec                             ;2        
-    sbc     playerVertPosScroll     ;3        
-    rts                             ;6 = 16
+handlePlayfieldScrolling SUBROUTINE
+    clc
+    adc     playerAbsPosY
+    sec
+    sbc     playerScrollY
+    rts
 
 ; ******************************************************************
     
-SetInvItemPTRs SUBROUTINE
-    txa                             ;2        
-    cpx     #$02                    ;2        
-    bcc     .keyOrScepter           ;2/3      
-    lda     roomStairsStatus,x      ;4 = 10  (x must = 2,3, or 4) for urn pieces
+setInvItemPTRs SUBROUTINE
+    txa
+    cpx     #$02
+    bcc     .keyOrScepter
+    lda     roomStairsStatus,x
 .keyOrScepter
-    asl                             ;2        
-    asl                             ;2        
-    asl                             ;2        
-    adc     #H_FONT                 ;2        
-    ldx     #>CreatureGraphics      ;2        
-    rts                             ;6 = 16
+    asl
+    asl
+    asl
+    adc     #H_FONT
+    ldx     #>creatureGraphics
+    rts
 
 ; ******************************************************************
     
-Lf4f1 SUBROUTINE
-    ldx     itemLastSeen            ;3 = 3
-Lf4f3
-    dex                             ;2        
-    bpl     Lf505                   ;2/3!     
-    ldx     #$04                    ;2        
-    bne     Lf505                   ;2/3!= 8 unconditional
-Lf4fa
-    cpx     itemLastSeen            ;3        
-    bne     Lf4f3                   ;2/3 = 5
-Lf4fe
-    lda     #0                      ;2        
-    sta     Player0HorizPosition    ;3        
-    sta     spriteHeight            ;3        
-    rts                             ;6 = 14
-Lf505
-    cpx     itemBeingCarried        ;3        
-    beq     Lf4fa                   ;2/3!     
-    cpx     #$02                    ;2        
-    bcc     .keyOrScepter           ;2/3      
-    lda     roomStairsStatus,x      ;4       (x must = 2,3, or 4) for urn pieces  
-    bmi     Lf4fa                   ;2/3!= 15
-.keyOrScepter
-    lda     gameSelection           ;3        
-    cmp     #$02                    ;2        
-    bcs     .game3OrHigher          ;2/3      
-    cpx     #$00                    ;2        
-    beq     Lf4fa                   ;2/3!= 11
-.game3OrHigher
-    lda     objectFloorLocations,x  ;4        
-    cmp     playerCurrentFloor      ;3        
-    bne     Lf4fa                   ;2/3!     
-    jsr     TorchLightUpItem        ;6        
-    beq     Lf4fa                   ;2/3!= 17
-Lf526
-    ldy     itemGatheredFlag        ;3        
-    bne     .notGathered            ;2/3      
-    lda     ItemIDTable,x           ;4        
-    sta     object1Color            ;3 = 12
-.notGathered
-    stx     itemLastSeen            ;3        
-    jsr     SetInvItemPTRs          ;6        
-    sta     sprite0GraphicPTRs      ;3        
-    stx     sprite0GraphicPTRs + 1  ;3        
-    lda     #H_FONT                 ;2        
-    sta     spriteHeight            ;3        
-    rts                             ;6 = 26
-
-; ******************************************************************
-    
-TorchLightUpItem SUBROUTINE
-    lda     playerHorizPos          ;3        
-    sec                             ;2        
-    sbc     objectHorizPositions,x  ;4        
-    bcs     .noHTwosComplement      ;2/3      
-    eor     #$ff                    ;2        
-    adc     #$01                    ;2 = 15
-.noHTwosComplement
-    sta     temporaryOne            ;3        
-    lda     playerVertPosScroll     ;3        
-    sec                             ;2        
-    sbc     objectVertPositions,x   ;4        
-    bcs     .noVTwosComplement      ;2/3      
-    eor     #$ff                    ;2        
-    adc     #$01                    ;2 = 18
-.noVTwosComplement
-    sta     temporaryOne + 1        ;3        
-    cmp     temporaryOne            ;3        
-    bcs     Lf55e                   ;2/3      
-    lsr                             ;2        
-    bpl     Lf560                   ;2/3 = 12 unconditional
-Lf55e
-    lsr     temporaryOne            ;5 = 5
-Lf560
-    clc                             ;2        
-    adc     temporaryOne            ;3        
-    cmp     #$11                    ;2   torch's effective light range      
-    bcs     Lf595                   ;2/3      
-    lda     objectHorizPositions,x  ;4        
-    sta     Player0HorizPosition    ;3        
-    lda     objectVertPositions,x   ;4 = 20
-Lf56d
-    jsr     HandlePlayfieldScrolling ;6        
-    cmp     #$50                    ;2        
-    bcc     Lf578                   ;2/3      
-    cmp     #$f9                    ;2        
-    bcc     Lf595                   ;2/3 = 14
-Lf578
-    sta     playerPFScrollValue     ;3        
-    lda     #$01                    ;2        
-    rts                             ;6 = 11
-
-; ******************************************************************
-    
-Lf57d SUBROUTINE
-    ldx     ram_85
-Lf57f
+checkItemVisibility SUBROUTINE
+    ldx     itemLastSeen
+iterateItemsLoop
     dex
-    bpl     Lf598
+    bpl     checkItemPlacement
+    ldx     #$04
+    bne     checkItemPlacement
+nextItemCheck
+    cpx     itemLastSeen
+    bne     iterateItemsLoop
+hideItemSprite
+    lda     #0
+    sta     p0PosY
+    sta     spriteHeight
+    rts
+checkItemPlacement
+    cpx     itemBeingCarried
+    beq     nextItemCheck
+    cpx     #$02
+    bcc     .keyOrScepter
+    lda     roomStairsStatus,x
+    bmi     nextItemCheck
+.keyOrScepter
+    lda     gameSelection
+    cmp     #$02
+    bcs     .game3OrHigher
+    cpx     #$00
+    beq     nextItemCheck
+.game3OrHigher
+    lda     objFloorLoc,x
+    cmp     playerCurrentFloor
+    bne     nextItemCheck
+    jsr     torchLightUpItem
+    beq     nextItemCheck
+drawItem
+    ldy     itemGatheredFlag
+    bne     .notGathered
+    lda     itemIDTable,x
+    sta     object1Color
+.notGathered
+    stx     itemLastSeen
+    jsr     setInvItemPTRs
+    sta     sprite0GraphicPTRs
+    stx     sprite0GraphicPTRs + 1
+    lda     #H_FONT
+    sta     spriteHeight
+    rts
+
+; ******************************************************************
+    
+
+;-----------------------------------------------------------
+; torchLightUpItem
+;-----------------------------------------------------------
+; Determines if an item is within the torch's light radius.
+; Calculates the horizontal and vertical distance between the player
+; and the item, applies two's complement if needed, and checks if the
+; item is within the light range. If so, sets up the sprite position
+; and returns 1; otherwise, falls through to exitCollision.
+;-----------------------------------------------------------
+torchLightUpItem SUBROUTINE
+    ; Calculate horizontal distance (playerPosX - objPosX,x)
+    lda     playerPosX
+    sec
+    sbc     objPosX,x
+    bcs     .noHTwosComplement        ; If result is positive, skip two's complement
+    eor     #$ff
+    adc     #$01                      ; Two's complement for negative distance
+.noHTwosComplement
+    sta     temporaryOne              ; Store horizontal distance
+
+    ; Calculate vertical distance (playerScrollY - objPosY,x)
+    lda     playerScrollY
+    sec
+    sbc     objPosY,x
+    bcs     .noVTwosComplement        ; If result is positive, skip two's complement
+    eor     #$ff
+    adc     #$01                      ; Two's complement for negative distance
+.noVTwosComplement
+    sta     temporaryOne + 1          ; Store vertical distance
+
+    ; Compare vertical and horizontal distances
+    cmp     temporaryOne
+    bcs     shiftTempOne              ; If vertical >= horizontal, shift vertical
+    lsr                                 ; Otherwise, halve vertical distance
+    bpl     checkLightRange
+shiftTempOne
+    lsr     temporaryOne              ; Halve horizontal distance
+checkLightRange
+    clc
+    adc     temporaryOne              ; Add (halved) distances
+    cmp     #$11                      ; Check if within light radius
+    bcs     exitCollision             ; If not, exit
+
+    ; Item is within torch light: set up sprite position
+    lda     objPosX,x
+    sta     p0PosY
+    lda     objPosY,x
+checkLightVis
+    jsr     handlePlayfieldScrolling  ; Adjust for playfield scrolling
+    cmp     #$50
+    bcc     setLightVis
+    cmp     #$f9
+    bcc     exitCollision
+setLightVis
+    sta     playerPFScrollValue
+    lda     #$01                      ; Indicate item is lit
+    rts
+
+; ******************************************************************
+    
+
+;-----------------------------------------------------------
+; checkCollisions
+;-----------------------------------------------------------
+; Handles collision detection for creatures and stairs.
+; Iterates through all possible collision entities (creatures),
+; updating their state and checking for collisions. If all creatures
+; are checked, and torch animation is active, checks for stair collision.
+; Updates collisionIndex and handles hiding item sprite if no collision.
+;-----------------------------------------------------------
+checkCollisions SUBROUTINE
+    ; Start with the current collision index (creature or entity)
+    ldx     collisionIndex
+nextCollisionEntity
+    dex                                 ; Move to next entity
+    bpl     doCreatureUpdate            ; If more entities, update creature
+
+    ; All creatures checked, now check for stairs if torch animation is active
     ldx     numberOfCreatures
     bit     torchAnimationIdx
-    bvc     Lf598
-    inx
-    jsr     CheckForStairs
-    beq     Lf591
-    stx     ram_85
-    rts
-Lf591
-    cpx     ram_85
-    bne     Lf57f
-Lf595
-    jmp     Lf4fe
-Lf598
-    jsr     Lf59e
-    beq     Lf591
-    rts
+    bvc     doCreatureUpdate            ; If torch animation not active, skip stairs
+    inx                                 ; Prepare for stair check
+    jsr     checkForStairs              ; Check for stair collision
+    beq     nextCollision               ; If no collision, continue
+    stx     collisionIndex              ; Update collision index if collision
+    rts                                 ; Return after stair collision
+
+nextCollision
+    cpx     collisionIndex              ; Check if all entities processed
+    bne     nextCollisionEntity         ; If not, continue loop
+exitCollision
+    jmp     hideItemSprite              ; No collision: hide item sprite
+
+doCreatureUpdate
+    jsr     updateCreaturePosition      ; Update and check creature collision
+    beq     nextCollision               ; If no collision, continue
+    rts                                 ; Return if collision found
 
 ; ******************************************************************
     
-Lf59e SUBROUTINE
-    lda     _randomFloorLocations,x
+
+;-----------------------------------------------------------
+; updateCreaturePosition
+;-----------------------------------------------------------
+; Determines if a creature should be rendered and updates its sprite
+; position and graphics if visible. Handles floor/room checks, animation,
+; and collision index update.
+;-----------------------------------------------------------
+updateCreaturePosition SUBROUTINE
+    ; Check if creature is on the same floor as the player
+    lda     randFloorLoc,x
     cmp     playerCurrentFloor
-    bne     Lf595
+    bne     exitCollision
+
+    ; If in game 0, always render creature
     lda     gameSelection
-    beq     Lf5ba
+    beq     renderCreatureSprite
+
+    ; If rolling eyes animation is active, always render creature
     lda     rollingEyesTimer
-    bne     Lf5ba
-    lda     ram_83
-    beq     Lf595
-    lda     _randomRoomLocations,x
+    bne     renderCreatureSprite
+
+    ; If no creatures in room, skip rendering
+    lda     creaturesInRoom
+    beq     exitCollision
+
+    ; Check if creature is in the current room or crossing with player
+    lda     randomRoomLocations,x
     cmp     playerCurrentRoom
-    beq     Lf5ba
+    beq     renderCreatureSprite
     cmp     playerDoorCrossing
-    bne     Lf595
-Lf5ba
+    bne     exitCollision
+
+renderCreatureSprite
+    ; Set creature color and position, check for visibility
     inx
     stx     object1Color
     dex
-    lda     _randomHPositions,x
-    sta     Player0HorizPosition
-    lda     _randomVPositions,x
-    jsr     Lf56d
-    beq     Lf591
-    stx     ram_85
-    lda     #<CreatureGraphics
+    lda     randPosX,x
+    sta     p0PosY
+    lda     randPosY,x
+    jsr     checkLightVis          ; Only render if visible to player
+    beq     nextCollision
+    stx     collisionIndex         ; Update collision index
+
+    ; Set up creature sprite graphics and animation
+    lda     #<creatureGraphics
     clc
-    adc     CreatureLSBOffsetTable,x
+    adc     creatureLSBOffsetTable,x
     bit     randomSeed
     bvs     .randomAnimateCreature
-    adc     #H_CREATURE				; randomly does frame 1 or frame 2
+    adc     #H_CREATURE           ; Randomly select animation frame
 .randomAnimateCreature
     sta     sprite0GraphicPTRs
-    lda     #>CreatureGraphics
+    lda     #>creatureGraphics
     sta     sprite0GraphicPTRs + 1
     lda     #H_CREATURE
     sta     spriteHeight
     rts
     
-CreatureLSBOffsetTable
+creatureLSBOffsetTable
     .byte H_CREATURE * 2 * ID_GHOST
     .byte H_CREATURE * 2 * ID_BAT
     .byte H_CREATURE * 2 * ID_SPIDER
@@ -1249,18 +1390,18 @@ CreatureLSBOffsetTable
 
 ; ******************************************************************
     
-CheckForStairs SUBROUTINE
+checkForStairs SUBROUTINE
     lda     roomStairsStatus
     and     #$0f
     cmp     #$0f
     beq     .noStairs
     tay
     cpy     #$04
-    bcc     CalculateStairGraphic
+    bcc     calculateStairGraphic
     tya
     and     #$03
     eor     #$01
-CalculateStairGraphic
+calculateStairGraphic
     sta     temporaryOne
     asl
     asl
@@ -1268,20 +1409,20 @@ CalculateStairGraphic
     asl
     clc
     adc     temporaryOne
-    adc     #<StairGraphics
+    adc     #<stairGraphics
     sta     sprite0GraphicPTRs
     lda     #0
-    adc     #>StairGraphics
+    adc     #>stairGraphics
     sta     sprite0GraphicPTRs + 1
     tya
     and     #$03
     tay
-    lda     TorchClippingValues,y
-    jsr     HandlePlayfieldScrolling
+    lda     torchClippingValues,y
+    jsr     handlePlayfieldScrolling
     sta     playerPFScrollValue
     ldy     playerCurrentRoom
-    lda     StairHPositionsTable,y
-    sta     Player0HorizPosition
+    lda     stairHPositionsTable,y
+    sta     p0PosY
     lda     #BLACK
     sta     object1Color
     lda     #H_STAIRCASE
@@ -1293,20 +1434,20 @@ CalculateStairGraphic
 
 ; ******************************************************************
     
-PlayfieldKernel
+playfieldKernel
     sta     CXCLR                   ;3        
     ldy     #$00                    ;2 = 5
 .blackLinesLoop
     lda     scanline                ;3        
     cmp     lightningColorMask      ;3        
-    beq     PlayFieldLoop           ;2/3      
+    beq     playFieldLoop           ;2/3      
     sta     WSYNC                   ;3 = 11
 ;---------------------------------------
     sta     WSYNC                   ;3 = 3
 ;---------------------------------------
     dec     scanline                ;5        
     bpl     .blackLinesLoop         ;2/3 = 7
-PlayFieldLoop
+playFieldLoop
     lda     temporaryOne            ;3        
     and     #$0f                    ;2        
     bne     .skipPFIncrement        ;2/3      
@@ -1319,11 +1460,11 @@ PlayFieldLoop
     lda     wallColor               ;3        
     sta     COLUPF                  ;3        
     sty     GRP1                    ;3        
-    lda     PF0Data,x               ;4        
+    lda     pf0Data,x               ;4        
     sta     PF0                     ;3        
-    lda     PF1Data,x               ;4        
+    lda     pf1Data,x               ;4        
     sta     PF1                     ;3        
-    lda     PF2Data,x               ;4        
+    lda     pf2Data,x               ;4        
     sta     PF2                     ;3        
     lda     scanline                ;3        
     sec                             ;2        
@@ -1333,11 +1474,11 @@ PlayFieldLoop
     tay                             ;2        
     lda     (sprite0GraphicPTRs),y  ;5        
     tay                             ;2 = 52
-PlayFieldLoop2
+playFieldLoop2
     dec     scanline                ;5        
     lda     scanline                ;3        
     cmp     torchesHNumberPTRs      ;3        
-    beq     EndPlayfieldArea        ;2/3      
+    beq     endPlayfieldArea        ;2/3      
     dec     temporaryOne            ;5        
     sta     WSYNC                   ;3 = 21
 ;---------------------------------------
@@ -1350,17 +1491,17 @@ PlayFieldLoop2
     tay                             ;2        
     lda     (sprite1GraphicPTRs),y  ;5        
     tay                             ;2        
-    jmp     PlayFieldLoop           ;3 = 28
+    jmp     playFieldLoop           ;3 = 28
     
 .turnSpriteOff1
     ldy     #$00                    ;2        
-    beq     PlayFieldLoop           ;3 = 5 unconditional
+    beq     playFieldLoop           ;3 = 5 unconditional
 
 .turnSpriteOff0
     ldy     #$00                    ;2        
-    beq     PlayFieldLoop2          ;3 = 5 unconditional
+    beq     playFieldLoop2          ;3 = 5 unconditional
 
-EndPlayfieldArea
+endPlayfieldArea
     sta     WSYNC                   ;3 = 3
 ;---------------------------------------
     lda     #$00                    ;2        
@@ -1372,14 +1513,14 @@ EndPlayfieldArea
     sta     ENABL                   ;3 = 20
 .finishPlayfieldBottom
     dec     scanline                ;5        
-    bmi     StatusKernel            ;2/3      
+    bmi     statusKernel            ;2/3      
     sta     WSYNC                   ;3 = 10
 ;---------------------------------------
     sta     WSYNC                   ;3 = 3
 ;---------------------------------------
     bpl     .finishPlayfieldBottom  ;2/3 = 2 unconditional
 
-StatusKernel
+statusKernel
     sta     WSYNC                   ;3 = 3
 ;---------------------------------------
     lda     statusBackgroundColor   ;3        
@@ -1439,11 +1580,11 @@ StatusKernel
     asl                             ;2        
     sta     floorNumberPTRs         ;3 set 'floor#' LSB digit        
     ldx     itemBeingCarried        ;3        
-    jsr     SetInvItemPTRs          ;6 set PTRs for Inventory Item        
+    jsr     setInvItemPTRs          ;6 set PTRs for Inventory Item        
     stx     temporaryOne + 1        ;3 set MSB for item       
     bit     itemBeingCarried        ;3        
     bpl     .carryingSomething      ;2/3      
-    lda     #<Blank                 ;2 = 32 set 'blank' if no item being carried
+    lda     #<blank                 ;2 = 32 set 'blank' if no item being carried
 .carryingSomething
     sta     temporaryOne            ;3 set LSB for item        
     lda     object3Color            ;3        
@@ -1482,7 +1623,7 @@ StatusKernel
     sta     NUSIZ0                  ;3        
     sta     NUSIZ1                  ;3        
     ldy     #$07                    ;2 = 25
-TorchCountLoop
+torchCountLoop
     sta     WSYNC                   ;3 = 3
 ;---------------------------------------
     lda     (torchesHNumberPTRs),y  ;5        
@@ -1499,41 +1640,41 @@ TorchCountLoop
     lda     (livesNumberPTRs),y     ;5        
     sta     GRP1                    ;3        
     dey                             ;2        
-    bpl     TorchCountLoop          ;2/3      
+    bpl     torchCountLoop          ;2/3      
     iny                             ;2        
     sty     GRP1                    ;3     kernel just 'ends' here?  and goes into audio stuff
    
     lda     gameState               ;3        
-    bne     Lf7a3                   ;2/3      
-    lda     ram_83                  ;3        
-    bne     Lf773                   ;2/3      
-    ldx     ram_98                  ;3        
+    bne     audioCheckFreq                   ;2/3      
+    lda     creaturesInRoom                  ;3        
+    bne     audioWindCheck                   ;2/3      
+    ldx     windSoundCounter                  ;3        
     cpx     #$7f                    ;2        
-    beq     SilenceAudioZero        ;2/3      
+    beq     silenceAudioZero        ;2/3      
     sta     audioWindSoundBit       ;3 = 49
-Lf773
-    lda     ram_98                  ;3        
+audioWindCheck
+    lda     windSoundCounter                  ;3        
     tay                             ;2        
     cmp     #$7f                    ;2        
-    beq     Lf78a                   ;2/3      
+    beq     setWindBit                   ;2/3      
     and     #$0f                    ;2        
-    bne     Lf78c                   ;2/3      
+    bne     updateWindCounter                   ;2/3      
     tya                             ;2        
-    beq     Lf78a                   ;2/3      
-    bmi     Lf78a                   ;2/3      
+    beq     setWindBit                   ;2/3      
+    bmi     setWindBit                   ;2/3      
     ldx     randomSeed              ;3        
-    lda     Start,x                 ;4        ; using program code as random wind values (!)
+    lda     start,x                 ;4        ; using program code as random wind values (!)
     and     #$01                    ;2 = 28
-Lf78a
+setWindBit
     sta     audioWindSoundBit
-Lf78c
+updateWindCounter
     lda     audioWindSoundBit
-    bne     Lf794
-    inc     ram_98
-    bne     Lf796 
-Lf794
-    dec     ram_98
-Lf796
+    bne     decWindCounter
+    inc     windSoundCounter
+    bne     playWindSound 
+decWindCounter
+    dec     windSoundCounter
+playWindSound
     ldx     #NOISESOUND
     tya
     lsr
@@ -1542,12 +1683,12 @@ Lf796
     ora     #$10
     tay
     eor     #$0f
-    bpl     SetAudioZero			; unconditional?
-Lf7a3
+    bpl     setAudioZero			; unconditional?
+audioCheckFreq
     lsr
-    bcc     Lf7c4
+    bcc     checkEndSound
     lda     audioFrequency0Value
-    bne     Lf7b7
+    bne     updateNoiseSound
     lda     randomSeed
     and     #$70
     lsr
@@ -1555,19 +1696,19 @@ Lf7a3
     clc
     adc     #$10
     sta     audioFrequency0Value
-    bpl     SilenceAudioZero 
-Lf7b7
+    bpl     silenceAudioZero 
+updateNoiseSound
     lda     audioFrequency0Value
     eor     #$ff
     tay 
     dec     audioFrequency0Value
     ldx     #NOISESOUND
     lda     #$0c
-    bpl     SetAudioZero            ; unconditional
+    bpl     setAudioZero            ; unconditional
 
-Lf7c4
+checkEndSound
     cmp     #$22
-    bne     SilenceAudioZero
+    bne     silenceAudioZero
     lda     frameCount
     lsr
     lsr
@@ -1575,40 +1716,40 @@ Lf7c4
     lsr
     and     #$03
     tax
-    lda     EndingMusic,x
+    lda     endingMusic,x
     tay
     lda     #$09
     ldx     #TWILIGHTSOUND
-    bpl     SetAudioZero            ; unconditional
+    bpl     setAudioZero            ; unconditional
 
-SilenceAudioZero
+silenceAudioZero
     lda     #0
-SetAudioZero
+setAudioZero
     stx     AUDC0
     sty     AUDF0
     sta     AUDV0
     lda     gameState
-    bne     SilenceAudioOne
+    bne     silenceAudioOne
     ldy     audioSoundIndex
     lda     audioVolume1Value
-    bne     Lf7f4
+    bne     checkSound2
     sta     AUDV1
     sta     audioSoundIndex
     jmp     .skipSoundEleven
 
 ; CHECK SOUND #2
     
-Lf7f4
+checkSound2
     dec     audioVolume1Value
     cpy     #2
     bne     .skipSoundTwo
     ldx     #BASSSOUND
     lda     audioVolume1Value
     eor     #$03
-Lf800
+setBassSound
     tay
     lda     #$08
-    bne     SetAudioOne             ; unconditional
+    bne     setAudioOne             ; unconditional
 
 ; CHECK SOUND #3
 
@@ -1616,9 +1757,9 @@ Lf800
     cpy     #3
     bne     .skipSoundThree
     ldx     #THUNKSOUND
-Lf80b
+checkSoundSet
     lda     audioVolume1Value
-    bpl     Lf800
+    bpl     setBassSound
 
 ; CHECK SOUND #4
 
@@ -1628,7 +1769,7 @@ Lf80b
     lda     #$06
     ldx     #NOISESOUND
     ldy     #$0f
-    bne     SetAudioOne             ; unconditional
+    bne     setAudioOne             ; unconditional
 
 ; CHECK SOUND #5
 
@@ -1637,10 +1778,10 @@ Lf80b
     bne     .skipSoundFive
     lda     audioVolume1Value
     eor     #$03
-Lf823
+setBassSound2
     ldy     #$08
     ldx     #BASSSOUND
-    bne     SetAudioOne             ; unconditional
+    bne     setAudioOne             ; unconditional
 
 ; CHECK SOUND #6
 
@@ -1648,7 +1789,7 @@ Lf823
     cpy     #6
     bne     .skipSoundSix
     lda     audioVolume1Value
-    bpl     Lf823
+    bpl     setBassSound2
 
 ; CHECK SOUND #7
 
@@ -1656,7 +1797,7 @@ Lf823
     cpy     #7
     bne     .skipSoundSeven
     ldx     #URNCENTERSOUND
-    bne     Lf80b                   ; unconditional
+    bne     checkSoundSet                   ; unconditional
 
 ; CHECK SOUND #8
 
@@ -1664,11 +1805,11 @@ Lf823
     cpy     #8
     bne     .skipSoundEight
     ldx     #NOISESOUND
-    bne     Lf80b                   ; unconditional
+    bne     checkSoundSet                   ; unconditional
 
-SilenceAudioOne
+silenceAudioOne
     ldy     #0
-SetAudioOne
+setAudioOne
     sty     AUDV1
     sta     AUDF1
     stx     AUDC1
@@ -1687,10 +1828,10 @@ SetAudioOne
     eor     #$03                    ; change up or down stairs sound
 .doSoundNine
     tax
-    lda     StairwaySound,x
+    lda     stairwaySound,x
     ldx     #BASSSOUND
     ldy     #$0a
-    bne     SetAudioOne             ; unconditional
+    bne     setAudioOne             ; unconditional
 
 .skipSoundTen
     cpy     #11
@@ -1698,61 +1839,61 @@ SetAudioOne
     lda     audioVolume1Value
     tay
     and     #$04
-    beq     SilenceAudioOne
+    beq     silenceAudioOne
     ldx     #BASSSOUND
     lda     #$01
-    bne     SetAudioOne             ; unconditional
+    bne     setAudioOne             ; unconditional
 
 .skipSoundEleven
     lda     SWCHA
     eor     #$ff
-    beq     SilenceAudioOne
+    beq     silenceAudioOne
     lda     frameCount
     and     #$07
     cmp     #$03
-    bcs     SilenceAudioOne
+    bcs     silenceAudioOne
     ldy     #$0f
     ldx     #FOOTSOUND
     lda     #$18                    ; setup for footsteps sound
-    bne     SetAudioOne             ; unconditional
+    bne     setAudioOne             ; unconditional
 
-Lf88c
+playSound
     cpx     audioSoundIndex
     beq     .returnFromSoundRoutine
     cpx     #$03
-    bne     Lf898
+    bne     setSoundIndex
     lda     audioSoundIndex
     bne     .returnFromSoundRoutine
-Lf898
+setSoundIndex
     stx     audioSoundIndex
     lda     audioVolume1ValueTable,x
     sta     audioVolume1Value
 .returnFromSoundRoutine
-    rts						; I think this returns from 'PlayfieldKernel' itself
+    rts						; I think this returns from 'playfieldKernel' itself
     
 audioVolume1ValueTable
     .byte   $ff,$ff,$15,$15,$01,$04,$04,$0a,$15,$3f,$3f,$1f
 
 ; ******************************************************************
     
-HandlePlayerDeath SUBROUTINE
+handlePlayerDeath SUBROUTINE
     lda     gameState
     and     #$fd
     sta     gameState
     ror
-    bcc     Lf8ec
+    bcc     processCreatures
     dec     rollingEyesTimer
-    bne     Lf8ec
+    bne     processCreatures
     lda     #0
     sta     gameState
     sta     audioSoundIndex
     lda     playerLives
     bne     .playerStillHasLives
-    jsr     SetSelectionVariables
+    jsr     setSelectionVariables
 .playerStillHasLives
-    jsr     ScatterTheItems
+    jsr     scatterTheItems
     sta     CXCLR
-    lda     ram_CA
+    lda     creatureCollisionFlag
     cmp     #$01
     bne     .goToRTS
     ldy     gameSelection
@@ -1760,12 +1901,12 @@ HandlePlayerDeath SUBROUTINE
     bcc     .goToRTS
     ldx     itemBeingCarried
     bmi     .goToRTS
-    lda     _randomFloorLocation1		; on bat collision, level > 7, take player's item and hide it
-    sta     objectFloorLocations,x
-    lda     _randomHPosition1
-    sta     objectHorizPositions,x
-    lda     _randomVPosition1
-    sta     objectVertPositions,x
+    lda     randFloorLoc1		; on bat collision, level > 7, take player's item and hide it
+    sta     objFloorLoc,x
+    lda     randPosX1
+    sta     objPosX,x
+    lda     randPosY1
+    sta     objPosY,x
     lda     #$ff
     sta     itemBeingCarried
 .goToRTS
@@ -1773,65 +1914,65 @@ HandlePlayerDeath SUBROUTINE
 
 ; ******************************************************************
     
-Lf8ec SUBROUTINE
+processCreatures SUBROUTINE
     lda     frameCount
     and     #$07
     sta     scanline
     tay
     lda     #$88
-    and     BitmaskThing,y
+    and     bitmaskThing,y
     sta     floorNumberPTRs
     lda     #0
-    sta     ram_83
+    sta     creaturesInRoom
     ldx     numberOfCreatures
-Lf900
-    lda     _randomFloorLocations,x
+creatureLoop
+    lda     randFloorLoc,x
     cmp     playerCurrentFloor
-    bne     Lf945
-    lda     _randomRoomLocations,x
+    bne     updateCreatureLogic
+    lda     randomRoomLocations,x
     cmp     playerCurrentRoom
-    beq     Lf910
+    beq     incCreatureCount
     cmp     playerDoorCrossing
-    bne     Lf945
-Lf910
-    inc     ram_83
+    bne     updateCreatureLogic
+incCreatureCount
+    inc     creaturesInRoom
     lda     rollingEyesTimer
-    bne     Lf94c
+    bne     skipCreatureDraw
     txa
-    bne     Lf91f
+    bne     checkCreatureState
     lda     gameSelection
     cmp     #$07
-    bcs     Lf925
-Lf91f
+    bcs     moveCreature
+checkCreatureState
     lda     itemBeingCarried
     cmp     #$01
-    beq     Lf94c
-Lf925
-    jsr     Lfa6f
-    beq     Lf9a0
-    lda     playerHorizPos
+    beq     skipCreatureDraw
+moveCreature
+    jsr     lookupCreatureSpeed
+    beq     nextCreature
+    lda     playerPosX
     sec
-    sbc     Lfdec,x
-    bcs     Lf934
-    lda     playerHorizPos
-Lf934
+    sbc     creatureStartX,x
+    bcs     storeCreatureX
+    lda     playerPosX
+storeCreatureX
     sta     temporaryOne
-    lda     playerVertPosScroll
+    lda     playerScrollY
     sec
-    sbc     Lfdf1,x
-    bcs     Lf940
-    lda     playerVertPosScroll
-Lf940
+    sbc     creatureStartY,x
+    bcs     storeCreatureY
+    lda     playerScrollY
+storeCreatureY
     sta     temporaryOne + 1
-    jmp     Lf983
-Lf945
-    jsr     Lfa68
-    beq     Lf9a0
-    bne     Lf950                   ; unconditional
-Lf94c
+    jmp     adjustCreaturePos
+updateCreatureLogic
+    jsr     getCreatureSpeedIndex
+    beq     nextCreature
+    bne     checkCreatureRoom                   ; unconditional
+skipCreatureDraw
     lda     floorNumberPTRs
-    beq     Lf9a0
-Lf950
+    beq     nextCreature
+checkCreatureRoom
     lda     objectRoomLocations,x
     and     #$3f
     tay
@@ -1843,67 +1984,67 @@ Lf950
     lsr
     lsr
     tay
-    lda     RandomLocationsTableOffsets,y
+    lda     randomLocationsTableOffsets,y
     clc
     adc     temporaryOne
     tay
-    lda     RandomLocationsTableH,y
+    lda     randomLocationsTableH,y
     sta     temporaryOne
-    lda     RandomLocationsTableV,y
+    lda     randomLocationsTableV,y
     sta     temporaryOne + 1
-    cmp     _randomVPositions,x
-    bne     Lf983
-    lda     _randomHPositions,x
+    cmp     randPosY,x
+    bne     adjustCreaturePos
+    lda     randPosX,x
     cmp     temporaryOne
-    bne     Lf983
-    lda     ram_95
-    ora     BitmaskThing,x
-    sta     ram_95
-    bne     Lf9a0
-Lf983
-    lda     _randomHPositions,x
+    bne     adjustCreaturePos
+    lda     creatureProcessMask
+    ora     bitmaskThing,x
+    sta     creatureProcessMask
+    bne     nextCreature
+adjustCreaturePos
+    lda     randPosX,x
     cmp     temporaryOne
-    bcc     Lf98f
-    beq     Lf991
-    dec     _randomHPositions,x
-    bne     Lf991
-Lf98f
-    inc     _randomHPositions,x
-Lf991
-    lda     _randomVPositions,x
+    bcc     incCreatureX
+    beq     checkCreatureY
+    dec     randPosX,x
+    bne     checkCreatureY
+incCreatureX
+    inc     randPosX,x
+checkCreatureY
+    lda     randPosY,x
     cmp     temporaryOne + 1
-    bcc     Lf99e 
-    beq     Lf9a0
-    dec     _randomVPositions,x
-    jmp     Lf9a0
-Lf99e
-    inc     _randomVPositions,x
-Lf9a0
+    bcc     incCreatureY 
+    beq     nextCreature
+    dec     randPosY,x
+    jmp     nextCreature
+incCreatureY
+    inc     randPosY,x
+nextCreature
     dex 
-    bmi     Lf9a6
-    jmp     Lf900
-Lf9a6
+    bmi     processCreatureMask
+    jmp     creatureLoop
+processCreatureMask
     ldx     #$00
-    lda     ram_95
-Lf9aa
+    lda     creatureProcessMask
+maskLoop
     ror
-    bcs     Lf9b5
+    bcs     moveCreatureRoom
     inx
     cpx     numberOfCreatures
-    beq     Lf9aa
-    bcc     Lf9aa
+    beq     maskLoop
+    bcc     maskLoop
     rts
 
-Lf9b5 SUBROUTINE
-    lda     ram_95
-    eor     BitmaskThing,x
-    sta     ram_95
+moveCreatureRoom SUBROUTINE
+    lda     creatureProcessMask
+    eor     bitmaskThing,x
+    sta     creatureProcessMask
     lda     objectRoomLocations,x
     tay
     and     #$30
-    beq     Lf9f3
+    beq     randomizeCreature
     cmp     #$10
-    bne     Lf9db
+    bne     checkRoomMove
     tya
     and     #$c0
     sta     temporaryOne
@@ -1912,32 +2053,32 @@ Lf9b5 SUBROUTINE
     rol
     rol
     tay
-    lda     RoomToRoomOffsets,y
+    lda     roomToRoomOffsets,y
     clc
-    adc     _randomRoomLocations,x
-    sta     _randomRoomLocations,x
-    bpl     Lf9ec
-Lf9db
+    adc     randomRoomLocations,x
+    sta     randomRoomLocations,x
+    bpl     storeCreatureRoom
+checkRoomMove
     cmp     #$30
-    beq     Lf9e3
-    dec     _randomFloorLocations,x
-    bpl     Lf9e5
-Lf9e3
-    inc     _randomFloorLocations,x
-Lf9e5
+    beq     incFloor
+    dec     randFloorLoc,x
+    bpl     setStartRoom
+incFloor
+    inc     randFloorLoc,x
+setStartRoom
     tya
     and     #$c0
     eor     #$40
     sta     temporaryOne
-Lf9ec
-    lda     _randomRoomLocations,x
+storeCreatureRoom
+    lda     randomRoomLocations,x
     ora     temporaryOne
     sta     objectRoomLocations,x
     rts
 
 ; ******************************************************************
     
-Lf9f3 SUBROUTINE
+randomizeCreature SUBROUTINE
     tya
     rol
     rol
@@ -1949,56 +2090,56 @@ Lf9f3 SUBROUTINE
     and     #$03
     sta     lightningColorMask
     sta     colorCycleMode
-    bpl     Lfa13
-Lfa07
+    bpl     checkRndVal
+rndWait
     inc     colorCycleMode
     lda     colorCycleMode
     and     #$03
     sta     colorCycleMode
     cmp     lightningColorMask
-    beq     Lfa1d
-Lfa13
+    beq     setRndPtr
+checkRndVal
     cmp     torchesHNumberPTRs
-    beq     Lfa07
-    jsr     Lfa1f
-    beq     Lfa07
+    beq     rndWait
+    jsr     checkFloorRnd
+    beq     rndWait
     rts
-Lfa1d
+setRndPtr
     lda     torchesHNumberPTRs
-Lfa1f
+checkFloorRnd
     sta     torchesLNumberPTRs
-    lda     _randomFloorLocations,x
+    lda     randFloorLoc,x
     sta     tmpFloorNumber
-    lda     _randomRoomLocations,x
+    lda     randomRoomLocations,x
     sta     temporaryOne
-    jsr     Lfdae
-    bmi     Lfa41
-    beq     Lfa39
+    jsr     calculateRoomPointers
+    bmi     checkValidRoom
+    beq     setGame9Room
     lda     gameSelection
     cmp     #$08
-    beq     Lfa39
+    beq     setGame9Room
     txa
     bne     skipOnOut
-Lfa39
+setGame9Room
     lda     tmpRoomNumber
     sta     temporaryOne
     lda     #$01
-    bne     Lfa56                   ; unconditional
+    bne     storeRndRoom                   ; unconditional
 
-Lfa41
+checkValidRoom
     cmp     #$ff
     beq     skipOnOut
-    ldy     _randomFloorLocations,x
-    lda     _randomRoomLocations,x
-    jsr     Lfd4c
+    ldy     randFloorLoc,x
+    lda     randomRoomLocations,x
+    jsr     validateRoomExistence
     bcs     skipOnOut
-    bne     Lfa54
+    bne     setRoomBits
     lda     #$02
-    bne     Lfa56                   ; unconditional
+    bne     storeRndRoom                   ; unconditional
 
-Lfa54
+setRoomBits
     lda     #$03
-Lfa56
+storeRndRoom
     asl     torchesLNumberPTRs
     asl     torchesLNumberPTRs
     ora     torchesLNumberPTRs
@@ -2015,34 +2156,34 @@ skipOnOut
 
 ; ******************************************************************
     
-Lfa68 SUBROUTINE
-    lda     ram_94
-    and     BitmaskThing,x
-    beq     Lfa83
-Lfa6f
+getCreatureSpeedIndex SUBROUTINE
+    lda     creaturesPresentMask
+    and     bitmaskThing,x
+    beq     returnDefaultSpeed
+lookupCreatureSpeed
     lda     gameSelection
     cmp     #$07
     bcc     .skipHardCreatureSpeeds
-    lda     HardCreatureSpeeds,x
+    lda     hardCreatureSpeeds,x
     bne     .doSetCreatureSpeeds
 .skipHardCreatureSpeeds
-    lda     EasyCreatureSpeeds,x
+    lda     easyCreatureSpeeds,x
 .doSetCreatureSpeeds
     ldy     scanline
-    and     BitmaskThing,y
+    and     bitmaskThing,y
     rts
-Lfa83
+returnDefaultSpeed
     lda     floorNumberPTRs
     rts
     
-EasyCreatureSpeeds
+easyCreatureSpeeds
     .byte   $aa ; fast ghost
     .byte   $91 ; med bat
     .byte   $88 ; slow spider
     .byte   $88 ; slow spider
     .byte   $88 ; slow spider
 
-HardCreatureSpeeds
+hardCreatureSpeeds
     .byte   $aa ; fast ghost
     .byte   $aa ; fast bat
     .byte   $91 ; med spider
@@ -2051,7 +2192,7 @@ HardCreatureSpeeds
 
 ; ******************************************************************
     
-CheckP0P1Collision SUBROUTINE
+checkP0P1Collision SUBROUTINE
     lda     rollingEyesTimer
     bne     skipOnOut
     bit     CXPPMM|$30
@@ -2059,72 +2200,72 @@ CheckP0P1Collision SUBROUTINE
     lda     itemGatheredFlag
     bne     skipOnOut
     bit     torchAnimationIdx
-    bvc     Lfaa3
-    bpl     Lfaac
+    bvc     checkCreatureKill
+    bpl     handlePlayerKill
     rts
-Lfaa3
-    lda     ram_85
+checkCreatureKill
+    lda     collisionIndex
     cmp     numberOfCreatures
-    beq     DeadPlayerHandler
-    bcc     DeadPlayerHandler
+    beq     deadPlayerHandler
+    bcc     deadPlayerHandler
     rts
-Lfaac
+handlePlayerKill
     ldx     #6				; sound #6
-    jsr     Lf88c
+    jsr     playSound
     lda     itemBeingCarried
-    bmi     Lfafe
+    bmi     checkItemLastSeen
     cmp     itemLastSeen
-    beq     Lfafe
+    beq     checkItemLastSeen
     cmp     #$02
-    bcc     Lfafe
+    bcc     checkItemLastSeen
     lda     itemLastSeen
     cmp     #$02
-    bcc     Lfafe
+    bcc     checkItemLastSeen
     clc
     adc     itemBeingCarried
     tay
     ldx     #7				; sound #7
-    jsr     Lf88c
+    jsr     playSound
 ;^^^^^^^^^^^^ section dealing with urn piece assembly
-    lda     urnAssembly_1
-    ora     urnAssembly_2
-    bpl     Lfae5
+    lda     urnAssembly1
+    ora     urnAssembly2
+    bpl     assembleUrn
     ldx     #11				; sound #11
-    jsr     Lf88c
+    jsr     playSound
     lda     #$08			; the following stuff sets "urn complete"
-    sta     urnAssembly_0		;
+    sta     urnAssembly0		;
     lda     #$ff			;
-    sta     urnAssembly_1		;
-    sta     urnAssembly_2		;
+    sta     urnAssembly1		;
+    sta     urnAssembly2		;
     lda     #$02
-    bne     Lfb00			; unconditional
-Lfae5
+    bne     finishItemCheck			; unconditional
+assembleUrn
     ldx     #$02
     cpy     #$05
-    bne     Lfaec
+    bne     setUrnParts
     dex 
-Lfaec
+setUrnParts
     lda     #$ff
-    sta     urnAssembly_0,x
+    sta     urnAssembly0,x
     ldx     #$00
     cpy     #$07
-    bne     Lfaf7
+    bne     setUrnComplete
     inx 
-Lfaf7
-    sty     urnAssembly_0,x
+setUrnComplete
+    sty     urnAssembly0,x
     inx 
     inx 
     txa
-    bne     Lfb00
+    bne     finishItemCheck
 ;^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-Lfafe
+checkItemLastSeen
     lda     itemLastSeen
-Lfb00
+finishItemCheck
     pha
     bit     itemBeingCarried
-    bmi     Lfb08
-    jsr     Lfbe2
-Lfb08
+    bmi     exitCollisionCheck
+    jsr     pickupItem
+exitCollisionCheck
     pla
     sta     itemBeingCarried 
 allDone
@@ -2132,11 +2273,11 @@ allDone
 
 ; ******************************************************************
     
-DeadPlayerHandler SUBROUTINE
+deadPlayerHandler SUBROUTINE
     lda     gameSelection
     cmp     #7				; scepter impotent in game 8 or 9
     bcc     .checkForScepter
-    lda     ram_85
+    lda     collisionIndex
     beq     .doPlayerDeath
 .checkForScepter
     lda     itemBeingCarried
@@ -2148,16 +2289,16 @@ DeadPlayerHandler SUBROUTINE
     ldx     #$ff
     stx     rollingEyesTimer	; max out length of player's death, LOL
     dec     playerLives
-    lda     ram_85			; I think this relocates the thing which killed you (?)
-    sta     ram_CA
+    lda     collisionIndex			; I think this relocates the thing which killed you (?)
+    sta     creatureCollisionFlag
     rts
 
 ; ******************************************************************
     
-Lfb2b SUBROUTINE
+resetCreaturePositions SUBROUTINE
     lda     gameSelection
     cmp     #$05
-    bcc     Lfb92
+    bcc     handleInput
     lda     roomStairsStatus
     and     #$07
     asl
@@ -2172,60 +2313,60 @@ Lfb2b SUBROUTINE
     ora     #$20
     ora     playerCurrentRoom
     sta     temporaryOne
-Lfb47
+resetCreaturesLoop
     ldx     numberOfCreatures
-Lfb49
+resetCreaturesInner
     lda     #0
-    sta     ram_94
-Lfb4d
-    lda     _randomFloorLocations,x
+    sta     creaturesPresentMask
+checkCreatureReset
+    lda     randFloorLoc,x
     cmp     playerCurrentFloor
     bne     .continueLoop
-    lda     _randomRoomLocations,x
+    lda     randomRoomLocations,x
     cmp     playerCurrentRoom
     bne     .continueLoop
     lda     temporaryOne
     sta     objectRoomLocations,x
-    lda     ram_94
-    ora     BitmaskThing,x
-    sta     ram_94
+    lda     creaturesPresentMask
+    ora     bitmaskThing,x
+    sta     creaturesPresentMask
 .continueLoop
     dex
-    bpl     Lfb4d
+    bpl     checkCreatureReset
     rts
 
 ; ******************************************************************
     
-Lfb68 SUBROUTINE
+handleStairs SUBROUTINE
     lda     roomStairsStatus
     and     #$0f
     cmp     #$0f
-    beq     Lfb92
+    beq     handleInput
     bit     roomStairsStatus
-    bpl     Lfb90
-    bvs     Lfb92
-    jsr     Lfb2b
+    bpl     setStairStatus
+    bvs     handleInput
+    jsr     resetCreaturePositions
     ldx     #9				; sound #9
     lda     roomStairsStatus
     and     #$04 
-    beq     Lfb85
+    beq     decFloor
     inc     playerCurrentFloor 
-    bne     Lfb88
-Lfb85
+    bne     playStairSound
+decFloor
     dec     playerCurrentFloor
     inx					; inc to sound #10
-Lfb88
-    jsr     Lf88c
-    jsr     Lfd0a
+playStairSound
+    jsr     playSound
+    jsr     initRoom
     ora     #$40
-Lfb90
+setStairStatus
     sta     roomStairsStatus
-Lfb92
+handleInput
     lda     SWCHA
     and     #$f0
     eor     #$f0
     sta     movementValue
-    lda     ram_83
+    lda     creaturesInRoom
     bne     .noItemHeld
     lda     INPT4|$30
     rol
@@ -2251,8 +2392,8 @@ Lfb92
     bit     itemBeingCarried
     bmi     .noItemHeld
     ldx     #LEADSOUND           ; sound # 5
-    jsr     Lf88c
-    jsr     Lfbe2
+    jsr     playSound
+    jsr     pickupItem
     lda     #$ff
     sta     itemBeingCarried	; set to 'no item held'
     bne     .goToRTS
@@ -2260,100 +2401,100 @@ Lfb92
     lda     itemGatheredFlag
     beq     .goToRTS
     bit     CXP0FB|$30
-    bmi     Lfbfb
+    bmi     dropItem
     lda     #$00
     sta     itemGatheredFlag
     beq     .goToRTS
-Lfbe2
+pickupItem
     lda     #$05
     sta     itemGatheredFlag
     lda     itemBeingCarried
-    sta     ram_E9
-    lda     ram_E7
+    sta     itemActionIndex
+    lda     playerDeltaX
     tay
-    ora     ram_E8
-    beq     Lfbfb
+    ora     playerDeltaY
+    beq     dropItem
     iny
     iny
-    ldx     ram_E8
+    ldx     playerDeltaY
     inx
-    jsr     Lfc0b
+    jsr     checkItemDrop
     bcc     .goToRTS
-Lfbfb
+dropItem
     dec     itemGatheredFlag
     beq     .goToRTS
     ldx     itemGatheredFlag
     dex
     ldy     itemGatheredFlag
     dey 
-    jsr     Lfc0b
-    bcs     Lfbfb
+    jsr     checkItemDrop
+    bcs     dropItem
 .goToRTS
     rts
 
 ; ******************************************************************
     
-Lfc0b SUBROUTINE
-    lda     PlayerScrollOffsets + 1,x
-    ldx     playerVertPosScroll
+checkItemDrop SUBROUTINE
+    lda     playerScrollOffsets + 1,x
+    ldx     playerScrollY
     cpx     #$f4
-    bcc     Lfc18
+    bcc     checkDropY
     cmp     #$0a
-    beq     Lfc3a
-Lfc18
+    beq     dropFailed
+checkDropY
     clc
-    adc     playerVertPosScroll
+    adc     playerScrollY
     cmp     #$f4
-    bcs     Lfc3a
-    ldx     ram_E9
-    sta     objectVertPositions,x
-    jsr     HandlePlayfieldScrolling
+    bcs     dropFailed
+    ldx     itemActionIndex
+    sta     objPosY,x
+    jsr     handlePlayfieldScrolling
     sta     playerPFScrollValue
-    lda     PlayerScrollOffsets,y
+    lda     playerScrollOffsets,y
     clc
-    adc     playerHorizPos
+    adc     playerPosX
     cmp     #XMAX
-    bcs     Lfc3a
-    ldx     ram_E9
-    sta     objectHorizPositions,x
-    sta     Player0HorizPosition
+    bcs     dropFailed
+    ldx     itemActionIndex
+    sta     objPosX,x
+    sta     p0PosY
     clc
     rts
-Lfc3a
+dropFailed
     sec
     rts
 
 ; ******************************************************************
     
-CheckDoorwayPassages SUBROUTINE
+checkDoorwayPassages SUBROUTINE
     lda     #$05
     sta     temporaryOne
     ldx     #$00
-Lfc42
+doorLoop
     ldy     temporaryOne
-    lda     JoystickValuesIndex,y
+    lda     joystickValuesIndex,y
     tay 
     lda     movementValue
-    and     JoystickValues,y
-    beq     Lfc61
-    lda     playerHorizPos
+    and     joystickValues,y
+    beq     nextDoor
+    lda     playerPosX
     cpy     #$02
-    bcc     Lfc57
-    lda     playerVertPosScroll
-Lfc57
-    cmp     DoorwayBoundaryTable,x
-    beq     Lfca5
-    cmp     DoorwayBoundaryTable + 1,x
-    beq     Lfc7e
-Lfc61
+    bcc     checkDoorPos
+    lda     playerScrollY
+checkDoorPos
+    cmp     doorwayBoundaryTable,x
+    beq     checkDoorExit
+    cmp     doorwayBoundaryTable + 1,x
+    beq     handleDoorway
+nextDoor
     inx
     inx
     dec     temporaryOne
-    bpl     Lfc42
+    bpl     doorLoop
 jmpIntoAnRTS
     rts
     
-DoorwayBoundaryTable
+doorwayBoundaryTable
     .byte   $54,$5c
     .byte   $a4,$ac
     .byte   $58,$4f
@@ -2361,46 +2502,46 @@ DoorwayBoundaryTable
     .byte   $4f,$47
     .byte   $48,$50
 
-JoystickValuesIndex
+joystickValuesIndex
     .byte   $01,$00,$03,$03,$02,$02
 
-JoystickValues
+joystickValues
     .byte   ~MOVE_LEFT,~MOVE_RIGHT,~MOVE_UP,~MOVE_DOWN
 
 ; ******************************************************************
     
-Lfc7e SUBROUTINE
+handleDoorway SUBROUTINE
     bit     doorwayCrossingStatus
     bpl     jmpIntoAnRTS
     tya
     ora     #$80
     cmp     doorwayCrossingStatus
-    beq     Lfc8d
+    beq     doorTransition
     lda     playerDoorCrossing
     sta     playerCurrentRoom
-Lfc8d
-    jsr     Lfcd8
+doorTransition
+    jsr     changeRoom
     sty     doorwayCrossingStatus
-    lda     RoomToRoomOffsets,y
+    lda     roomToRoomOffsets,y
     clc
     adc     playerCurrentRoom
     sta     playerCurrentRoom
     lda     #$ff
     sta     playerDoorCrossing
-    jsr     Lfd0a
+    jsr     initRoom
     ldx     #$08
-    bne     Lfcd1
-Lfca5
+    bne     playDoorSound
+checkDoorExit
     bit     doorwayCrossingStatus
     bmi     jmpIntoAnRTS
     tya
-    jsr     Lfda6
-    beq     Lfcb3
+    jsr     getRoomIndex
+    beq     setDoorExit
     lda     itemBeingCarried
-    bne     Lfcc6
-Lfcb3
+    bne     initDoorMove
+setDoorExit
     ldy     torchesLNumberPTRs
-    lda     RoomToRoomOffsets,y
+    lda     roomToRoomOffsets,y
     clc 
     adc     playerCurrentRoom
     sta     playerDoorCrossing
@@ -2408,166 +2549,166 @@ Lfcb3
     ora     #$80
     sta     doorwayCrossingStatus
     ldx     #$04
-    bne     Lfcd1                   ; unconditional
-Lfcc6
+    bne     playDoorSound                   ; unconditional
+initDoorMove
     lda     torchesLNumberPTRs
     lsr
     tax
-    lda     BitmaskThing + 6,x 
-    sta     ram_91
+    lda     bitmaskThing + 6,x 
+    sta     doorwayMovementFlag
     ldx     #2					; sound #2
-Lfcd1
+playDoorSound
     lda     gameSelection
     beq     jmpIntoAnRTS
-    jmp     Lf88c
+    jmp     playSound
 
 ; ******************************************************************
     
-Lfcd8 SUBROUTINE
+changeRoom SUBROUTINE
     sty     tmpYRegisterSaveLocation
     lda     gameSelection
     cmp     #$05
     bcc     .restoreYRegisterValue
-    lda     Lfd06,y
+    lda     floorYOffsets,y
     ora     #$10
     sta     temporaryOne
     tya
-    jsr     Lfda6
+    jsr     getRoomIndex
     pha
     lda     temporaryOne
     ora     tmpRoomNumber
     sta     temporaryOne
     pla
-    beq     Lfcfc
+    beq     invokeResetCreatures
     ldx     #0
-    jsr     Lfb49
+    jsr     resetCreaturesInner
     bmi     .restoreYRegisterValue			; unconditional (surely...)
-Lfcfc
-    jsr     Lfb47
+invokeResetCreatures
+    jsr     resetCreaturesLoop
 .restoreYRegisterValue
     ldy     tmpYRegisterSaveLocation
     rts
 
 ; ******************************************************************
     
-PlayerScrollOffsets
+playerScrollOffsets
     .byte   0, 10, 0, -10
 
-Lfd06
+floorYOffsets
     .byte   $00,$40,$80,$c0                 ; $fd06 (*)
     
-Lfd0a SUBROUTINE
+initRoom SUBROUTINE
     lda     #2
-    jsr     Lfd6c
-    sta     ram_8B
+    jsr     getFloorOffset
+    sta     pfScrollOffsetA
     lda     #3
-    jsr     Lfd6c
-    sta     ram_8C
+    jsr     getFloorOffset
+    sta     pfScrollOffsetB
     lda     #0
-    jsr     Lfd6c
+    jsr     getFloorOffset
     beq     .rightSideDoor
     lda     #DOOR_LEFT_XPOS + 8		; Ball & M0 positions
     ldx     #DOOR_LEFT_XPOS		; door on left
     bne     .setDoorPosition		; unconditional
 .rightSideDoor
-    lda     #DOOR_RIGHT_XPOS		; Ball & M0 positions
-    ldx     #DOOR_RIGHT_XPOS + 8	; door on right
+    lda     #DOORrIGHT_XPOS		; Ball & M0 positions
+    ldx     #DOORrIGHT_XPOS + 8	; door on right
 .setDoorPosition
     sta     tmpBallHorizPosition
-    stx     Missile0HorizPosition
+    stx     missile0HorizPosition
     ldy     playerCurrentFloor
     lda     playerCurrentRoom
-    jsr     Lfd4c
-    bcs     Lfd42
-    beq     Lfd3a
+    jsr     validateRoomExistence
+    bcs     setNoDoors
+    beq     getDoorBits
     lda     #$04
-Lfd3a
+getDoorBits
     ldx     playerCurrentRoom
-    ora     DoorsByRoom,x
-Lfd3f
+    ora     doorsByRoom,x
+setDoorBits
     sta     roomStairsStatus
     rts
-Lfd42
+setNoDoors
     lda     #$0f
-    bne     Lfd3f                   ; unconditional
+    bne     setDoorBits                   ; unconditional
     
-DoorsByRoom
+doorsByRoom
     .byte   3,3,1,0,2,2             ; indexed by playerCurrentRoom
 
 ; ******************************************************************
     
-Lfd4c SUBROUTINE
+validateRoomExistence SUBROUTINE
     sta     tmpRoomNumber
     tya
-    jsr     Game9FloorPlanner
+    jsr     game9FloorPlanner
     sty     tmpFloorNumber
-    lda     Lfddd,y
+    lda     startRoomLayout,y
     ldy     tmpRoomNumber
-    and     BitmaskThing,y
-    beq     Lfd6a
+    and     bitmaskThing,y
+    beq     roomInvalidExit
     ldy     tmpFloorNumber
-    lda     Lfde5,y
+    lda     startFloorLayout,y
     ldy     tmpRoomNumber
     clc
-    and     BitmaskThing,y
+    and     bitmaskThing,y
     rts
-Lfd6a
+roomInvalidExit
     sec
     rts
 
 ; ******************************************************************
     
-Lfd6c SUBROUTINE
+getFloorOffset SUBROUTINE
     sta     torchesLNumberPTRs
     lda     playerCurrentFloor
     sta     tmpFloorNumber
     lda     playerCurrentRoom
-    jsr     Lfd9a
+    jsr     calcTableIndex
     bmi     gotoRTSWithZero
     lsr
     tay
-    lda     Lfd7f,y
+    lda     floorDataPtrs,y
     rts
 
 ; ******************************************************************
     
-Lfd7f
+floorDataPtrs
     .byte   $57,$a7,$4f                     ; $fd7f (D)
-Lfd82
+roomLayouts
     .byte   $04,$ff,$00,$80,$ff,$04,$01,$81 ; $fd82 (D)
     .byte   $05,$82,$02,$00,$83,$05,$03,$01 ; $fd8a (D)
     .byte   $06,$ff,$84,$02,$ff,$06,$85,$03 ; $fd92 (D)
 
 ; ******************************************************************
     
-Lfd9a SUBROUTINE
+calcTableIndex SUBROUTINE
     asl
     asl
     clc
     adc     torchesLNumberPTRs
     tay
-    lda     Lfd82,y
+    lda     roomLayouts,y
     sta     livesNumberPTRs
     rts
 
 ; ******************************************************************
     
-Lfda6 SUBROUTINE
+getRoomIndex SUBROUTINE
     sta     torchesLNumberPTRs
     lda     playerCurrentFloor
     sta     tmpFloorNumber
     lda     playerCurrentRoom
-Lfdae
-    jsr     Lfd9a
+calculateRoomPointers
+    jsr     calcTableIndex
     bmi     .gotoRTS
     ldy     gameSelection
     cpy     #$02
     bcc     gotoRTSWithZero
     lda     tmpFloorNumber
-    jsr     Game9FloorPlanner
-    lda     Lfdd5,y
+    jsr     game9FloorPlanner
+    lda     game9Layout,y
     ldy     tmpRoomNumber
-    and     BitmaskThing,y
+    and     bitmaskThing,y
     rts
 gotoRTSWithZero
     lda     #0
@@ -2576,7 +2717,7 @@ gotoRTSWithZero
 
 ; ******************************************************************
     
-Game9FloorPlanner SUBROUTINE
+game9FloorPlanner SUBROUTINE
     ldy     gameSelection
     cpy     #8
     bne     .notOnGame9
@@ -2588,27 +2729,27 @@ Game9FloorPlanner SUBROUTINE
 
 ; ******************************************************************
     
-Lfdd5
+game9Layout
     .byte   $29,$47,$34,$29,$2e,$1d,$2b,$0a ; $fdd5 (*)
 
-Lfddd
+startRoomLayout
     .byte   $21,$3b,$3f,$25                 ; $fddd (D) ; games 1-8
     .byte   $2a,$3f,$3f,$2a                 ; $fde1 (*) ; game 9 only
 
-Lfde5
+startFloorLayout
     .byte   $21,$1a,$25,$00                 ; $fde5 (D)
     .byte   $2a,$15,$2a                     ; $fde9 (*)
 
-Lfdec
+creatureStartX
     .byte   $00,$fa,$fa,$06,$06             ; $fdec (D)
 
-Lfdf1
+creatureStartY
     .byte   $00,$fe,$06,$fe,$06             ; $fdf1 (D)
 
-InitialGameVariables
+initialGameVariables
     .byte   $09,$ff,$7f,$02,$ff,$0f,$02,$02,$03,$04 ; $fdf6 (D)
 
-BitmaskThing ; $FE00 - Unsure of Exact Use
+bitmaskThing ; $FE00 - Unsure of Exact Use
     .byte   %00000001 ; |       #|
     .byte   %00000010 ; |      # |
     .byte   %00000100 ; |     #  |
@@ -2699,8 +2840,8 @@ BitmaskThing ; $FE00 - Unsure of Exact Use
     .byte   %00111100 ; |  ####  |
     .byte   %00011000 ; |   ##   |
 
-CreatureGraphics
-;Ghost_0 $FE50
+creatureGraphics
+;ghost_0 $FE50
     .byte   %00000000 ; |        |
     .byte   %00000000 ; |        |
     .byte   %00000000 ; |        |
@@ -2711,7 +2852,7 @@ CreatureGraphics
     .byte   %01111110 ; | ###### |
     .byte   %11010100 ; |## # #  |
     .byte   %10111000 ; |# ###   |
-;Ghost_1 $FE5A
+;ghost_1 $FE5A
     .byte   %00000000 ; |        |
     .byte   %00000000 ; |        |
     .byte   %11100000 ; |###     |
@@ -2722,19 +2863,19 @@ CreatureGraphics
     .byte   %10111110 ; |# ##### |
     .byte   %01101011 ; | ## # ##|
     .byte   %00011101 ; |   ### #|
-;Bat_0 $FE64
+;bat_0 $FE64
     .byte   %10000001 ; |#      #|
     .byte   %10000001 ; |#      #|
     .byte   %11000011 ; |##    ##|
     .byte   %01100110 ; | ##  ## |
     .byte   %01111110 ; | ###### |
     .byte   %00111100 ; |  ####  |
-Blank ; $FE6A
+blank ; $FE6A
     .byte   %00000000 ; |        | blank is shared data (8 zero bytes)
     .byte   %00000000 ; |        | used to show 'no object'
     .byte   %00000000 ; |        | in status display area
     .byte   %00000000 ; |        |
-;Bat_1 $FE6E
+;bat_1 $FE6E
     .byte   %00000000 ; |        |
     .byte   %00000000 ; |        |
     .byte   %00000000 ; |        |
@@ -2745,7 +2886,7 @@ Blank ; $FE6A
     .byte   %11000011 ; |##    ##|
     .byte   %10000001 ; |#      #|
     .byte   %10000001 ; |#      #|
-;Spider_0 $FE78
+;spider_0 $FE78
     .byte   %00100100 ; |  #  #  |
     .byte   %00100100 ; |  #  #  |
     .byte   %00100100 ; |  #  #  |
@@ -2756,7 +2897,7 @@ Blank ; $FE6A
     .byte   %10000001 ; |#      #|
     .byte   %00000000 ; |        |
     .byte   %00000000 ; |        |
-;Spider_1 $FE82
+;spider_1 $FE82
     .byte   %00000000 ; |        |
     .byte   %00000000 ; |        |
     .byte   %11100111 ; |###  ###|
@@ -2768,8 +2909,8 @@ Blank ; $FE6A
     .byte   %01000010 ; | #    # |
     .byte   %00000000 ; |        |
 
-StairGraphics
-;Stairs_Ulr $FE8C
+stairGraphics
+;stairs_Ulr $FE8C
     .byte   %10110111 ; |# ## ###| LSB/MSB's are calculated (no LSB table)
     .byte   %10110111 ; |# ## ###|
     .byte   %10110111 ; |# ## ###|
@@ -2787,7 +2928,7 @@ StairGraphics
     .byte   %10110111 ; |# ## ###|
     .byte   %10110111 ; |# ## ###|
     .byte   %10110111 ; |# ## ###|
-;Stairs_Dlr $FE9D
+;stairs_Dlr $FE9D
     .byte   %11101101 ; |### ## #|
     .byte   %11101101 ; |### ## #|
     .byte   %11101101 ; |### ## #|
@@ -2805,7 +2946,7 @@ StairGraphics
     .byte   %11101101 ; |### ## #|
     .byte   %11101101 ; |### ## #|
     .byte   %11101101 ; |### ## #|
-;Stairs_Dtb $FEAE
+;stairs_Dtb $FEAE
     .byte   %11111111 ; |########|
     .byte   %11111111 ; |########|
     .byte   %11111111 ; |########|
@@ -2823,7 +2964,7 @@ StairGraphics
     .byte   %11111111 ; |########|
     .byte   %11111111 ; |########|
     .byte   %00000000 ; |        |
-;Stairs_Utb $FEBF
+;stairs_Utb $FEBF
     .byte   %11111111 ; |########|
     .byte   %11111111 ; |########|
     .byte   %00000000 ; |        |
@@ -2842,11 +2983,11 @@ StairGraphics
     .byte   %11111111 ; |########|
     .byte   %00000000 ; |        |
 
-PF0Data
+pf0Data
     .byte   %11111111 ; |********| $FED0 (P)
-PF1Data
+pf1Data
     .byte   %11110000 ; |****    | $FED1 (P)
-PF2Data
+pf2Data
     .byte   %11111111 ; |********| $FED2 (P)
     .byte   %11111111 ; |********|
     .byte   %00000000 ; |        |
@@ -2996,8 +3137,8 @@ PF2Data
     .byte   %01100110 ; | ##  ## |
     .byte   %00111100 ; |  ####  |
 
-TorchGraphics
-Torch_0
+torchGraphics
+torch_0
     .byte   %00111100 ; |  ####  |
     .byte   %00111100 ; |  ####  |
     .byte   %00111100 ; |  ####  |
@@ -3027,7 +3168,7 @@ Torch_0
     .byte   %00111100 ; |  ####  |
     .byte   %00111100 ; |  ####  |
 
-Torch_1
+torch_1
     .byte   %00011000 ; |   ##   |
     .byte   %00011000 ; |   ##   |
     .byte   %00011000 ; |   ##   |
@@ -3057,41 +3198,41 @@ Torch_1
     .byte   %00011000 ; |   ##   |
     .byte   %00011000 ; |   ##   |
     
-TorchClippingValues
+torchClippingValues
     .byte   $80,$80,$ee,$03
 
-StairHPositionsTable
+stairHPositionsTable
     .byte   111,31,139,4,111,31
 
-RollingEyesTable
+rollingEyesTable
     .byte   $e0,$a0,$b0,$90,$d0,$50,$70,$60
 
-TorchLSBValues
-    .byte   <Torch_0,<Torch_1,<Torch_0,<Torch_0
+torchLSBValues
+    .byte   <torch_0,<torch_1,<torch_0,<torch_0
 
-EndingMusic
+endingMusic
     .byte   19,18,19,23 ; sorta like 'twilight zone'
 
-StairwaySound
+stairwaySound
     .byte   9,9,11,18 ; played forward and reversed when ascending/descending
 
-RandomLocationsTableOffsets
+randomLocationsTableOffsets
     .byte   $00,$06,$0d,$0d
 
-RandomLocationsTableH
+randomLocationsTableH
     .byte   $74,$24,$74,$24,$74,$24,$74,$24 ; "random" horiz locations of items
     .byte   $74,$24,$4C,$4C,$4C,$74,$24,$94
     .byte   $04,$74,$24
 
-RandomLocationsTableV
+randomLocationsTableV
     .byte   $24,$24,$84,$84,$C4,$C4,$54,$54 ; "random" vert locations of items
     .byte   $A4,$A4,$24,$84,$C4,$00,$00,$84
     .byte   $84,$F4,$F4
 
-RoomToRoomOffsets
+roomToRoomOffsets
     .byte   1,-1,2,-2 ; used when moving up/down stairways to another room 
 
-WallBitPattern
+wallBitPattern
        .byte %10111101 ; |X XXXX X| used to check for door openings
        .byte %00011000 ; |   XX   |
        .byte %00000000 ; |        |
@@ -3109,7 +3250,7 @@ WallBitPattern
        .byte %00011000 ; |   XX   |
        .byte %10111101 ; |X XXXX X|
 
-GameColorTable
+gameColorTable
     .byte   BLACK              ; stairs
     .byte   WHITE              ; ghost
     .byte   GREEN_YELLOW + 7   ; bat
@@ -3138,6 +3279,6 @@ GameColorTable
 
 	ORG $FFFC ; no bytes free at all
 
- 	.word Start
-	.word Start
+ 	.word start
+	.word start
 

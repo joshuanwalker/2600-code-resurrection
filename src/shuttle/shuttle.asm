@@ -1,3 +1,4 @@
+ram_E9          = $e9 ; alias for starfieldScrollY for compatibility
 ; Disassembly of ~\Projects\Programming\reversing\6502\shuttle\orig\Space Shuttle.bin
 ; Disassembled 02/12/26 16:14:53
 ; Using Stella 7.0
