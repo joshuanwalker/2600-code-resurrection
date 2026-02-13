@@ -201,18 +201,18 @@ ram_C8          = $c8
 ram_C9          = $c9
 ram_CA          = $ca
 ram_CB          = $cb
-ram_CC          = $cc
-ram_CD          = $cd
-ram_CE          = $ce
-ram_CF          = $cf
-ram_D0          = $d0
-ram_D1          = $d1
-ram_D2          = $d2
-ram_D3          = $d3
-ram_D4          = $d4
-ram_D5          = $d5
-ram_D6          = $d6
-ram_D7          = $d7
+dashboardPtr1L          = $cc
+dashboardPtr1H          = $cd
+dashboardPtr2L          = $ce
+dashboardPtr2H          = $cf
+dashboardPtr3L          = $d0
+dashboardPtr3H          = $d1
+dashboardPtr4L          = $d2
+dashboardPtr4H          = $d3
+dashboardPtr5L          = $d4
+dashboardPtr5H          = $d5
+dashboardPtr6L          = $d6
+dashboardPtr6H          = $d7
 ram_D8          = $d8
 ;                 $d9  (i)
 ;                 $da  (i)
@@ -609,7 +609,7 @@ Lf217
     lda     #$17
     sta     CTRLPF
     lda     #$d9
-    sta     ram_CD
+    sta     dashboardPtr1H
     lda     ram_84
     and     #$01
     beq     Lf252
@@ -622,7 +622,7 @@ Lf252
 ;---------------------------------------
     sta     HMOVE
 Lf25b
-    sta     ram_CE,x
+    sta     dashboardPtr2L,x
     adc     #$19
     dex
     dex
@@ -634,11 +634,11 @@ Lf25b
     lsr
     clc
     adc     #$da
-    sta     ram_D7
-    sta     ram_D5
-    sta     ram_D3
-    sta     ram_D1
-    sta     ram_CF
+    sta     dashboardPtr6H
+    sta     dashboardPtr5H
+    sta     dashboardPtr4H
+    sta     dashboardPtr3H
+    sta     dashboardPtr2H
     lda     ram_C1
     ldx     ram_84
     bit     ram_E1
@@ -656,25 +656,25 @@ Lf28a
     .byte   $2c ;bit                ;4-2 =   9 *
 Lf290
     lda     #$cc
-    sta     ram_CC
+    sta     dashboardPtr1L
     lda     #$06
     sta     PF2
 kernelDrawDashboard
-    lda     (ram_CC),y
+    lda     (dashboardPtr1L),y
     sta     ENABL
     sta     WSYNC
 ;---------------------------------------
     sta     HMOVE
     sty     ram_FB
-    lda     (ram_D6),y
+    lda     (dashboardPtr6L),y
     sta     GRP0
-    lda     (ram_D4),y
+    lda     (dashboardPtr5L),y
     sta     GRP1
-    lda     (ram_D2),y
+    lda     (dashboardPtr4L),y
     sta     GRP0
-    lda     (ram_D0),y
+    lda     (dashboardPtr3L),y
     tax
-    lda     (ram_CE),y
+    lda     (dashboardPtr2L),y
     ldy     #$00
     stx     GRP1
     sta     GRP0
@@ -723,9 +723,9 @@ Lf2f4
     sta     HMOVE
     sec
 Lf304
-    sta     ram_CE,x
+    sta     dashboardPtr2L,x
     sbc     #$08
-    sta     ram_CC,x
+    sta     dashboardPtr1L,x
     sbc     #$08
     dex
     dex
@@ -740,12 +740,12 @@ Lf304
     lda     #BLACK|$8
     sta     COLUBK
     lda     #$d8
-    sta     ram_CD
-    sta     ram_CF
-    sta     ram_D1
-    sta     ram_D3
-    sta     ram_D5
-    sta     ram_D7
+    sta     dashboardPtr1H
+    sta     dashboardPtr2H
+    sta     dashboardPtr3H
+    sta     dashboardPtr4H
+    sta     dashboardPtr5H
+    sta     dashboardPtr6H
     sta     WSYNC
 ;---------------------------------------
     stx     COLUBK
@@ -1557,20 +1557,20 @@ Lf95d
     
 Lf979
     ldy     ram_FA
-    lda     (ram_CC),y
+    lda     (dashboardPtr1L),y
     sta     ram_FC
     sta     WSYNC
 ;---------------------------------------
     sta     HMOVE
-    lda     (ram_D6),y
+    lda     (dashboardPtr6L),y
     sta     GRP0
-    lda     (ram_D4),y
+    lda     (dashboardPtr5L),y
     sta     GRP1
-    lda     (ram_D2),y
+    lda     (dashboardPtr4L),y
     sta     GRP0
-    lda     (ram_D0),y
+    lda     (dashboardPtr3L),y
     tax
-    lda     (ram_CE),y
+    lda     (dashboardPtr2L),y
     ldy     ram_FC
     stx     GRP1
     sta     GRP0
@@ -1595,6 +1595,10 @@ Lf979
     .byte   $00                             ; $f9e4 (D)
  
  
+;-----------------------------------------------------------
+;      Graphic Data: Dashboard & Screens
+;-----------------------------------------------------------
+    
     .byte   %11111111 ; |########|            $f9e5 (G)
     .byte   %00000111 ; |     ###|            $f9e6 (G)
     .byte   %00000101 ; |     # #|            $f9e7 (G)
@@ -1606,8 +1610,9 @@ Lf979
     .byte   %00000001 ; |       #|            $f9ed (G)
     .byte   %00000001 ; |       #|            $f9ee (G)
     .byte   %00100001 ; |  #    #|            $f9ef (G)
+    
+thrustTSprite   
     .byte   %00100000 ; |  #     |            $f9f0 (G)
-Lf9f1
     .byte   %00100000 ; |  #     |            $f9f1 (G)
     .byte   %00100000 ; |  #     |            $f9f2 (G)
     .byte   %00100000 ; |  #     |            $f9f3 (G)
@@ -1624,14 +1629,7 @@ Lf9f1
     .byte   %11111111 ; |########|            $f9fe (G)
     .byte   %00000000 ; |        |            $f9ff (G)
 
-;------------------------------------------------------------
-; Display screens for each phase of teh shuttle flight.
-; Each screen is 40x25 pixels, split into five 8 byte columns
-;------------------------------------------------------------
-;======================
-;Launch Screen
 launchScreen0
-;======================
     .byte   %11110110 ; |#### ## |            $fa00 (G)
     .byte   %11110110 ; |#### ## |            $fa01 (G)
     .byte   %11111011 ; |##### ##|            $fa02 (G)
@@ -2999,6 +2997,11 @@ yawSprite0
     .byte   %10101000 ; |# # #   |            $fecc (G)
 yawSprite1
     .byte   %11111111 ; |########|            $fecd (G)
+;-----------------------------------------------------------
+;      Graphic Data: Number & Sprite Fonts
+;-----------------------------------------------------------
+
+largeNumberSprite0	
     .byte   %11010111 ; |## # ###|            $fece (G)
     .byte   %10101011 ; |# # # ##|            $fecf (G)
     .byte   %10101011 ; |# # # ##|            $fed0 (G)
@@ -4634,9 +4637,9 @@ Lf808
     ldx     #$06
     ldy     #$54
 Lf825
-    lda     ram_CC,x
+    lda     dashboardPtr1L,x
     bne     Lf82f
-    sty     ram_CC,x
+    sty     dashboardPtr1L,x
     dex
     dex
     bne     Lf825
@@ -4644,23 +4647,23 @@ Lf82f
     lda     ram_FA
     lsr
     tax
-    lda     Lfe16,x
+    lda     dashboardGraphicOffsetTable,x
     cpx     #$0c
     bcs     Lf848
-    sta     ram_D6
+    sta     dashboardPtr6L
     adc     #$06
-    sta     ram_D4
+    sta     dashboardPtr5L
     lda     #$de
-    sta     ram_D7
-    sta     ram_D5
+    sta     dashboardPtr6H
+    sta     dashboardPtr5H
     bne     Lf857
 Lf848
     ldx     #$0a
     ldy     #$df
     clc
 Lf84d
-    sta     ram_CC,x
-    sty     ram_CD,x
+    sta     dashboardPtr1L,x
+    sty     dashboardPtr1H,x
     adc     #$07
     dex
     dex
@@ -5501,9 +5504,9 @@ Lfddc
     bpl     Lfde6
     lda     #$50
 Lfde6
-    sta     ram_CC,x
+    sta     dashboardPtr1L,x
     lda     #$de
-    sta     ram_CD,x
+    sta     dashboardPtr1H,x
     dex
     rts
     
@@ -5537,7 +5540,11 @@ Lfe03
     sta     HMP0,x
     rts
     
-Lfe16
+;-----------------------------------------------------------
+;      Graphic Pointers (Low Bytes?)
+;      Point to $FE7F, $FE73, etc.
+;-----------------------------------------------------------
+dashboardGraphicOffsetTable
     .byte   $7f,$73,$5b,$67,$8b,$df,$97,$a3 ; $fe16 (*)
     .byte   $af,$bb,$c7,$d3                 ; $fe1e (*)
     .byte   $b4                             ; $fe22 (D)
