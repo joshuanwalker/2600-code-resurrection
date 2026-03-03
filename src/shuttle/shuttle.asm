@@ -1,4 +1,3 @@
-ram_E9          = $e9 ; alias for starfieldScrollY for compatibility
 ; Disassembly of ~\Projects\Programming\reversing\6502\shuttle\orig\Space Shuttle.bin
 ; Disassembled 02/12/26 16:14:53
 ; Using Stella 7.0
@@ -126,134 +125,206 @@ TIM64T          = $0296
 ;      ZERO Page Labels
 ;-----------------------------------------------------------
 
-rngSeed         = $80
-crosshairX          = $81
-targetX          = $82
-targetAuxX          = $83
-currentScreenId          = $84
-ram_85          = $85
-ram_86          = $86
-ram_87          = $87
-ram_88          = $88
-ram_89          = $89
-ram_8A          = $8a
-;                 $8b  (i)
-;                 $8c  (i)
-;                 $8d  (i)
-;                 $8e  (i)
-;                 $8f  (i)
-;                 $90  (i)
-;                 $91  (i)
-;                 $92  (i)
-;                 $93  (i)
-;                 $94  (i)
-ram_95          = $95
-ram_96          = $96
-ram_97          = $97
-ram_98          = $98
-ram_99          = $99
-ram_9A          = $9a
-ram_9B          = $9b
-ram_9C          = $9c
-ram_9D          = $9d
-ram_9E          = $9e
-ram_9F          = $9f
-ram_A0          = $a0
-ram_A1          = $a1
-ram_A2          = $a2
-ram_A3          = $a3
-ram_A4          = $a4
-ram_A5          = $a5
-ram_A6          = $a6
-ram_A7          = $a7
-ram_A8          = $a8
-ram_A9          = $a9
-ram_AA          = $aa
-ram_AB          = $ab
-ram_AC          = $ac
-ram_AD          = $ad
-ram_AE          = $ae
-ram_AF          = $af
-ram_B0          = $b0
-ram_B1          = $b1
-ram_B2          = $b2
-ram_B3          = $b3
-ram_B4          = $b4
-ram_B5          = $b5
-ram_B6          = $b6
-ram_B7          = $b7
-ram_B8          = $b8
-ram_B9          = $b9
-ram_BA          = $ba
-ram_BB          = $bb
-ram_BC          = $bc
+;--- RNG / Display Pointers ---
+rngSeed                 = $80   ; Pseudo-random number generator seed (LFSR)
 
-ram_BE          = $be
+;--- Thrust Arrow Positions ---
+thrustArrowX            = $81   ; Player-controlled thrust arrow X position
+computerArrowX          = $82   ; Computer-controlled target arrow X position
+computerArrowAuxX       = $83   ; Auxiliary X for computer arrow animation
 
-ram_C0          = $c0
-ram_C1          = $c1
-ram_C2          = $c2
-ram_C3          = $c3
-ram_C4          = $c4
-ram_C5          = $c5
-ram_C6          = $c6
-ram_C7          = $c7
-ram_C8          = $c8
-ram_C9          = $c9
-ram_CA          = $ca
-ram_CB          = $cb
-screenPtr1L          = $cc
-screenPtr1H          = $cd
-screenPtr2L          = $ce
-screenPtr2H          = $cf
-screenPtr3L          = $d0
-screenPtr3H          = $d1
-screenPtr4L          = $d2
-screenPtr4H          = $d3
-screenPtr5L          = $d4
-screenPtr5H          = $d5
-screenPtr6L          = $d6
-screenPtr6H          = $d7
-ram_D8          = $d8
-;                 $d9  (i)
-;                 $da  (i)
-;                 $db  (i)
-ram_DC          = $dc
-ram_DD          = $dd
-ram_DE          = $de
-ram_DF          = $df
-ram_E0          = $e0
-ram_E1          = $e1
-ram_E2          = $e2
-ram_E3          = $e3
-starfieldHorizontalMotion          = $e4
+;--- Screen / Display State ---
+currentScreenId         = $84   ; Current screen/phase display identifier
+statusDisplayId         = $85   ; Selects which instrument value to show (ALT, SPD, etc.)
 
-ram_E6          = $e6; (s)
-ram_E7          = $e7
-ram_E8          = $e8
-starfieldScrollY          = $e9
-ram_EA          = $ea
-ram_EB          = $eb
-ram_EC          = $ec
-ram_ED          = $ed
-ram_EE          = $ee
-ram_EF          = $ef
-ram_F0          = $f0
-ram_F1          = $f1
-ram_F2          = $f2
-ram_F3          = $f3
-ram_F4          = $f4
-ram_F5          = $f5
-ram_F6          = $f6
-ram_F7          = $f7
-ram_F8          = $f8
-ram_F9          = $f9
-ram_FA          = $fa
-ram_FB          = $fb
-ram_FC          = $fc
-starfieldVerticalCounter          = $fd
-;                 $fe  (s)
-;                 $ff  (s)
+;--- Trajectory Tracking ---
+trajectoryDotPos        = $86   ; Trajectory reference dot position on screen
+planeDotPos             = $87   ; Plane/shuttle trajectory dot position
+pitchValue              = $88   ; Current pitch angle value (signed)
+
+;--- Starfield Column Array ---
+starfieldColumnIndex    = $89   ; Index for cycling through starfield columns ($8A-$94)
+starfieldColumns        = $8a   ; Array of 12 starfield column X-positions ($8A-$95)
+;                         $8b  (i)  ; starfieldColumns+1
+;                         $8c  (i)  ; starfieldColumns+2
+;                         $8d  (i)  ; starfieldColumns+3
+;                         $8e  (i)  ; starfieldColumns+4
+;                         $8f  (i)  ; starfieldColumns+5
+;                         $90  (i)  ; starfieldColumns+6
+;                         $91  (i)  ; starfieldColumns+7
+;                         $92  (i)  ; starfieldColumns+8
+;                         $93  (i)  ; starfieldColumns+9
+;                         $94  (i)  ; starfieldColumns+10
+starfieldColumnLast     = $95   ; Last element of starfield column array (rotation overflow)
+
+;--- Speed Display ---
+speedDisplayLow         = $96   ; BCD speed display value (low byte: tens+units)
+speedDisplayHigh        = $97   ; BCD speed display value (high byte: hundreds)
+
+;--- Speed Fraction Accumulators ---
+speedFractionLow        = $98   ; BCD fractional speed accumulator (low); wraps trigger altitude change
+speedFractionHigh       = $99   ; BCD fractional speed accumulator (high); carries from low
+
+;--- Fuel / MET Counters ---
+fuelLow                 = $9a   ; Fuel remaining (BCD low byte)
+fuelHigh                = $9b   ; Fuel remaining (BCD high byte)
+metLow                  = $9c   ; Mission Elapsed Time (BCD low byte: seconds)
+metHigh                 = $9d   ; Mission Elapsed Time (BCD high byte: minutes)
+
+;--- Score / Abort ---
+missionScore            = $9e   ; BCD mission score; incremented on each successful docking
+abortCode               = $9f   ; Mission abort/failure reason code for display
+
+;--- Difficulty / Alignment ---
+difficultyLevel         = $a0   ; Difficulty/flight program level (0=easiest, 3=hardest)
+arrowsMisaligned        = $a1   ; Non-zero when thrust arrows are misaligned
+
+;--- Display Conversion Temps ---
+displayDigitsLow        = $a2   ; BCD tens+ones digits for instrument display
+displayDigitsHigh       = $a3   ; BCD sign+hundreds digit ($A0=negative, $00=positive)
+
+;--- Descent / Flight State ---
+descentRateIndex        = $a4   ; Index into descent rate table; tracks speed bracket
+altitude                = $a5   ; Current altitude (0-255 nautical miles)
+speed                   = $a6   ; Current speed value
+
+;--- Update Timers ---
+speedUpdateTimer        = $a7   ; Countdown for speed/trajectory updates during ascent
+altitudeUpdateTimer     = $a8   ; Countdown for altitude changes during ascent
+
+;--- Thrust / Trajectory ---
+thrustDirection         = $a9   ; Current thrust direction setting
+planeCorrection         = $aa   ; Plane trajectory correction offset
+
+;--- Movement / View Offsets ---
+movementFlags           = $ab   ; Bitfield: bit0=fwd, 1=down, 2=up, 3=right
+viewVerticalOffset      = $ac   ; Vertical offset for cockpit view graphic
+viewHorizontalOffset    = $ad   ; Horizontal fine-position offset for cockpit view
+
+;--- Countdown / Launch ---
+countdownTimer          = $ae   ; Pre-launch countdown timer; also used in color calc
+
+;--- OMS / Orbit ---
+omsBurnActive           = $af   ; OMS burn active flag (non-zero = burn in progress)
+satelliteOrbitalPos     = $b0   ; Satellite's orbital position for docking
+shuttleOrbitalPos       = $b1   ; Shuttle's orbital position; must match satellite
+yAxisPlane              = $b2   ; Y-axis plane correction value
+omsYaw                  = $b3   ; OMS yaw angle; 0=correct alignment for deorbit
+
+;--- Game Phase Tracking ---
+launchPhase             = $b4   ; Current phase within launch sequence
+flightPhase             = $b5   ; Overall flight phase (launch/orbit/reentry/landing)
+gameActive              = $b6   ; Game active flag (non-zero = mission in progress)
+enginePowerOn           = $b7   ; Engine power state (non-zero = engines on)
+
+;--- Attract Mode ---
+screenBlankFlags        = $b8   ; Screen blanking/attract mode flags for VBLANK
+attractSubTimer         = $b9   ; Attract sub-timer; wraps every 256 frames
+attractTimer            = $ba   ; Attract mode timer; triggers demo then blanking
+
+;--- Launch Events ---
+launchEventIndex        = $bb   ; Index into launch event table
+autoThrustCommand       = $bc   ; Autopilot thrust command value
+;                         $bd  (unused)
+
+;--- Orbital Movement ---
+orbitalMoveFraction     = $be   ; Fractional accumulator for orbital position advancement
+
+;--- Input / Frame Timing ---
+inputDelayTimer         = $c0   ; Input rate-limiter countdown for joystick
+frameCounter            = $c1   ; Global frame counter; incremented every frame
+
+;--- Descent Timers ---
+descentFrameCounter     = $c2   ; Descent frame counter; triggers speed decrease at interval
+descentSpeedTimer       = $c3   ; Countdown for altitude decreases during reentry
+descentRate             = $c4   ; Current descent rate value from table/pitch calc
+
+;--- MET / Console ---
+metFrameCounter         = $c5   ; Frame sub-counter for MET clock updates
+consoleSwitches         = $c6   ; Cached SWCHB console switch state
+
+;--- Switch / Sound ---
+switchDebounceTimer     = $c7   ; Debounce/hold counter for Reset and Select buttons
+engineOnTimer           = $c8   ; Short-lived timer set on engine power-on; display effect
+soundSequenceIndex      = $c9   ; Sound engine sequence index; $FE=start new sound
+soundEffectId           = $ca   ; Current sound effect ID/type loaded into AUDC0 (0=silent)
+soundEnvelopeCounter    = $cb   ; Sound envelope duration counter within current effect
+
+;--- Screen Data Pointers (6 pairs) ---
+screenPtr1L             = $cc   ; Screen data pointer 1 (low byte)
+screenPtr1H             = $cd   ; Screen data pointer 1 (high byte)
+screenPtr2L             = $ce   ; Screen data pointer 2 (low byte)
+screenPtr2H             = $cf   ; Screen data pointer 2 (high byte)
+screenPtr3L             = $d0   ; Screen data pointer 3 (low byte)
+screenPtr3H             = $d1   ; Screen data pointer 3 (high byte)
+screenPtr4L             = $d2   ; Screen data pointer 4 (low byte)
+screenPtr4H             = $d3   ; Screen data pointer 4 (high byte)
+screenPtr5L             = $d4   ; Screen data pointer 5 (low byte)
+screenPtr5H             = $d5   ; Screen data pointer 5 (high byte)
+screenPtr6L             = $d6   ; Screen data pointer 6 (low byte)
+screenPtr6H             = $d7   ; Screen data pointer 6 (high byte)
+
+;--- Starfield GFX Pointers ---
+columnGfxPtrTable       = $d8   ; Array of 4 graphic data pointer low bytes for starfield
+;                         $d9  (i)  ; columnGfxPtrTable+1
+;                         $da  (i)  ; columnGfxPtrTable+2
+;                         $db  (i)  ; columnGfxPtrTable+3
+gfxDataPtrL             = $dc   ; Low byte of indirect pointer for kernel gfx data
+gfxDataPtrH             = $dd   ; High byte of indirect pointer (always $FF = ROM)
+
+;--- Docking / Target Position ---
+targetHorizPos          = $de   ; Horizontal screen position of satellite ($47-$4F=dock range)
+targetHorizPosSmooth    = $df   ; Smoothed horizontal target pos; converges to ideal X
+
+;--- Orbital / Reentry Counters ---
+orbitalSubCounter       = $e0   ; Sub-frame counter; odd values trigger orbital advance
+heatEffectTimer         = $e1   ; Reentry ionization heating effect timer
+dockingProgress         = $e2   ; Docking progress (0-$7F=approaching, $80=docked, $FF=done)
+dockingCount            = $e3   ; Total successful dockings this mission (max 6)
+
+;--- Starfield ---
+starfieldHorizontalMotion = $e4 ; Horizontal scroll motion value for starfield
+;                         $e5  (unused)
+
+;--- Cargo / Reentry ---
+cargoDoorTimer          = $e6   ; Cargo door warning timer; overflows negative = abort
+atmosphereDensity       = $e7   ; Atmosphere density counter for reentry grey tint effect
+reentryContactState     = $e8   ; Reentry heating / ground contact flag (0=none, $FF=active)
+starfieldScrollY        = $e9   ; Starfield vertical scroll Y position
+
+;--- Satellite / Landing ---
+satelliteColorOffset    = $ea   ; Color offset oscillator for satellite rendering (0-7)
+approachFrameTimer      = $eb   ; Landing approach frame countdown; ticks starfieldScrollY
+separationFlashTimer    = $ec   ; SRB/ET separation flash timer; counts down from 5
+separationEventTimer    = $ed   ; SRB/ET separation event countdown; wraps for sound+flash
+landingFlickerTimer     = $ee   ; Landing approach display flicker timer
+cockpitAnimCounter      = $ef   ; Cockpit instrument animation counter; low nibble=offset
+
+;--- Game State Flags ---
+cargoDoorState          = $f0   ; Cargo bay door open/close state
+errorDisplayFlag        = $f1   ; Error/abort display override (non-zero=show error)
+landingDisplayMode      = $f2   ; Landing display mode counter; triggers visual/audio
+landingPitchSuccess     = $f3   ; Set when touchdown with perfect pitch (pitchValue=0)
+pendingSpeedEffect      = $f4   ; Deferred speed effect: 0=none, 1=decrease, 2=increase
+fuelPenaltyAccum        = $f5   ; Accumulated fuel penalty from trajectory misalignment
+trajectoryThreshold     = $f6   ; Trajectory alignment threshold for fuel penalty calc
+
+;--- Mode Flags ---
+joystickDetected        = $f7   ; Joystick activity detected ($FF=input seen)
+trainingModeFlag        = $f8   ; Training mode flag ($FF=active: no fuel burn)
+
+;--- Autopilot ---
+autopilotMode           = $f9   ; Autopilot mode (bit 7: on/off)
+
+;--- Scratch / Temp Variables ---
+tempVar                 = $fa   ; General-purpose temporary variable (reused everywhere)
+tempVar2                = $fb   ; General-purpose temporary variable 2
+tempVar3                = $fc   ; General-purpose temporary variable 3
+
+;--- Starfield / Stack ---
+starfieldVerticalCounter = $fd  ; Starfield vertical position counter
+;                         $fe  (s)  ; Stack area
+;                         $ff  (s)  ; Stack area
 
 
 ;-----------------------------------------------------------
@@ -313,10 +384,10 @@ startBank0Kernel
     sta     HMOVE
     stx     PF0
     stx     PF1
-    lda     targetX
+    lda     computerArrowX
     sta     HMCLR
     jsr     $d958
-    lda     targetAuxX
+    lda     computerArrowAuxX
     inx
     jsr     $d958
     lda     #YELLOW|$8
@@ -359,21 +430,21 @@ waitForVBlankTimer
     sty     GRP1
     nop
     stx     RESBL
-    ldx     ram_E3
+    ldx     dockingCount
     cpx     #$04
     bcc     Ld0a3
-    lda     ram_B5
+    lda     flightPhase
     cmp     #$02
     bne     Ld0a3
-    lda     ram_C1
+    lda     frameCounter
     and     $debd,x
     bne     Ld0a3
     bit     rngSeed
     bmi     Ld0a1
-    dec     ram_B2
+    dec     yAxisPlane
     .byte   $2c ;bit                ;4-5 =  60 *
 Ld0a1
-    inc     ram_B2
+    inc     yAxisPlane
 Ld0a3
     sta     WSYNC
 ;---------------------------------------
@@ -431,16 +502,16 @@ Ld0bf
     lda     #YELLOW|$8
     sta     COLUP0
     ldx     #BLACK|$c
-    lda     ram_A1
+    lda     arrowsMisaligned
     beq     Ld11d
-    lda     ram_C1
+    lda     frameCounter
     and     #$20
     beq     Ld11d
     ldx     #$82
 Ld11d
     stx     COLUP1
     ldx     #$08
-    lda     crosshairX
+    lda     thrustArrowX
     sta     WSYNC
 ;---------------------------------------
     sta     HMOVE
@@ -485,17 +556,17 @@ kernelDrawCockpitWindows
     sty     PF0
     sty     PF1
     sty     PF2
-    lda     ram_B1
+    lda     shuttleOrbitalPos
     sec
-    sbc     ram_B0
+    sbc     satelliteOrbitalPos
     cmp     #$80
     bne     Ld180
-    ldx     ram_E2
+    ldx     dockingProgress
     cpx     #$ff
     bne     Ld180
-    inc     ram_E2
+    inc     dockingProgress
     lda     rngSeed
-    sta     ram_B2
+    sta     yAxisPlane
 Ld180
     ldx     #BLACK|$4
 Ld182
@@ -523,7 +594,7 @@ Ld182
     sta     RESM0
     sty     HMM0
     ldx     #BLUE_CYAN|$2
-    lda     ram_9B
+    lda     fuelHigh
     cmp     #$10
     sta     WSYNC
 ;---------------------------------------
@@ -532,7 +603,7 @@ Ld182
     lda     #$fe
     sta     PF2
     bcs     Ld1cd
-    lda     ram_C1
+    lda     frameCounter
     and     #$10
     beq     Ld1cd
     ldx     #$86
@@ -542,11 +613,11 @@ Ld182
 Ld1cd
     stx     COLUPF
     ldy     #BLACK|$a
-    lda     ram_85
+    lda     statusDisplayId
     cmp     #$19
     bcc     Ld1df
     beq     Ld1e1
-    lda     ram_C1
+    lda     frameCounter
     and     #$10
     beq     Ld1e1
 Ld1df
@@ -562,19 +633,19 @@ Ld1e1
 ;---------------------------------------
     sta     HMOVE
     lda     #$06
-    sta     ram_FA
+    sta     tempVar
     jsr     $d979
     ldy     #$00
     sty     GRP0
     sty     GRP1
     sta     HMOVE
     sty     GRP0
-    sty     ram_F4
-    sty     ram_F5
+    sty     pendingSpeedEffect
+    sty     fuelPenaltyAccum
     sty     NUSIZ0
-    lda     ram_F1
+    lda     errorDisplayFlag
     bne     Ld217
-    lda     ram_85
+    lda     statusDisplayId
     cmp     #$17
     beq     Ld214
     cmp     #$05
@@ -590,7 +661,7 @@ Ld217
     stx     NUSIZ0
     inx
     stx     ENAM0
-    lda     ram_AD
+    lda     viewHorizontalOffset
     clc
     adc     #$38
     jsr     $d958
@@ -640,9 +711,9 @@ Ld25b
     sta     screenPtr4H
     sta     screenPtr3H
     sta     screenPtr2H
-    lda     ram_C1
+    lda     frameCounter
     ldx     currentScreenId
-    bit     ram_E1
+    bit     heatEffectTimer
     bpl     Ld285
     and     #$fc
     beq     Ld28a
@@ -653,7 +724,7 @@ Ld285
 Ld28a
     lda     #$e5
     sec
-    sbc     ram_AC
+    sbc     viewVerticalOffset
     .byte   $2c ;bit                ;4-2 =   9 *
 Ld290
     lda     #$cc
@@ -666,7 +737,7 @@ kernelDrawMainView
     sta     WSYNC
 ;---------------------------------------
     sta     HMOVE
-    sty     ram_FB
+    sty     tempVar2
     lda     (screenPtr6L),y
     sta     GRP0
     lda     (screenPtr5L),y
@@ -681,7 +752,7 @@ kernelDrawMainView
     sta     GRP0
     sty     GRP1
     sty     GRP0
-    ldy     ram_FB
+    ldy     tempVar2
     dey
     bpl     kernelDrawMainView
     iny
@@ -701,7 +772,7 @@ kernelDrawMainView
     ldx     #$40
     stx     HMP0
     stx     HMP1
-    lda     ram_C8
+    lda     engineOnTimer
     and     #$1f
     cmp     #$14
     stx     HMBL
@@ -713,10 +784,10 @@ kernelDrawMainView
     sbc     #$0c
     tay
 Ld2f4
-    sty     ram_FA
+    sty     tempVar
     tya
     eor     #$07
-    sta     ram_FB
+    sta     tempVar2
     lda     #$e8
     ldx     #$08
     sta     WSYNC
@@ -796,7 +867,7 @@ kernelDrawStatusBar
     stx     COLUPF
     tsx
     dex
-    dec     ram_FB
+    dec     tempVar2
     bpl     kernelDrawStatusBar
     ldx     #$ff
     txs
@@ -807,9 +878,9 @@ kernelDrawStatusBar
     stx     GRP1
     stx     GRP0
     stx     NUSIZ1
-    ldx     ram_B4
+    ldx     launchPhase
     beq     Ld3aa
-    lda     ram_C1
+    lda     frameCounter
     and     #$02
     bne     Ld3ac
     inx
@@ -826,11 +897,11 @@ Ld3ac
 Ld3b4
     ldx     #$dc
     stx     TIM8T
-    bit     ram_F9
+    bit     autopilotMode
     bmi     Ld403
-    lda     ram_B6
+    lda     gameActive
     beq     Ld403
-    lda     ram_A4
+    lda     descentRateIndex
     beq     Ld403
     ldy     currentScreenId
     beq     Ld3cf
@@ -840,141 +911,141 @@ Ld3b4
 Ld3cf
     tax
     lda     $d868,x
-    ldx     ram_F8
+    ldx     trainingModeFlag
     inx
     clc
     adc     $dafa,x
-    cmp     ram_F6
+    cmp     trajectoryThreshold
     bcc     Ld3e7
     sbc     $d9e6,x
-    cmp     ram_F6
+    cmp     trajectoryThreshold
     bcc     Ld3f9
     beq     Ld3f9
 Ld3e7
-    inc     ram_F5
-    ldx     ram_E3
+    inc     fuelPenaltyAccum
+    ldx     dockingCount
     cpx     #$06
     bne     Ld3f1
-    inc     ram_F5
+    inc     fuelPenaltyAccum
 Ld3f1
     lda     #$41
-    ldx     ram_CA
+    ldx     soundEffectId
     bne     Ld403
     beq     Ld401
 Ld3f9
     lda     #$00
-    ldx     ram_CA
+    ldx     soundEffectId
     cpx     #$41
     bne     Ld403
 Ld401
-    sta     ram_CA
+    sta     soundEffectId
 Ld403
     ldx     #$00
-    lda     crosshairX
-    cmp     targetAuxX
+    lda     thrustArrowX
+    cmp     computerArrowAuxX
     bcc     Ld411
     sbc     #$0b
-    cmp     targetAuxX
+    cmp     computerArrowAuxX
     bcc     Ld412
 Ld411
     dex
 Ld412
-    stx     ram_A1
+    stx     arrowsMisaligned
     lda     SWCHA
     cmp     #$ff
     beq     Ld422
     ldx     #$ff
-    stx     ram_F7
+    stx     joystickDetected
     inx
-    stx     ram_B8
+    stx     screenBlankFlags
 Ld422
-    inc     ram_B9
+    inc     attractSubTimer
     bne     Ld444
-    lda     ram_BA
+    lda     attractTimer
     cmp     #$0f
     bcc     Ld430
-    ldx     ram_B6
-    stx     ram_B7
+    ldx     gameActive
+    stx     enginePowerOn
 Ld430
-    inc     ram_BA
+    inc     attractTimer
     bne     Ld444
-    inc     ram_B8
-    lda     ram_B8
+    inc     screenBlankFlags
+    lda     screenBlankFlags
     and     #$04
     beq     Ld444
-    sta     ram_B8
+    sta     screenBlankFlags
     lda     #$00
-    sta     ram_B6
-    sta     ram_B7
+    sta     gameActive
+    sta     enginePowerOn
 Ld444
     lda     currentScreenId
     cmp     #$04
     bne     Ld45f
-    lda     ram_E9
+    lda     starfieldScrollY
     bmi     Ld45f
-    dec     ram_EE
+    dec     landingFlickerTimer
     bne     Ld45f
     asl
     ora     #$02
-    sta     ram_EE
-    lda     ram_CA
+    sta     landingFlickerTimer
+    lda     soundEffectId
     bne     Ld45f
     lda     #$34
-    sta     ram_CA
+    sta     soundEffectId
 Ld45f
-    lda     ram_C1
+    lda     frameCounter
     and     #$07
     bne     Ld48b
-    bit     ram_F9
+    bit     autopilotMode
     bpl     Ld481
-    lda     ram_B5
+    lda     flightPhase
     cmp     #$02
     bne     Ld477
-    dec     ram_88
+    dec     pitchValue
     bpl     Ld481
 Ld473
-    inc     ram_88
+    inc     pitchValue
     bpl     Ld481
 Ld477
     cmp     #$04
     beq     Ld481
-    lda     ram_88
+    lda     pitchValue
     cmp     #$0d
     bne     Ld473
 Ld481
-    lda     ram_B7
+    lda     enginePowerOn
     beq     Ld489
     ldx     #$01
-    stx     ram_C8
+    stx     engineOnTimer
 Ld489
-    dec     ram_C8
+    dec     engineOnTimer
 Ld48b
-    ldx     ram_C9
+    ldx     soundSequenceIndex
     cpx     #$fe
     bne     Ld495
-    stx     ram_CB
-    inc     ram_C9
+    stx     soundEnvelopeCounter
+    inc     soundSequenceIndex
 Ld495
-    lda     ram_CA
+    lda     soundEffectId
     beq     Ld4c8
     sta     AUDC0
     jsr     $ddfb
     tax
     lda     $d94c,x
-    inc     ram_CB
-    cmp     ram_CB
+    inc     soundEnvelopeCounter
+    cmp     soundEnvelopeCounter
     bcs     Ld4d0
     lda     #$00
-    sta     ram_CB
-    inc     ram_C9
+    sta     soundEnvelopeCounter
+    inc     soundSequenceIndex
     lda     $d8f7,x
-    adc     ram_C9
+    adc     soundSequenceIndex
     tax
     lda     $d903,x
     beq     Ld4c8
     sta     AUDF0
     jsr     $ddfb
-    ldx     ram_B6
+    ldx     gameActive
     bne     Ld4c3
     txa
 Ld4c3
@@ -983,11 +1054,11 @@ Ld4c3
     
 Ld4c8
     sta     AUDV0
-    sta     ram_CA
+    sta     soundEffectId
     ldx     #$fe
-    stx     ram_C9
+    stx     soundSequenceIndex
 Ld4d0
-    lda     ram_B6
+    lda     gameActive
     beq     Ld502
     
     .byte   $a9,$03,$85,$1a,$a9,$06,$85,$16 ; $d4d4 *)
@@ -1000,9 +1071,9 @@ Ld4d0
 Ld502
     sta     AUDV0
     sta     AUDV1
-    lda     ram_B7
+    lda     enginePowerOn
     beq     Ld52a
-    lda     ram_B5
+    lda     flightPhase
     bne     Ld514
     jmp     $d728
     
@@ -1017,75 +1088,75 @@ Ld514
 Ld52a
     sbc     #$08
     eor     #$ff
-    bit     ram_F9
+    bit     autopilotMode
     bpl     Ld534
     
     .byte   $a9,$18                         ; $d532 *)
     
 Ld534
-    sta     ram_FA
-    ldx     ram_AF
+    sta     tempVar
+    ldx     omsBurnActive
     beq     Ld53c
     
     .byte   $e6,$be                         ; $d53a *)
     
 Ld53c
-    inc     ram_BE
-    cmp     ram_BE
+    inc     orbitalMoveFraction
+    cmp     orbitalMoveFraction
     bcs     Ld511
     lda     #$00
-    sta     ram_BE
-    inc     ram_B1
+    sta     orbitalMoveFraction
+    inc     shuttleOrbitalPos
     bpl     Ld554
     
     .byte   $a5,$ea,$c9,$08,$f0,$08         ; $d54a *)
     
 Ld550
-    inc     ram_EA
+    inc     satelliteColorOffset
     bpl     Ld558
 Ld554
-    dec     ram_EA
+    dec     satelliteColorOffset
     bmi     Ld550
 Ld558
-    inc     ram_E0
-    lda     ram_B5
+    inc     orbitalSubCounter
+    lda     flightPhase
     cmp     #$02
     bne     Ld564
     
     .byte   $24,$f9,$30,$05                 ; $d560 *)
     
 Ld564
-    lda     ram_E0
+    lda     orbitalSubCounter
     lsr
     bcc     Ld56b
-    inc     ram_B0
+    inc     satelliteOrbitalPos
 Ld56b
-    inc     ram_EF
-    lda     ram_B7
+    inc     cockpitAnimCounter
+    lda     enginePowerOn
     beq     Ld577
     
     .byte   $a5,$ab,$29,$01,$f0,$1d         ; $d571 *)
     
 Ld577
-    dec     ram_89
-    lda     ram_89
+    dec     starfieldColumnIndex
+    lda     starfieldColumnIndex
     cmp     #$0e
     bne     Ld594
     lda     #$14
-    sta     ram_89
+    sta     starfieldColumnIndex
     ldx     #$0b
-    lda     ram_8A,x
+    lda     starfieldColumns,x
     tay
     dex
     bmi     Ld592
-    lda     ram_8A,x
-    sty     ram_8A,x
+    lda     starfieldColumns,x
+    sty     starfieldColumns,x
     jmp     $d587
     
 Ld592
-    sty     ram_95
+    sty     starfieldColumnLast
 Ld594
-    lda     ram_AB
+    lda     movementFlags
     and     #$08
     beq     Ld5ab
     
@@ -1094,7 +1165,7 @@ Ld594
     .byte   $f1                             ; $d5aa *)
     
 Ld5ab
-    lda     ram_AB
+    lda     movementFlags
     and     #$02
     beq     Ld5d4
     
@@ -1105,7 +1176,7 @@ Ld5ab
     .byte   $ef,$c6,$ef                     ; $d5d1 *)
     
 Ld5d4
-    lda     ram_AB
+    lda     movementFlags
     and     #$04
     beq     Ld5eb
     
@@ -1114,7 +1185,7 @@ Ld5d4
     .byte   $f1                             ; $d5ea *)
     
 Ld5eb
-    lda     ram_B7
+    lda     enginePowerOn
     beq     Ld5f5
     
     .byte   $a5,$b5,$c9,$02,$f0,$03         ; $d5ef *)
@@ -1134,9 +1205,9 @@ Ld5f5
     .byte   $c6,$b2,$2c,$e6,$b2,$84,$f4     ; $d640 *)
     
 Ld647
-    lda     ram_B0
+    lda     satelliteOrbitalPos
     sec
-    sbc     ram_B1
+    sbc     shuttleOrbitalPos
     cmp     #$10
     bcc     Ld653
     jmp     $d6d2
@@ -1147,10 +1218,10 @@ Ld653
     lda     $d893,x
     sta     NUSIZ0
     lda     $dfde,x
-    sta     ram_FB
+    sta     tempVar2
     lda     $d9c2,x
     clc
-    adc     ram_EA
+    adc     satelliteColorOffset
     cmp     #$9f
     bcc     Ld66b
     
@@ -1159,7 +1230,7 @@ Ld653
 Ld66b
     sta     COLUP0
     ldy     #$00
-    lda     ram_B2
+    lda     yAxisPlane
     clc
     adc     #$50
     cmp     #$a0
@@ -1180,20 +1251,20 @@ Ld684
     .byte   $c6,$fc,$d0,$fb                 ; $d692 *)
     
 Ld696
-    sta     ram_FA
-    lda     ram_B2
+    sta     tempVar
+    lda     yAxisPlane
     cpy     #$01
     beq     Ld6a2
     clc
-    adc     ram_FA
+    adc     tempVar
     .byte   $2c ;bit                ;4-3 =  22
 Ld6a2
-    sbc     ram_FA
+    sbc     tempVar
     clc
     adc     #$50
-    cmp     ram_DF
+    cmp     targetHorizPosSmooth
     beq     Ld6b8
-    lda     ram_C1
+    lda     frameCounter
     and     #$03
     bne     Ld6b8
     bcs     Ld6b6
@@ -1201,10 +1272,10 @@ Ld6a2
     .byte   $c6,$df,$2c                     ; $d6b3 *)
     
 Ld6b6
-    inc     ram_DF
+    inc     targetHorizPosSmooth
 Ld6b8
-    ldy     ram_DF
-    lda     ram_C1
+    ldy     targetHorizPosSmooth
+    lda     frameCounter
     lsr
     sta     REFP0
     and     #$08
@@ -1235,31 +1306,31 @@ Ld6de
     .byte   $a9,$90                         ; $d6e6 *)
     
 Ld6e8
-    stx     ram_FB
+    stx     tempVar2
     sty     NUSIZ0
     sta     COLUP0
-    lda     ram_DF
+    lda     targetHorizPosSmooth
     beq     Ld728
     cmp     #$94
     beq     Ld728
     lda     #$94
-    ldx     ram_B2
+    ldx     yAxisPlane
     cpx     #$80
     bcc     Ld700
     
     .byte   $a9,$00                         ; $d6fe *)
     
 Ld700
-    cmp     ram_DF
+    cmp     targetHorizPosSmooth
     bcs     Ld707
     
     .byte   $c6,$df,$2c                     ; $d704 *)
     
 Ld707
-    inc     ram_DF
-    lda     ram_DF
-    sta     ram_DE
-    lda     ram_B5
+    inc     targetHorizPosSmooth
+    lda     targetHorizPosSmooth
+    sta     targetHorizPos
+    lda     flightPhase
     cmp     #$02
     bne     Ld728
     
@@ -1269,24 +1340,24 @@ Ld707
     
 Ld728
     lda     #$6a
-    sta     ram_FA
+    sta     tempVar
     ldx     #$04
     lda     #$14
     sec
-    sbc     ram_89
-    adc     ram_FA
+    sbc     starfieldColumnIndex
+    adc     tempVar
     sec
     sbc     #$15
-    sta     ram_FA
+    sta     tempVar
     bpl     Ld756
     
     .byte   $69,$16,$18,$65,$fb,$4c,$58,$d7 ; $d73c *)
     
 Ld744
-    lda     ram_FA
+    lda     tempVar
     sec
     sbc     #$12
-    sta     ram_FA
+    sta     tempVar
     bpl     Ld756
     
     .byte   $c9,$e2,$90,$05,$69,$15,$4c,$3e ; $d74d *)
@@ -1294,11 +1365,11 @@ Ld744
     
 Ld756
     lda     #$04
-    sta     ram_D8,x
+    sta     columnGfxPtrTable,x
     dex
     bpl     Ld744
     lda     #$ff
-    sta     ram_DD
+    sta     gfxDataPtrH
     lda     currentScreenId
     bne     endOfKernelSwitch
     
@@ -1307,7 +1378,7 @@ Ld765
     .byte   $02,$85,$ad,$85,$f6,$a5,$a4     ; $d76d *)
     
 bankSwitch0to1
-    sta     ram_AC
+    sta     viewVerticalOffset
     bit     bank1Strobe
     
     .byte   $a5,$b2,$69,$03,$10,$02,$a9,$00 ; $d779 *)
@@ -1361,9 +1432,9 @@ Ld844
     
 Ld847
     lda     #$00
-    sta     ram_AD
-    ldx     ram_9B
-    ldy     ram_E3
+    sta     viewHorizontalOffset
+    ldx     fuelHigh
+    ldy     dockingCount
     lda     #$03
     cpx     #$35
     bcc     Ld85b
@@ -1557,9 +1628,9 @@ Ld95d
     rts
     
 Ld979
-    ldy     ram_FA
+    ldy     tempVar
     lda     (screenPtr1L),y
-    sta     ram_FC
+    sta     tempVar3
     sta     WSYNC
 ;---------------------------------------
     sta     HMOVE
@@ -1572,12 +1643,12 @@ Ld979
     lda     (screenPtr3L),y
     tax
     lda     (screenPtr2L),y
-    ldy     ram_FC
+    ldy     tempVar3
     stx     GRP1
     sta     GRP0
     sty     GRP1
     sty     GRP0
-    dec     ram_FA
+    dec     tempVar
     bpl     Ld979
     rts
     
@@ -3378,1419 +3449,1889 @@ resetBank1
 startBank1Init
     cld
     ldx     #$ff
-    txs
-    inx
-    txa
+    txs                                 ; Reset stack pointer
+    inx                                 ; X = 0
+    txa                                 ; A = 0
 ;-----------------------------------------------------------
 ;      Vertical Blank / Logic (Bank 1)
 ;-----------------------------------------------------------
 logicStart
-    sta     VSYNC,x
+    sta     VSYNC,x                     ; Clear TIA registers $00-$FF
     inx
     bne     logicStart
-    jsr     Lfe6e
-Lf011
-    ldy     #$29
+    jsr     initGameVars                ; Initialize game variables from ROM defaults
+;-----------------------------------------------------------
+;      Main Frame Loop Entry Point
+;-----------------------------------------------------------
+mainFrameLoop
+    ldy     #$29                        ; Set VBLANK timer (~2.7ms, enough for game logic)
     sty     TIM64T
+    ;-----------------------------------------------------------
+    ; PRNG: Linear Feedback Shift Register (LFSR)
+    ; Generates pseudo-random numbers each frame.
+    ;-----------------------------------------------------------
     lda     rngSeed
     asl
     asl
     asl
-    eor     rngSeed
+    eor     rngSeed                     ; XOR shifted seed with original
     asl
-    rol     rngSeed
-    inc     ram_C1
-    lda     ram_C1
-    tay
+    rol     rngSeed                     ; Rotate feedback bit into seed
+    ;-----------------------------------------------------------
+    ; Global Frame Counter (frameCounter)
+    ; Used throughout for timing various periodic events.
+    ;-----------------------------------------------------------
+    inc     frameCounter
+    lda     frameCounter
+    tay                                 ; Y = frameCounter (used later for timing checks)
+    ;-----------------------------------------------------------
+    ; Demo Mode / Auto-Start Check
+    ; Every 64 frames (and #$3f), if pre-launch and countdown
+    ; has advanced enough (countdownTimer=9), start the game automatically
+    ; in autopilot mode (Flight #1) or check console switches.
+    ;-----------------------------------------------------------
     and     #$3f
-    bne     Lf054
-    lda     ram_B5
-    bne     Lf054
-    lda     ram_AE
-    beq     Lf054
-    inc     ram_AE
-    cmp     #$09
-    bne     Lf054
-    sta     ram_AE
-    lda     ram_B6
-    bne     Lf054
-    bit     ram_F9
-    bmi     Lf04a
+    bne     .skipAutoStart
+    lda     flightPhase
+    bne     .skipAutoStart
+    lda     countdownTimer
+    beq     .skipAutoStart
+    inc     countdownTimer
+    cmp     #$09                        ; Countdown reached threshold?
+    bne     .skipAutoStart
+    sta     countdownTimer
+    lda     gameActive
+    bne     .skipAutoStart
+    bit     autopilotMode               ; Autopilot (Flight #1)?
+    bmi     .activateAutoStart
     ldx     #$09
-    lda     ram_C6
+    lda     consoleSwitches
     lsr
     and     #$64
-    bne     Lf050
-Lf04a
-    dec     ram_B6
+    bne     .setAutoStartScreen
+.activateAutoStart
+    dec     gameActive                  ; Set gameActive = $FF (true)
     sta     currentScreenId
     ldx     #$07
-Lf050
-    sta     ram_9E
-    stx     ram_85
-Lf054
-    lda     ram_F5
-    jsr     Lfcae
+.setAutoStartScreen
+    sta     missionScore
+    stx     statusDisplayId
+.skipAutoStart
+    ;-----------------------------------------------------------
+    ; Fuel Consumption
+    ; Burns fuel every 16 frames (and #$0f). Extra burn if
+    ; T/C arrows misaligned or during active launch phase.
+    ;-----------------------------------------------------------
+    lda     fuelPenaltyAccum
+    jsr     subtractFuel
     tya
     and     #$0f
-    bne     Lf076
-    inc     ram_E6
-    lda     ram_B6
-    beq     Lf076
+    bne     .skipFuelBurn
+    inc     cargoDoorTimer
+    lda     gameActive
+    beq     .skipFuelBurn
     clc
-    lda     #$01
-    ldx     ram_B4
-    beq     Lf06d
-    adc     #$06
-Lf06d
-    ldx     ram_A1
-    beq     Lf073
-    adc     #$02
-Lf073
-    jsr     Lfcae
-Lf076
-    bit     ram_F9
-    bpl     Lf084
-    lda     ram_A5
-    cmp     #$d2
-    bne     Lf0db
+    lda     #$01                        ; Base fuel burn = 1
+    ldx     launchPhase
+    beq     .checkMisalignment
+    adc     #$06                        ; +6 during launch (engines firing)
+.checkMisalignment
+    ldx     arrowsMisaligned
+    beq     .doFuelBurn
+    adc     #$02                        ; +2 if T/C arrows misaligned (wasting fuel!)
+.doFuelBurn
+    jsr     subtractFuel
+.skipFuelBurn
+    ;-----------------------------------------------------------
+    ; MECO (Main Engine Cut-Off) Check
+    ; In autopilot: triggers at altitude $D2 (210 nautical miles).
+    ; Manual: checks Color/BW + Left Diff switches for engine state.
+    ;-----------------------------------------------------------
+    bit     autopilotMode
+    bpl     .checkEngineSwitch
+    lda     altitude
+    cmp     #$d2                        ; Target orbit altitude = 210nm
+    bne     .skipMECO
+    lda     #$00                        ; Autopilot: auto-MECO at 210nm
+    beq     .doMECO
+.checkEngineSwitch
+    lda     consoleSwitches
+    and     #$48                        ; Check Color/BW ($40) + Left Diff ($08)
+    bne     .skipMECO                   ; If either set, engines still on
+.doMECO
+    ;-----------------------------------------------------------
+    ; Transition: Launch -> Orbit
+    ; Clear launch phase, set flightPhase to 2 (orbit),
+    ; calculate initial orbital position from plane offset.
+    ;-----------------------------------------------------------
+    sta     launchPhase                 ; Clear launch phase (A=0)
+    ldx     gameActive
+    beq     .skipMECO                   ; Not active? Skip
+    ldx     flightPhase
+    cpx     #$01                        ; Must be in countdown/launch phase
+    bne     .skipMECO
+    stx     movementFlags                      ; Store movement flags
+    sta     shuttleOrbitalPos
+    inc     flightPhase                 ; flightPhase = 2 (orbit)
+    sta     soundEffectId                      ; Clear sound effect
+    sta     cargoDoorTimer
+    ;-----------------------------------------------------------
+    ; Evaluate Orbit Quality
+    ; Per manual: "The closer you come to 210 altitude, the
+    ; closer you'll be to the satellite's orbit."
+    ;-----------------------------------------------------------
+    ldx     #$95                        ; Default abort code
+    lda     speed
+    cmp     #$d2                        ; Speed check
+    bcc     .orbitAbortCheck
     lda     #$00
-    beq     Lf08a
-Lf084
-    lda     ram_C6
-    and     #$48
-    bne     Lf0db
-Lf08a
-    sta     ram_B4
-    ldx     ram_B6
-    beq     Lf0db
-    ldx     ram_B5
-    cpx     #$01
-    bne     Lf0db
-    stx     ram_AB
-    sta     ram_B1
-    inc     ram_B5
-    sta     ram_CA
-    sta     ram_E6
-    ldx     #$95
-    lda     ram_A6
-    cmp     #$d2
-    bcc     Lf0b8
-    lda     #$00
-    bit     ram_F9
-    bmi     Lf0c3
+    bit     autopilotMode
+    bmi     .setOrbitPosition           ; Autopilot gets perfect orbit
     ldx     #$90
     lda     #$21
-    sbc     ram_AA
+    sbc     planeCorrection             ; Plane error affects orbit quality
     cmp     #$08
-    bcc     Lf0bd
-Lf0b8
-    jsr     Lfcc7
-    bcs     Lf0db
-Lf0bd
-    asl
+    bcc     .calcOrbitOffset
+.orbitAbortCheck
+    jsr     abortMission                ; Too slow or bad plane = abort
+    bcs     .skipMECO
+.calcOrbitOffset
+    asl                                 ; Convert plane error to orbit offset
     asl
     asl
     asl
     adc     #$40
-Lf0c3
-    sta     ram_B0
-    bit     ram_F7
-    bpl     Lf0cb
+.setOrbitPosition
+    sta     satelliteOrbitalPos                      ; Set shuttle's orbital position
+    bit     joystickDetected                      ; Check training mode flag
+    bpl     .setPlanePosition
     lda     #$10
-Lf0cb
-    bit     ram_F9
-    bmi     Lf0d5
-    lda     ram_B2
+.setPlanePosition
+    bit     autopilotMode
+    bmi     .storeYAxis
+    lda     yAxisPlane                  ; In manual mode, use current Y position
     asl
     asl
     asl
     asl
-Lf0d5
-    sta     ram_B2
-    inc     ram_ED
-    inc     currentScreenId
-Lf0db
-    lda     ram_B4
-    beq     Lf0e8
+.storeYAxis
+    sta     yAxisPlane
+    inc     separationEventTimer                      ; Trigger separation flash
+    inc     currentScreenId             ; Advance to orbit screen
+.skipMECO
+    ;-----------------------------------------------------------
+    ; T/C Thrust Arrow Movement
+    ; The Computer Arrow ("C") moves automatically based on
+    ; autoThrustCommand during launch events. Player controls
+    ; the Thrust Arrow ("T") using the fire button.
+    ; Per manual: "Keep T directly under C during countdown."
+    ;-----------------------------------------------------------
+    lda     launchPhase
+    beq     .moveComputerArrow          ; No launch? Just move C arrow
     tya
     and     #$02
-    bne     Lf150
-    lda     ram_BC
-Lf0e6
-    beq     Lf0fd
-Lf0e8
-    ldx     targetAuxX
-    lsr
-    bcs     Lf0f5
-Lf0ed
-    dec     targetX
-    dec     targetAuxX
-    cpx     #$0d
-    bne     Lf0fd
-Lf0f5
-    inc     targetX
-    inc     targetAuxX
-    cpx     #$81
-    beq     Lf0ed
-Lf0fd
-    lda     ram_B6
-    beq     Lf126
-    lda     ram_B4
-    beq     Lf126
-    bit     ram_F9
-    bpl     Lf10f
-    lda     ram_BC
-    beq     Lf14c
-    bpl     Lf123
-Lf10f
+    bne     .afterThrustLogic           ; Only update arrows every other frame
+    lda     autoThrustCommand           ; Auto-command direction from launch events
+.checkAutoCmd
+    beq     .afterComputerArrow         ; No command = skip C arrow movement
+.moveComputerArrow
+    ldx     computerArrowAuxX           ; Aux tracks sub-pixel position
+    lsr                                 ; Carry = direction (0=left, 1=right)
+    bcs     .moveComputerRight
+.moveComputerLeft
+    dec     computerArrowX
+    dec     computerArrowAuxX
+    cpx     #$0d                        ; Left boundary
+    bne     .afterComputerArrow
+.moveComputerRight
+    inc     computerArrowX
+    inc     computerArrowAuxX
+    cpx     #$81                        ; Right boundary => bounce left
+    beq     .moveComputerLeft
+.afterComputerArrow
+    ;-----------------------------------------------------------
+    ; Thrust Arrow (T) - Player Control
+    ; During launch: fire button moves T arrow toward C arrow.
+    ; Direction latched until button released.
+    ; Autopilot uses autoThrustCommand instead of fire button.
+    ;-----------------------------------------------------------
+    lda     gameActive
+    beq     .decThrustArrow             ; Not active? Drift left
+    lda     launchPhase
+    beq     .decThrustArrow             ; Pre-launch? Drift left
+    bit     autopilotMode
+    bpl     .checkFireButton
+    lda     autoThrustCommand           ; Autopilot: use auto-command
+    beq     .clearThrustDir             ; No command = clear direction
+    bpl     .applyThrustDir             ; Apply direction directly
+.checkFireButton
     bit     INPT4
-    bmi     Lf14c
-    ldx     ram_A9
-    bne     Lf121
-    inx
-    lda     targetX
-    cmp     crosshairX
-    bcs     Lf11f
-    inx
-Lf11f
-    stx     ram_A9
-Lf121
-    lda     ram_A9
-Lf123
-    lsr
-    bcs     Lf129
-Lf126
-    dec     crosshairX
-    .byte   $2c ;bit                ;4-5 =   4
-Lf129
-    inc     crosshairX
-    lda     crosshairX
+    bmi     .clearThrustDir             ; Fire not pressed = clear
+    ldx     thrustDirection             ; Already have a direction?
+    bne     .loadThrustDir
+    inx                                 ; Default: right (X=1)
+    lda     computerArrowX
+    cmp     thrustArrowX                ; C arrow right of T?
+    bcs     .storeThrustDir             ; Yes: move right
+    inx                                 ; No: move left (X=2)
+.storeThrustDir
+    stx     thrustDirection
+.loadThrustDir
+    lda     thrustDirection
+.applyThrustDir
+    lsr                                 ; Bit 0: 1=right, 0=left
+    bcs     .incThrustArrow
+.decThrustArrow
+    dec     thrustArrowX
+    .byte   $2c ;bit                ;4-5 =   4  ; Skip next instruction (bit trick)
+.incThrustArrow
+    inc     thrustArrowX
+    ;-----------------------------------------------------------
+    ; Clamp T arrow to screen bounds ($0F - $8B)
+    ; If fire released pre-launch with game active, scrub launch.
+    ;-----------------------------------------------------------
+    lda     thrustArrowX
     cmp     #$0f
-    bcc     Lf129
+    bcc     .incThrustArrow             ; Below min? Force right
     cmp     #$8c
-    beq     Lf126
+    beq     .decThrustArrow             ; At max? Force left
     bit     INPT4
-    bmi     Lf150
-    lda     ram_B4
-    bne     Lf150
-    lda     ram_B6
-    beq     Lf150
-    lda     ram_B5
-    bne     Lf150
-    bit     ram_F9
-    bmi     Lf150
-    jmp     Lf23c
+    bmi     .afterThrustLogic           ; Fire pressed = done
+    lda     launchPhase
+    bne     .afterThrustLogic           ; Already launching = skip scrub check
+    lda     gameActive
+    beq     .afterThrustLogic           ; Not active = skip
+    lda     flightPhase
+    bne     .afterThrustLogic           ; Already in flight = skip
+    bit     autopilotMode
+    bmi     .afterThrustLogic           ; Autopilot handles itself
+    jmp     handleLaunchScrub           ; Player moved T without fire = SCRUB!
     
-Lf14c
+.clearThrustDir
     lda     #$00
-    sta     ram_A9
-Lf150
+    sta     thrustDirection
+.afterThrustLogic
+    ;-----------------------------------------------------------
+    ; Trajectory / Plane Dot Position Update
+    ; Every 32 frames, scroll the trajectory and plane guide
+    ; dots on the launch screen. Trajectory moves left (descending),
+    ; plane dot moves right (ascending). Reset to $9F at zero.
+    ; Skipped during launch phase 5 (MECO approach).
+    ;-----------------------------------------------------------
     tya
     and     #$1f
-    bne     Lf16f
-    ldx     ram_B4
+    bne     .skipDotUpdate
+    ldx     launchPhase
     cpx     #$05
-    beq     Lf16f
-    ldx     #$9f
-    dec     ram_86
-    lda     ram_86
-    bne     Lf165
-    stx     ram_86
-Lf165
-    and     #$03
-    bne     Lf16f
-    dec     ram_87
-    bne     Lf16f
-    stx     ram_87
-Lf16f
-    lda     ram_ED
-    beq     Lf180
-    inc     ram_ED
-    bne     Lf180
-    ldx     #$38
-    jsr     Lfce6
+    beq     .skipDotUpdate
+    ldx     #$9f                        ; Wrap-around value for dots
+    dec     trajectoryDotPos
+    lda     trajectoryDotPos
+    bne     .checkPlaneDot
+    stx     trajectoryDotPos            ; Reset trajectory dot to $9F
+.checkPlaneDot
+    and     #$03                        ; Plane dot updates every 4th cycle
+    bne     .skipDotUpdate
+    dec     planeDotPos
+    bne     .skipDotUpdate
+    stx     planeDotPos                 ; Reset plane dot to $9F
+.skipDotUpdate
+    ;-----------------------------------------------------------
+    ; Separation Flash & Sound Effect
+    ; separationEventTimer counts the SRB/ET separation flash timer.
+    ; When it wraps ($FF->$00), triggers the separation sound (#$38)
+    ; and sets a visual effect timer (separationFlashTimer = 5 frames).
+    ;-----------------------------------------------------------
+    lda     separationEventTimer
+    beq     .skipSeparationFlash
+    inc     separationEventTimer
+    bne     .skipSeparationFlash        ; Still counting? Skip
+    ldx     #$38                        ; Separation sound effect index
+    jsr     Lfce6                       ; Play sound
     lda     #$05
-    sta     ram_EC
-Lf180
+    sta     separationFlashTimer                      ; Set visual flash timer
+.skipSeparationFlash
+    ;-----------------------------------------------------------
+    ; Console Switch Handling
+    ; Read SWCHB (console switches). Bit 0 = Game Reset.
+    ; Game Reset held: starts countdown sequence.
+    ; switchDebounceTimer = switch debounce/hold counter.
+    ;-----------------------------------------------------------
     lda     SWCHB
-    sta     ram_C6
-    lsr
-    bcs     Lf1c1
-    lda     ram_C7
-    ldx     ram_B6
-    beq     Lf196
-    inc     ram_C7
-    cmp     #$7f
-    bne     Lf20c
-    beq     Lf19a
-Lf196
+    sta     consoleSwitches
+    lsr                                 ; Carry = Reset switch (0=pressed)
+    bcs     .resetNotPressed
+    ;-----------------------------------------------------------
+    ; Game Reset IS pressed
+    ; If game not active: trigger launch on first press (cmp #$01).
+    ; If game active: hold for 127 frames ($7F) to force restart.
+    ;-----------------------------------------------------------
+    lda     switchDebounceTimer
+    ldx     gameActive
+    beq     .checkFirstPress            ; Not active yet
+    inc     switchDebounceTimer
+    cmp     #$7f                        ; Held long enough to force restart?
+    bne     launchMETLogic              ; No: continue normal game
+    beq     .activateCountdown          ; Yes: restart
+.checkFirstPress
     cmp     #$01
-    bne     Lf20c
-Lf19a
+    bne     launchMETLogic              ; Debounce: must see exactly 1
+.activateCountdown
+    ;-----------------------------------------------------------
+    ; Activate Countdown / Restart Game
+    ; Sets autopilot mode based on difficulty switches (difficultyLevel).
+    ; Per manual: Left Diff A = no autopilot, B = autopilot.
+    ; difficultyLevel tracks difficulty level (0-3).
+    ;-----------------------------------------------------------
     ldx     #$ff
-    ldy     ram_A0
+    ldy     difficultyLevel                      ; Current difficulty setting
     cpy     #$02
-    bcs     Lf1a4
-    stx     ram_F9
-Lf1a4
+    bcs     .skipAutopilotSet
+    stx     autopilotMode               ; Enable autopilot (Flight #1/#2)
+.skipAutopilotSet
     cpy     #$03
-    bcs     Lf1aa
-    stx     ram_F8
-Lf1aa
-    jsr     Lfe65
-    sty     ram_A0
+    bcs     .skipTrainingSet
+    stx     trainingModeFlag                      ; Set training mode flag
+.skipTrainingSet
+    jsr     Lfe65                       ; Reset game state for new flight
+    sty     difficultyLevel
     ldy     #$08
-    sty     ram_C7
-    sty     ram_B7
+    sty     switchDebounceTimer                      ; Reset debounce counter
+    sty     enginePowerOn               ; Engines ON
     ldy     #$00
-    sty     ram_BA
-    sty     ram_B8
+    sty     attractTimer
+    sty     screenBlankFlags
     iny
-    sty     ram_AE
-Lf1be
-    jmp     Lf7f6
+    sty     countdownTimer              ; Start countdown at 1
+.jumpToDisplaySetup
+    jmp     renderDigits                ; Skip to display setup
     
-Lf1c1
-    lsr
-    bcs     Lf208
-    dec     ram_C7
-    bne     Lf20c
+.resetNotPressed
+    ;-----------------------------------------------------------
+    ; Game Select Switch (SWCHB bit 1)
+    ; Cycles through flight programs when pressed.
+    ; Each press changes statusDisplayId to show flight parameters.
+    ; Also handles blinking display during pre-launch.
+    ;-----------------------------------------------------------
+    lsr                                 ; Carry = Select switch
+    bcs     .selectNotPressed
+    dec     switchDebounceTimer
+    bne     launchMETLogic              ; Debounce
     lda     #$30
-    sta     ram_C7
-    lda     ram_F1
-    beq     Lf1d8
+    sta     switchDebounceTimer                      ; Auto-repeat delay
+    lda     errorDisplayFlag                      ; Error flag?
+    beq     .noError
     lda     #$00
-    sta     ram_F1
-    sta     ram_9F
-    beq     Lf1fe
-Lf1d8
-    lda     ram_85
-    ldx     ram_B7
-    bne     Lf1f3
-    cmp     #$0b
-    beq     Lf1e6
+    sta     errorDisplayFlag                      ; Clear error
+    sta     abortCode
+    beq     .checkSoundTimer
+.noError
+    lda     statusDisplayId
+    ldx     enginePowerOn
+    bne     .cycleFlightDisplay         ; Engine on: cycle flight displays
+    cmp     #$0b                        ; At flight program screen?
+    beq     .advanceDifficulty
     ldx     #$0b
-    bne     Lf1fc
-Lf1e6
-    inc     ram_A0
-    lda     ram_A0
-    cmp     #$04
-    bne     Lf1fe
-    inx
-    stx     ram_A0
-    bne     Lf1fe
-Lf1f3
-    adc     #$02
+    bne     .setDisplay
+.advanceDifficulty
+    inc     difficultyLevel                      ; Next difficulty level
+    lda     difficultyLevel
+    cmp     #$04                        ; Wrap at 4?
+    bne     .checkSoundTimer
+    inx                                 ; X=1 (was 0)
+    stx     difficultyLevel                      ; Reset to level 1
+    bne     .checkSoundTimer
+.cycleFlightDisplay
+    adc     #$02                        ; Skip by 2 in display cycle
     tax
     cmp     #$0b
-    bcc     Lf1fc
-    ldx     #$01
-Lf1fc
-    stx     ram_85
-Lf1fe
-    lda     ram_CA
-    bne     Lf20c
-    lda     #$34
-    sta     ram_CA
-    bne     Lf20c
+    bcc     .setDisplay
+    ldx     #$01                        ; Wrap to first display
+.setDisplay
+    stx     statusDisplayId
+.checkSoundTimer
+    lda     soundEffectId                      ; Sound effect timer
+    bne     launchMETLogic
+    lda     #$34                        ; Queue button click sound
+    sta     soundEffectId
+    bne     launchMETLogic
+.selectNotPressed
 Lf208
     lda     #$01
-    sta     ram_C7
-Lf20c
-    lda     ram_B6
-    beq     Lf1be
-    dec     ram_C5
-    bne     Lf286
-    sed
+    sta     switchDebounceTimer                      ; Reset debounce
+;-----------------------------------------------------------
+;      Mission Elapsed Time (MET) Clock
+;      Counts real time in BCD format (metHigh:metLow).
+;      Timer ticks every 59 frames ($3B). Drives all launch events.
+;      metHigh=$A0 = countdown mode (counts DOWN from T-16).
+;      metHigh=$00 = count UP after liftoff (MET positive).
+;-----------------------------------------------------------
+launchMETLogic
+    lda     gameActive
+    beq     .jumpToDisplaySetup         ; Not active? Skip to display
+    dec     metFrameCounter
+    bne     checkLaunchEvent            ; Not time to tick? Check events only
+    sed                                 ; BCD mode for time arithmetic
     lda     #$3b
-    sta     ram_C5
-    lda     ram_9D
-    cmp     #$a0
-    bne     Lf250
-    ldx     #$04
+    sta     metFrameCounter             ; Reset frame counter (59 frames/tick)
+    ;-----------------------------------------------------------
+    ; Countdown Phase (metHigh = $A0 = "T-minus")
+    ; Counts down metLow. At T-0: checks thrust arrow position
+    ; to decide if launch proceeds or scrubs.
+    ;-----------------------------------------------------------
+    lda     metHigh
+    cmp     #$a0                        ; In countdown?
+    bne     incrementMET                ; No: count up (MET positive)
+    ldx     #$04                        ; Countdown beep sound
     jsr     Lfce6
-    ldx     #$07
-    lda     ram_9C
-    sbc     #$01
-    sta     ram_9C
-    bne     Lf238
-    ldx     crosshairX
-    cpx     #$75
-    bcc     Lf23c
-    sta     ram_9D
-    ldx     #$03
-Lf238
-    stx     ram_85
-    bne     Lf278
-Lf23c
-    sta     ram_BB
-    sta     ram_B4
+    ldx     #$07                        ; Display: countdown screen
+    lda     metLow
+    sbc     #$01                        ; Decrement countdown seconds
+    sta     metLow
+    bne     .setCountdownDisplay        ; Not T-0 yet
+    ;-----------------------------------------------------------
+    ; T-0: Launch Go/No-Go Decision
+    ; Thrust arrow must be at position >= $75 to proceed.
+    ; Otherwise: SCRUB (abort countdown).
+    ;-----------------------------------------------------------
+    ldx     thrustArrowX
+    cpx     #$75                        ; Thrust arrow in valid zone?
+    bcc     handleLaunchScrub           ; No: scrub the launch!
+    sta     metHigh                     ; Clear metHigh (now counting up)
+    ldx     #$03                        ; Display: liftoff screen
+.setCountdownDisplay
+    stx     statusDisplayId
+    bne     .exitMETLogic
+handleLaunchScrub
+    ;-----------------------------------------------------------
+    ; Launch Scrub - Reset to pre-launch state
+    ; Resets MET to T-16, clears launch phase, plays scrub sound.
+    ;-----------------------------------------------------------
+    sta     launchEventIndex            ; A=0: reset event index
+    sta     launchPhase                 ; Clear launch phase
     lda     #$b8
-    sta     ram_C5
+    sta     metFrameCounter             ; Long delay before next tick
     ldx     #$16
-    stx     ram_9C
-    ldx     #$41
-    stx     ram_CA
-    ldx     #$1d
-    bne     Lf238
-Lf250
-    lda     ram_9C
+    stx     metLow                      ; Reset to T-16 seconds
+    ldx     #$41                        ; Scrub sound effect
+    stx     soundEffectId
+    ldx     #$1d                        ; Display: scrub message
+    bne     .setCountdownDisplay
+incrementMET
+    ;-----------------------------------------------------------
+    ; Positive MET: Count Up After Liftoff
+    ; Increments metLow:metHigh in BCD. Triggers key events:
+    ;   MET 0:03 = launch phase 5 (SRB separation warning)
+    ;   MET 0:25 = ET separation flash + sound ($68) + phase 7
+    ;-----------------------------------------------------------
+    lda     metLow
     adc     #$01
-    sta     ram_9C
-    lda     ram_9D
+    sta     metLow
+    lda     metHigh
     adc     #$00
-    sta     ram_9D
-    bne     Lf278
-    ldx     #$01
-    lda     ram_9C
-    cmp     #$25
-    bne     Lf270
-    lda     #$07
-    sta     ram_EC
-    lda     #$68
-    sta     ram_CA
-    bne     Lf276
-Lf270
-    cmp     #$03
-    bne     Lf278
-    ldx     #$05
-Lf276
-    stx     ram_B4
-Lf278
-    cld
-    lda     ram_B5
+    sta     metHigh
+    bne     .exitMETLogic               ; metHigh>0: past early events
+    ldx     #$01                        ; Default: launchPhase=1
+    lda     metLow
+    cmp     #$25                        ; MET 0:25 = ET separation
+    bne     .checkPhase5
+    lda     #$07                        ; ET separation flash timer
+    sta     separationFlashTimer
+    lda     #$68                        ; ET separation sound
+    sta     soundEffectId
+    bne     .setLaunchPhase
+.checkPhase5
+    cmp     #$03                        ; MET 0:03 = SRB sep warning
+    bne     .exitMETLogic
+    ldx     #$05                        ; Launch phase 5
+.setLaunchPhase
+    stx     launchPhase
+.exitMETLogic
+    cld                                 ; Exit BCD mode
+    ;-----------------------------------------------------------
+    ; Launch Event Dispatcher
+    ; Compares MET against launchEventTimings table to trigger
+    ; automated thrust commands. Events change C arrow direction.
+    ; Once launchEventIndex >= 3, transition to ascent logic.
+    ;-----------------------------------------------------------
+    lda     flightPhase
     cmp     #$02
-    bcs     Lf2a0
-    ldx     ram_BB
-    lda     Lfeab,x
-    cmp     ram_9C
-Lf286
-    bne     Lf29a
-    inc     ram_BB
-    lda     Lfe8d,x
-    and     #$0f
-    sta     ram_BC
-    cpx     #$00
-    bne     Lf29a
+    bcs     .skipLaunchEvents           ; Already in orbit? Skip
+    ldx     launchEventIndex
+    lda     launchEventTimings,x        ; Expected MET for next event
+    cmp     metLow
+checkLaunchEvent
+    bne     .noEventMatch
+    inc     launchEventIndex            ; Advance to next event
+    lda     launchEventParams,x         ; Get event parameters
+    and     #$0f                        ; Lower nibble = thrust command
+    sta     autoThrustCommand           ; Set C arrow movement direction
+    cpx     #$00                        ; First event (liftoff)?
+    bne     .noEventMatch
     inx
-    stx     ram_B4
-    inc     crosshairX
-Lf29a
-    lda     ram_BB
-    cmp     #$03
-    bcs     Lf2a3
-Lf2a0
-    jmp     Lf32c
+    stx     launchPhase                 ; Start launch phase 1
+    inc     thrustArrowX                ; Nudge T arrow right
+.noEventMatch
+    lda     launchEventIndex
+    cmp     #$03                        ; All events triggered?
+    bcs     ascentLogic                 ; Yes: enter ascent phase
+.skipLaunchEvents
+    jmp     .orbitPhaseDispatch
     
-Lf2a3
-    lda     crosshairX
-    cmp     #$10
-    bcs     Lf2ad
-    ldx     ram_B4
-    beq     Lf2a0
-Lf2ad
+;-----------------------------------------------------------
+;      Ascent Logic
+;      Active after all 3 launch events triggered.
+;      Controls speed increase rate based on thrust arrow position,
+;      updates trajectory/plane dots, and handles joystick for
+;      pitch/yaw corrections during powered ascent.
+;-----------------------------------------------------------
+ascentLogic
+    lda     thrustArrowX
+    cmp     #$10                        ; Thrust arrow above minimum?
+    bcs     .doAscent
+    ldx     launchPhase
+    beq     .skipLaunchEvents           ; No launch phase = skip ascent
+.doAscent
+    ;-----------------------------------------------------------
+    ; Calculate Speed Increment Rate
+    ; Higher thrust arrow position = faster speed increase.
+    ; T arrow pos / 32 maps to acceleration rate.
+    ;-----------------------------------------------------------
     lsr
     lsr
     lsr
     lsr
-    lsr
+    lsr                                 ; thrustArrowX / 32
     clc
     adc     #$0b
-    eor     #$0f
+    eor     #$0f                        ; Invert for rate calculation
     adc     #$14
-    dec     ram_A8
-    bpl     Lf2c2
-    sta     ram_A8
-    jsr     Lfed5
-Lf2c2
-    ldx     ram_A6
+    dec     altitudeUpdateTimer                      ; Altitude change timer
+    bpl     .skipSpeedInc
+    sta     altitudeUpdateTimer                      ; Reset timer with calculated rate
+    jsr     Lfed5                       ; Increment altitude
+.skipSpeedInc
+    ;-----------------------------------------------------------
+    ; Speed-Dependent Update Rate
+    ; Controls how often trajectory/plane dots and speed update.
+    ; Slower at low speed, faster at high speed:
+    ;   speed < $20: rate=5, < $80: rate=3, < $D8: rate=1, else: rate=0
+    ;-----------------------------------------------------------
+    ldx     speed
     lda     #$05
     cpx     #$20
-    bcc     Lf2cc
+    bcc     .setUpdateRate
     lda     #$03
-Lf2cc
+.setUpdateRate
     cpx     #$80
-    bcc     Lf2d2
+    bcc     .applyUpdateRate
     lda     #$01
-Lf2d2
+.applyUpdateRate
     cpx     #$d8
-    bcc     Lf2d8
-    lda     #$00
-Lf2d8
-    dec     ram_A7
-    bpl     Lf2f3
-    sta     ram_A7
-    lda     ram_86
-    sbc     #$04
-    bcc     Lf2e6
-    sta     ram_86
-Lf2e6
-    lda     ram_87
-    adc     #$03
+    bcc     .doSpeedUpdate
+    lda     #$00                        ; Max speed: update every frame
+.doSpeedUpdate
+    dec     speedUpdateTimer                      ; Speed update countdown
+    bpl     .checkWindShear
+    sta     speedUpdateTimer                      ; Reset with rate value
+    ;-----------------------------------------------------------
+    ; Update Trajectory & Plane Dots During Ascent
+    ; Trajectory dot converges left (closer to target orbit line),
+    ; plane dot drifts right. Speed increases via Lfd20.
+    ;-----------------------------------------------------------
+    lda     trajectoryDotPos
+    sbc     #$04                        ; Move trajectory dot left
+    bcc     .updatePlaneDot             ; Don't go negative
+    sta     trajectoryDotPos
+.updatePlaneDot
+    lda     planeDotPos
+    adc     #$03                        ; Move plane dot right
     cmp     #$a0
-    bcs     Lf2f0
-    sta     ram_87
-Lf2f0
-    jsr     Lfd20
-Lf2f3
-    lda     ram_C1
+    bcs     .incSpeed                   ; Clamp at $A0
+    sta     planeDotPos
+.incSpeed
+    jsr     Lfd20                       ; Increase shuttle speed
+.checkWindShear
+    ;-----------------------------------------------------------
+    ; Random Wind Shear During Ascent
+    ; Every 32 frames, random chance of Y-axis perturbation.
+    ; Simulates atmospheric turbulence during ascent.
+    ;-----------------------------------------------------------
+    lda     frameCounter
     and     #$1f
-    bne     Lf328
+    bne     .doneAscentInput
     lda     rngSeed
-    cmp     #$b0
-    bcc     Lf307
+    cmp     #$b0                        ; 70% chance: no wind
+    bcc     handleJoystickInput
     lsr
-    bcs     Lf305
-    inc     ram_B2
-    .byte   $2c ;bit                ;4-5 =  22 *
-Lf305
-    dec     ram_B2
-Lf307
+    bcs     .windDown
+    inc     yAxisPlane                  ; Wind pushes up
+    .byte   $2c ;bit                ;4-5 =  22 *  ; Skip next instruction
+.windDown
+    dec     yAxisPlane                  ; Wind pushes down
+handleJoystickInput
+    ;-----------------------------------------------------------
+    ; Joystick Pitch/Yaw Control (During Ascent)
+    ; Up/Down = adjust yAxisPlane (pitch)
+    ; Left/Right = adjust planeCorrection (roll/yaw)
+    ; Per manual: "Keep the plane indicator on its guide line."
+    ;-----------------------------------------------------------
     lda     SWCHA
-    asl
-    bcs     Lf30f
-    inc     ram_B2
-Lf30f
-    asl
-    bcs     Lf314
-    dec     ram_B2
-Lf314
-    ldy     ram_AA
-    asl
-    bcs     Lf31f
-    cpy     #$21
-    beq     Lf31f
-    inc     ram_AA
-Lf31f
-    asl
-    bcs     Lf328
-    cpy     #$00
-    beq     Lf328
-    dec     ram_AA
-Lf328
+    asl                                 ; Bit 7 -> carry: P1 Up
+    bcs     .noJoyUp
+    inc     yAxisPlane                  ; Joystick Up: pitch up
+.noJoyUp
+    asl                                 ; Bit 6 -> carry: P1 Down
+    bcs     .noJoyDown
+    dec     yAxisPlane                  ; Joystick Down: pitch down
+.noJoyDown
+    ldy     planeCorrection
+    asl                                 ; Bit 5 -> carry: P1 Left
+    bcs     .noJoyLeft
+    cpy     #$21                        ; Max left correction?
+    beq     .noJoyLeft
+    inc     planeCorrection             ; Joystick Left: roll left
+.noJoyLeft
+    asl                                 ; Bit 4 -> carry: P1 Right
+    bcs     .doneAscentInput
+    cpy     #$00                        ; Min correction?
+    beq     .doneAscentInput
+    dec     planeCorrection             ; Joystick Right: roll right
+.doneAscentInput
     cld
-    jmp     Lf3a7
+    jmp     .afterOrbitLogic
     
-Lf32c
-    lda     ram_B5
+;-----------------------------------------------------------
+;      Orbit Phase Dispatcher
+;      Routes to appropriate handler based on flightPhase:
+;        3 = deorbit/reentry speed handling
+;        4 = docking maneuvers (OMS/RCS)
+;        other = general orbit/joystick input
+;-----------------------------------------------------------
+.orbitPhaseDispatch
+    lda     flightPhase
     cmp     #$03
-    beq     Lf2f3
+    beq     .checkWindShear             ; Phase 3: reuse speed update path
     cmp     #$04
-    bne     Lf34d
-    ldx     #$17
+    bne     .checkOrbitInput
+    ;-----------------------------------------------------------
+    ; Docking Phase (flightPhase=4) - Fire Button Display
+    ; Fire button shows OMS fuel gauge (screen $03),
+    ; otherwise shows docking status (screen $17).
+    ;-----------------------------------------------------------
+    ldx     #$17                        ; Default: docking display
     bit     INPT4
-    bmi     Lf33e
-    ldx     #$03
-Lf33e
-    stx     ram_85
+    bmi     .setDockDisplay
+    ldx     #$03                        ; Fire pressed: fuel gauge
+.setDockDisplay
+    stx     statusDisplayId
     ldy     #$01
     lda     SWCHA
-    and     #$f0
-    cmp     #$f0
-    beq     Lf3a5
-    dec     ram_C0
-Lf34d
-    bne     Lf3a7
+    and     #$f0                        ; Check all joystick directions
+    cmp     #$f0                        ; No input?
+    beq     .resetInputDelay            ; Yes: reset delay counter
+    dec     inputDelayTimer                      ; Input delay countdown
+.checkOrbitInput
+    ;-----------------------------------------------------------
+    ; Orbital Maneuvering (General Orbit Input)
+    ; Processes joystick directional input with delay counter.
+    ; Wraps yAxisPlane around 0/$9F boundary (circular orbit).
+    ; Left/Right = adjust pitchValue for OMS targeting.
+    ;-----------------------------------------------------------
+    bne     .afterOrbitLogic
     ldx     #$04
-    stx     ram_C0
+    stx     inputDelayTimer                      ; Reset input delay
     tax
+    txa
+    asl                                 ; Shift through joystick bits
+    tax
+    bcs     .noOrbitDown
+    ;--- Joystick Down: Decrease Y (descend in orbit) ---
+    dec     yAxisPlane
+    lda     yAxisPlane
+    cmp     #$ff                        ; Wrapped below 0?
+    bne     .checkOrbitLowBound
+    lda     #$9f                        ; Wrap to top of orbit circle
+    sta     yAxisPlane
+.checkOrbitLowBound
+    cmp     #$4f                        ; Hit center boundary?
+    bne     .noOrbitDown
+    inc     yAxisPlane                  ; Bounce back
+.noOrbitDown
     txa
     asl
     tax
-    bcs     Lf36b
-    dec     ram_B2
-    lda     ram_B2
-    cmp     #$ff
-    bne     Lf365
-    lda     #$9f
-    sta     ram_B2
-Lf365
-    cmp     #$4f
-    bne     Lf36b
-    inc     ram_B2
-Lf36b
+    bcs     .noOrbitUp
+    ;--- Joystick Up: Increase Y (ascend in orbit) ---
+    inc     yAxisPlane
+    lda     yAxisPlane
+    cmp     #$a0                        ; Wrapped above $9F?
+    bne     .checkOrbitHighBound
+    lda     #$00                        ; Wrap to bottom of orbit circle
+    sta     yAxisPlane
+.checkOrbitHighBound
+    cmp     #$50                        ; Hit center boundary?
+    bne     .noOrbitUp
+    dec     yAxisPlane                  ; Bounce back
+.noOrbitUp
+    ;-----------------------------------------------------------
+    ; Pitch Control (Left/Right in Orbit)
+    ; Adjusts pitchValue for OMS engine targeting.
+    ; Blocked if landingPitchSuccess set (landing phase) or during deorbit burn ($98).
+    ;-----------------------------------------------------------
+    lda     landingPitchSuccess
+    bne     .afterOrbitLogic            ; Landing: no pitch control
+    lda     soundEffectId
+    cmp     #$98                        ; Deorbit burn sound active?
+    beq     .afterOrbitLogic
     txa
     asl
     tax
-    bcs     Lf382
-    inc     ram_B2
-    lda     ram_B2
-    cmp     #$a0
-    bne     Lf37c
-    lda     #$00
-    sta     ram_B2
-Lf37c
+    bcs     .noOrbitLeft
+    lda     pitchValue
+    cmp     #$10                        ; Max pitch?
+    beq     .afterOrbitLogic
+    inc     pitchValue                  ; Left: increase pitch
+.noOrbitLeft
+    txa
+    asl
+    bcs     .afterOrbitLogic
+    lda     pitchValue
+    beq     .afterOrbitLogic            ; Min pitch?
+    dec     pitchValue                  ; Right: decrease pitch
+    bpl     .afterOrbitLogic
+.resetInputDelay
+    sty     inputDelayTimer                      ; Reset joystick delay (Y=1)
+.afterOrbitLogic
+    ;-----------------------------------------------------------
+    ; Docking Alignment Check
+    ; Checks all conditions for successful satellite docking:
+    ;   - yAxisPlane = 0 (aligned vertically)
+    ;   - pitchValue = 0 (aligned in pitch)
+    ;   - targetHorizPos between $47-$4F (horizontal proximity)
+    ;   - shuttleOrbitalPos = satelliteOrbitalPos (matching orbital position)
+    ;   - altitude = $D2 (correct orbit altitude: 210nm)
+    ; Per manual: "Align cross-hairs with satellite."
+    ;-----------------------------------------------------------
+    lda     yAxisPlane
+    bne     .checkDockingTimer          ; Not aligned vertically
+    lda     pitchValue
+    bne     .checkDockingTimer          ; Not aligned in pitch
+    lda     targetHorizPos
     cmp     #$50
-    bne     Lf382
-    dec     ram_B2
-Lf382
-    lda     ram_F3
-    bne     Lf3a7
-    lda     ram_CA
-    cmp     #$98
-    beq     Lf3a7
-    txa
-    asl
-    tax
-    bcs     Lf399
-    lda     ram_88
-    cmp     #$10
-    beq     Lf3a7
-    inc     ram_88
-Lf399
-    txa
-    asl
-    bcs     Lf3a7
-    lda     ram_88
-    beq     Lf3a7
-    dec     ram_88
-    bpl     Lf3a7
-Lf3a5
-    sty     ram_C0
-Lf3a7
-    lda     ram_B2
-    bne     Lf407
-    lda     ram_88
-    bne     Lf407
-    lda     ram_DE
-    cmp     #$50
-    bcs     Lf407
+    bcs     .checkDockingTimer          ; Too far right
     cmp     #$47
-    bcc     Lf407
-    lda     ram_B1
-    sbc     ram_B0
-    bne     Lf407
-    lda     ram_A5
-    cmp     #$d2
-    bne     Lf407
-Lf3c5
-    inc     ram_E2
-    bne     Lf3cb
-    dec     ram_E2
-Lf3cb
-    lda     ram_E2
-    cmp     #$80
-    bne     Lf3f5
-    ldx     #$24
-    stx     ram_CA
-    dec     ram_B0
-    ldx     ram_E3
-    cpx     #$06
-    beq     Lf3df
-    inc     ram_E3
-Lf3df
+    bcc     .checkDockingTimer          ; Too far left
+    lda     shuttleOrbitalPos
+    sbc     satelliteOrbitalPos
+    bne     .checkDockingTimer          ; Orbital positions don't match
+    lda     altitude
+    cmp     #$d2                        ; At target orbit altitude?
+    bne     .checkDockingTimer
+    ;-----------------------------------------------------------
+    ; Docking Approach Active
+    ; dockingProgress = docking progress counter.
+    ; Counts up to $80 = successful dock.
+    ; At $80: refuel, decrement orbital position, play sound.
+    ;-----------------------------------------------------------
+.dockingProgress
+    inc     dockingProgress
+    bne     .checkDockComplete
+    dec     dockingProgress                      ; Clamp at $FF
+.checkDockComplete
+    lda     dockingProgress
+    cmp     #$80                        ; Docking complete?
+    bne     .checkDockPhase
+    ;-----------------------------------------------------------
+    ; Successful Docking!
+    ; Refuel from satellite, track total dockings (dockingCount).
+    ; Fuel bonus depends on docking count (Lfdee table).
+    ; Per manual: "Maximum of 6 satellite dockings possible."
+    ;-----------------------------------------------------------
+    ldx     #$24                        ; Docking sound
+    stx     soundEffectId
+    dec     satelliteOrbitalPos                      ; Move satellite to new position
+    ldx     dockingCount                      ; Docking count
+    cpx     #$06                        ; Max 6 dockings
+    beq     .doRefuel
+    inc     dockingCount                      ; Increment docking count
+.doRefuel
     sed
     clc
-    lda     ram_9E
+    lda     missionScore                      ; Score counter
     adc     #$01
-    sta     ram_9E
-    lda     ram_9B
-    adc     Lfdee,x
-    sta     ram_9B
-    bcc     Lf3f4
-    lda     #$99
-    sta     ram_9B
-Lf3f4
+    sta     missionScore
+    lda     fuelHigh
+    adc     Lfdee,x                     ; Fuel bonus per docking
+    sta     fuelHigh
+    bcc     .refuelDone
+    lda     #$99                        ; Cap fuel at 99xx
+    sta     fuelHigh
+.refuelDone
     cld
-Lf3f5
-    bcc     Lf416
-    ldx     #$05
-    cmp     #$fe
-    beq     Lf403
-    cmp     #$ff
-    beq     Lf416
-    ldx     #$1f
-Lf403
-    stx     ram_85
-    bne     Lf45c
-Lf407
-    lda     ram_E2
+.checkDockPhase
+    bcc     .afterDockingCheck          ; Not docked yet
+    ldx     #$05                        ; Display: docked status
+    cmp     #$fe                        ; dockingProgress = post-dock phase?
+    beq     .setDockDisplay2
+    cmp     #$ff                        ; Fully complete?
+    beq     .afterDockingCheck
+    ldx     #$1f                        ; Display: satellite refuel info
+.setDockDisplay2
+    stx     statusDisplayId
+    bne     .jumpToOmsBurn
+    ;-----------------------------------------------------------
+    ; Check Docking Timer State
+    ; If dockingProgress >= $80 but < $FF, continue docking sequence.
+    ; If < $80, reset counter (alignment lost).
+    ;-----------------------------------------------------------
+.checkDockingTimer
+    lda     dockingProgress
     cmp     #$80
-    bcc     Lf412
+    bcc     .resetDockCounter
     cmp     #$ff
-    bne     Lf3c5
-    .byte   $2c ;bit                ;4-2 =  13 *
-Lf412
+    bne     .dockingProgress            ; Continue docking sequence
+    .byte   $2c ;bit                ;4-2 =  13 *  ; Skip next lda
+.resetDockCounter
     lda     #$00
-    sta     ram_E2
-Lf416
-    lda     ram_B5
+    sta     dockingProgress
+.afterDockingCheck
+    ;-----------------------------------------------------------
+    ; Autopilot Station-Keeping (Docking Phase Only)
+    ; In manual docking mode, automatically nudges yAxisPlane
+    ; toward center ($50) at rate determined by difficulty/docking count.
+    ; Only active when: flightPhase=4, altitude>=$0B, no autopilot,
+    ; and joystick mostly centered (>= $CF).
+    ;-----------------------------------------------------------
+    lda     flightPhase
     cmp     #$04
-    bne     Lf44b
-    lda     ram_A5
+    bne     .checkAltitudeAbort
+    lda     altitude
     cmp     #$0b
-    bcc     Lf44b
-    ldx     ram_F9
-    bmi     Lf44b
+    bcc     .checkAltitudeAbort         ; Too low for station keeping
+    ldx     autopilotMode
+    bmi     .checkAltitudeAbort         ; Autopilot handles its own docking
     lda     SWCHA
-    cmp     #$cf
-    bcc     Lf44b
-    ldx     ram_E3
+    cmp     #$cf                        ; Joystick mostly centered?
+    bcc     .checkAltitudeAbort
+    ldx     dockingCount                      ; Use docking count as rate index
     cpx     #$06
-    beq     Lf435
-    ldx     ram_A0
-Lf435
-    lda     ram_C1
-    and     Lfe39,x
-    bne     Lf44b
-    lda     ram_B2
-    cmp     #$51
-    bcs     Lf449
-    cmp     #$4f
-    bcs     Lf44b
-    inc     ram_B2
-    .byte   $2c ;bit                ;4-5 =  24 *
-Lf449
-    dec     ram_B2
-Lf44b
-    ldx     #$75
-    lda     ram_A5
-    cmp     #$ff
-    beq     Lf46d
-    ldx     ram_B5
+    beq     .useStationRate             ; Max dockings: use table directly
+    ldx     difficultyLevel                      ; Otherwise use difficulty level
+.useStationRate
+    lda     frameCounter
+    and     Lfe39,x                     ; Rate mask from table
+    bne     .checkAltitudeAbort         ; Skip frames based on difficulty
+    lda     yAxisPlane
+    cmp     #$51                        ; Below center?
+    bcs     .stationDown
+    cmp     #$4f                        ; Above center?
+    bcs     .checkAltitudeAbort         ; At center: do nothing
+    inc     yAxisPlane                  ; Nudge toward center
+    .byte   $2c ;bit                ;4-5 =  24 *  ; Skip next dec
+.stationDown
+    dec     yAxisPlane                  ; Nudge toward center
+.checkAltitudeAbort
+    ;-----------------------------------------------------------
+    ; Altitude/Speed Abort Check
+    ; altitude=$FF = immediate abort (crashed/lost).
+    ; flightPhase=2 (orbit): check altitude>=$C3 and speed=$A9
+    ; for proper orbital insertion, else abort.
+    ;-----------------------------------------------------------
+    ldx     #$75                        ; Abort code: altitude failure
+    lda     altitude
+    cmp     #$ff                        ; Altitude overflow?
+    beq     .doAbort
+    ldx     flightPhase
     cpx     #$02
-    beq     Lf45f
-    jmp     Lf5c7
+    beq     .checkOrbitQuality
+    jmp     .deorbitLogic               ; Not in orbit insertion: skip to deorbit
     
-Lf45c
-    jmp     Lf538
+.jumpToOmsBurn
+    jmp     .omsBurnSetup
     
-Lf45f
-    ldx     #$70
-    cmp     #$c3
-    bcc     Lf46d
-    ldx     #$80
-    lda     ram_A6
-    cmp     #$a9
-    bne     Lf470
-Lf46d
-    jsr     Lfcc7
-Lf470
+.checkOrbitQuality
+    ldx     #$70                        ; Abort code: orbit too low
+    cmp     #$c3                        ; Minimum orbit altitude
+    bcc     .doAbort
+    ldx     #$80                        ; Abort code: speed mismatch
+    lda     speed
+    cmp     #$a9                        ; Required orbital speed
+    bne     .orbitOmsInput
+.doAbort
+    jsr     abortMission                ; Abort! (Lfcc7)
+;-----------------------------------------------------------
+;      OMS (Orbital Maneuvering System) Input
+;      Handles joystick-driven OMS burns for orbit changes.
+;      Each burn costs fuel (rate depends on burn type).
+;      X register tracks joystick direction bits for dispatch.
+;      Per manual: "Fire OMS engines to change orbit."
+;-----------------------------------------------------------
+.orbitOmsInput
     lda     SWCHA
-    and     #$f0
-    cmp     #$f0
-    beq     Lf45c
-    dec     ram_C0
-    bne     Lf4f2
+    and     #$f0                        ; Joystick directions
+    cmp     #$f0                        ; No input?
+    beq     .jumpToOmsBurn              ; Skip to OMS burn state handler
+    dec     inputDelayTimer                      ; Input rate limiter
+    bne     .endOmsInput
     ldx     #$18
-    stx     ram_C0
-    stx     ram_AF
-    jsr     Lfce6
+    stx     inputDelayTimer                      ; Reset rate limiter (24 frames)
+    stx     omsBurnActive                      ; Mark OMS burn active
+    jsr     Lfce6                       ; Play OMS burn sound
+    ;-----------------------------------------------------------
+    ; Calculate Fuel Cost for OMS Burn
+    ; Higher joystick nibble inverted = burn intensity.
+    ; At display $15 (satellite approach), reduced fuel cost.
+    ;-----------------------------------------------------------
     lsr
     lsr
     lsr
     lsr
-    eor     #$0f
+    eor     #$0f                        ; Invert for cost
     tax
-    lda     #$09
-    ldy     ram_85
-    cpy     #$15
-    bne     Lf497
-    lda     #$01
-Lf497
-    jsr     Lfcae
-    lda     ram_B6
-    beq     Lf45c
-    bit     ram_F9
-    bmi     Lf4a8
-    lda     ram_C6
-    and     #$48
-    bne     Lf4f5
-Lf4a8
+    lda     #$09                        ; Base fuel cost
+    ldy     statusDisplayId
+    cpy     #$15                        ; Near satellite approach?
+    bne     .doOmsBurn
+    lda     #$01                        ; Reduced cost near satellite
+.doOmsBurn
+    jsr     subtractFuel                ; Burn fuel
+    lda     gameActive
+    beq     .jumpToOmsBurn              ; Out of fuel? Stop
+    ;-----------------------------------------------------------
+    ; OMS Burn Direction Dispatch
+    ; Autopilot: always burn via direction bits.
+    ; Manual: check console switches for MECO override ($48).
+    ;-----------------------------------------------------------
+    bit     autopilotMode
+    bmi     .dispatchOmsBurn            ; Autopilot: always process
+    lda     consoleSwitches
+    and     #$48                        ; Color/BW + Left Diff
+    bne     .manualOmsBurn              ; Manual controls active
+.dispatchOmsBurn
     txa
     lsr
     tay
-    bcc     Lf4bc
+    bcc     .checkOmsUp
+    ;--- OMS Down: decrease altitude ---
     bit     INPT4
-    bmi     Lf4b7
-    jsr     Lfd42
-    jmp     Lf4cc
+    bmi     .omsDownNoFire
+    jsr     Lfd42                       ; Fire+Down: decrease speed
+    jmp     .setOmsDisplay
     
-Lf4b7
+.omsDownNoFire
     ldx     #$0d
-    jsr     Lfed5
-Lf4bc
+    jsr     Lfed5                       ; Increase altitude (retrograde)
+.checkOmsUp
     tya
     lsr
     tay
-    bcc     Lf4d5
+    bcc     .checkOmsFireOnly
+    ;--- OMS Up: increase altitude ---
     lda     #$00
-    sta     ram_AF
+    sta     omsBurnActive                      ; Clear burn flag
     bit     INPT4
-    bmi     Lf4d0
-    jsr     Lfd20
-Lf4cc
-    ldx     #$11
-    bne     Lf4f0
-Lf4d0
+    bmi     .omsUpNoFire
+    jsr     Lfd20                       ; Fire+Up: increase speed
+.setOmsDisplay
+    ldx     #$11                        ; Display: OMS burn status
+    bne     .storeOmsDisplay
+.omsUpNoFire
     ldx     #$0d
-    jsr     Lfeea
-Lf4d5
+    jsr     Lfeea                       ; Decrease altitude (prograde)
+.checkOmsFireOnly
+    ;--- Fire button only (no up/down): Y-axis adjustment ---
     bit     INPT4
-    bpl     Lf4f2
+    bpl     .endOmsInput                ; Fire not pressed: done
     tya
     lsr
     tay
-    bcc     Lf4e5
+    bcc     .checkOmsRight
+    ;--- OMS Left: pitch/yaw + Y up ---
     lda     #$04
-    inc     ram_B2
-    jsr     Lfd0f
-Lf4e5
+    inc     yAxisPlane
+    jsr     Lfd0f                       ; Store movement flags
+.checkOmsRight
     tya
     lsr
-    bcc     Lf4f0
-    dec     ram_B2
+    bcc     .storeOmsDisplay
+    ;--- OMS Right: pitch/yaw + Y down ---
+    dec     yAxisPlane
     lda     #$08
-    jsr     Lfd0f
-Lf4f0
-    stx     ram_85
-Lf4f2
-    jmp     Lf5c7
+    jsr     Lfd0f                       ; Store movement flags
+.storeOmsDisplay
+    stx     statusDisplayId
+.endOmsInput
+    jmp     .deorbitLogic
     
-Lf4f5
+;-----------------------------------------------------------
+;      Manual OMS Burns (Console Switches Active)
+;      When Color/BW or Left Diff switches are set,
+;      joystick controls pitch value directly instead of
+;      orbital position. Used for deorbit burn targeting.
+;-----------------------------------------------------------
+;-----------------------------------------------------------
+;      Manual OMS Burns (Console Switches Active)
+;      When Color/BW or Left Diff switches are set,
+;      joystick controls pitch value directly instead of
+;      orbital position. Used for deorbit burn targeting.
+;-----------------------------------------------------------
+.manualOmsBurn
     txa
     lsr
     tay
-    bcc     Lf508
-    lda     ram_88
-    dec     ram_88
-    bpl     Lf502
-    sta     ram_88
-Lf502
-    ldx     #$01
-Lf504
-    lda     #$13
-    bne     Lf532
-Lf508
+    bcc     .manualUp
+    ;--- Down: decrease pitchValue ---
+    lda     pitchValue
+    dec     pitchValue
+    bpl     .storePitchDir
+    sta     pitchValue                  ; Clamp at 0
+.storePitchDir
+    ldx     #$01                        ; Direction: down
+.setManualDisplay
+    lda     #$13                        ; Display: manual OMS
+    bne     .storeManualOms
+.manualUp
     tya
     lsr
     tay
-    bcc     Lf519
-    lda     ram_88
-    cmp     #$10
-    beq     Lf515
-    inc     ram_88
-Lf515
-    ldx     #$02
-    bne     Lf504
-Lf519
+    bcc     .manualLeft
+    ;--- Up: increase pitchValue ---
+    lda     pitchValue
+    cmp     #$10                        ; Max pitch
+    beq     .cappedPitch
+    inc     pitchValue
+.cappedPitch
+    ldx     #$02                        ; Direction: up
+    bne     .setManualDisplay
+.manualLeft
     tya
     lsr
     tay
-    bcc     Lf524
-    dec     ram_B3
+    bcc     .manualRight
+    ;--- Left: decrease omsYaw (OMS yaw) ---
+    dec     omsYaw
     ldx     #$04
-    bne     Lf52c
-Lf524
+    bne     .setManualRate
+.manualRight
     tya
     lsr
-    bcc     Lf538
-    inc     ram_B3
+    bcc     .omsBurnSetup
+    ;--- Right: increase omsYaw (OMS yaw) ---
+    inc     omsYaw
     ldx     #$08
-Lf52c
+.setManualRate
     lda     #$05
-    sta     ram_C0
-    lda     #$15
-Lf532
-    sta     ram_85
-    stx     ram_AB
-    bne     Lf577
-Lf538
-    lda     ram_B3
+    sta     inputDelayTimer                      ; Shorter input delay for pitch/yaw
+    lda     #$15                        ; Display: OMS targeting
+.storeManualOms
+    sta     statusDisplayId
+    stx     movementFlags                      ; Store movement direction flags
+    bne     .omsBurnProcess
+;-----------------------------------------------------------
+;      OMS Burn State Handler
+;      When no joystick input, calculates orbital drift from
+;      omsYaw (OMS pitch). Triggers deorbit burn when console
+;      switches active + fire button pressed.
+;-----------------------------------------------------------
+.omsBurnSetup
+    lda     omsYaw
     clc
     adc     #$10
     lsr
     lsr
     lsr
     lsr
-    lsr
+    lsr                                 ; Convert omsYaw to table index
     tax
-    lda     ram_CA
-    cmp     #$58
-    beq     Lf55f
-    lda     Lfd84,x
-    sta     ram_AB
+    lda     soundEffectId
+    cmp     #$58                        ; Deorbit burn sound active?
+    beq     .checkDeorbitBurn
+    lda     Lfd84,x                     ; Get drift direction from table
+    sta     movementFlags
     ldy     #$00
-    sty     ram_E0
-    sty     ram_AF
-    lda     ram_CA
+    sty     orbitalSubCounter
+    sty     omsBurnActive                      ; Clear burn flag
+    lda     soundEffectId
     cmp     #$18
-    bne     Lf55c
-    sty     ram_CA
-Lf55c
+    bne     .resetBurnInput
+    sty     soundEffectId                      ; Clear sound timer
+.resetBurnInput
     iny
-    sty     ram_C0
-Lf55f
-    lda     ram_C6
+    sty     inputDelayTimer                      ; Reset input delay
+.checkDeorbitBurn
+    ;-----------------------------------------------------------
+    ; Deorbit Burn Trigger
+    ; Requires: console switches ($48) active + fire button pressed.
+    ; Initiates deorbit burn sound ($58) and sets burn active flag.
+    ; Per manual: "Flip switches and press fire to deorbit."
+    ;-----------------------------------------------------------
+    lda     consoleSwitches
     and     #$48
-    beq     Lf5c7
+    beq     .deorbitLogic               ; Switches not set: skip
     bit     INPT4
-    bmi     Lf5c7
+    bmi     .deorbitLogic               ; Fire not pressed: skip
     lda     #$fe
-    sta     ram_C9
+    sta     soundSequenceIndex                      ; Deorbit burn flag
     lda     #$58
-    sta     ram_CA
-    sta     ram_AF
-    lda     ram_C1
+    sta     soundEffectId                      ; Deorbit burn sound
+    sta     omsBurnActive                      ; Burn active
+    lda     frameCounter
     and     #$0f
-Lf577
-    bne     Lf5c7
+.omsBurnProcess
+    bne     .deorbitLogic               ; Rate-limit burn processing
+    ;-----------------------------------------------------------
+    ; Fuel Cost During Deorbit/OMS Burn
+    ; pitchValue = 7 optimal: costs 1 fuel unit.
+    ; Otherwise: costs 2 fuel units (waste!).
+    ;-----------------------------------------------------------
     lda     #$01
-    ldy     ram_88
-    cpy     #$07
-    beq     Lf583
-    lda     #$02
-Lf583
-    jsr     Lfcae
+    ldy     pitchValue
+    cpy     #$07                        ; Optimal pitch for deorbit?
+    beq     .doBurnFuel
+    lda     #$02                        ; Extra fuel if not optimal
+.doBurnFuel
+    jsr     subtractFuel
     cpx     #$02
-    bcs     Lf593
-Lf58a
-    jsr     Lfed5
+    bcs     .burnResult2Plus
+.burnIncAlt
+    jsr     Lfed5                       ; Increase altitude
     cpy     #$08
-    bcs     Lf5c7
-    bcc     Lf5c4
-Lf593
+    bcs     .deorbitLogic
+    bcc     .burnDecSpeed
+.burnResult2Plus
     cpx     #$02
-    bne     Lf59d
-    dec     ram_B2
+    bne     .burnResult3Plus
+    dec     yAxisPlane                  ; Pitch down during burn
     lda     #$05
-    bne     Lf5b2
-Lf59d
+    bne     .storeBurnMove
+.burnResult3Plus
     cpx     #$06
-    bcs     Lf5aa
-    jsr     Lfeea
+    bcs     .burnResult6Plus
+    jsr     Lfeea                       ; Decrease altitude
     cpy     #$07
-    bcs     Lf5be
-    bcc     Lf5c7
-Lf5aa
+    bcs     .burnIncSpeed
+    bcc     .deorbitLogic
+.burnResult6Plus
     cpx     #$07
-    beq     Lf58a
-    inc     ram_B2
+    beq     .burnIncAlt
+    inc     yAxisPlane                  ; Pitch up during burn
     lda     #$09
-Lf5b2
-    sta     ram_AB
-    ldx     #$0f
-    stx     ram_85
+.storeBurnMove
+    sta     movementFlags                      ; Movement direction
+    ldx     #$0f                        ; Display: burn status
+    stx     statusDisplayId
     cpy     #$07
-    beq     Lf5c7
-    bcc     Lf5c4
-Lf5be
-    jsr     Lfd20
-    jmp     Lf5c7
+    beq     .deorbitLogic               ; Optimal: no speed change
+    bcc     .burnDecSpeed
+.burnIncSpeed
+    jsr     Lfd20                       ; Increase speed
+    jmp     .deorbitLogic
     
-Lf5c4
-    jsr     Lfd42
-Lf5c7
-    lda     ram_B5
+.burnDecSpeed
+    jsr     Lfd42                       ; Decrease speed
+;-----------------------------------------------------------
+;      Deorbit / Reentry Transition Logic
+;      Checks if conditions met to begin deorbit:
+;        - flightPhase >= 2 (in orbit or beyond)
+;        - Speed < $BF (below orbital velocity)
+;          (Autopilot with dockings overrides speed check)
+;        - Altitude < $D7 (below stable orbit)
+;      At altitude $C8: triggers transition to flightPhase 3 (reentry).
+;      Per manual: "Deorbit at correct angle for safe reentry."
+;-----------------------------------------------------------
+.deorbitLogic
+    lda     flightPhase
     cmp     #$02
-    bcs     Lf5d0
-Lf5cd
-    jmp     Lf76f
+    bcs     .checkDeorbitConditions
+.skipToFlightEffects
+    jmp     .flightEffects              ; Not in orbit yet
     
-Lf5d0
-    bit     ram_F9
-    bpl     Lf5d8
-    lda     ram_E3
-    bne     Lf5de
-Lf5d8
-    lda     ram_A6
-    cmp     #$bf
-    bcs     Lf5cd
-Lf5de
-    lda     ram_A5
-    cmp     #$d7
-    bcs     Lf5cd
-    sta     ram_AF
-    cmp     #$c8
-    bne     Lf615
-    dec     ram_A5
+.checkDeorbitConditions
+    bit     autopilotMode
+    bpl     .checkSpeed
+    lda     dockingCount                      ; Autopilot with dockings?
+    bne     .checkAltitude              ; Skip speed check
+.checkSpeed
+    lda     speed
+    cmp     #$bf                        ; Below deorbit speed?
+    bcs     .skipToFlightEffects        ; Too fast: still in stable orbit
+.checkAltitude
+    lda     altitude
+    cmp     #$d7                        ; Below deorbit altitude?
+    bcs     .skipToFlightEffects        ; Too high: still stable
+    sta     omsBurnActive
+    cmp     #$c8                        ; Transition altitude?
+    bne     .checkReentryState
+    ;-----------------------------------------------------------
+    ; Reentry Transition (altitude hits $C8)
+    ; Initialize reentry state: reset Y-axis, set flightPhase=3,
+    ; switch to reentry screen. Evaluate deorbit quality based
+    ; on omsYaw (OMS pitch) and pitchValue for abort check.
+    ;-----------------------------------------------------------
+    dec     altitude                    ; Drop below $C8 threshold
     ldy     #$00
-    sty     ram_B2
-    sty     ram_AB
+    sty     yAxisPlane                  ; Level out
+    sty     movementFlags                      ; Clear movement flags
     ldx     #$03
-    stx     ram_B5
-    stx     ram_85
-    stx     currentScreenId
+    stx     flightPhase                 ; Phase 3: reentry
+    stx     statusDisplayId
+    stx     currentScreenId             ; Switch to reentry screen
     ldx     #$09
-    stx     ram_AA
-    stx     ram_F6
-    ldx     #$65
-    lda     ram_B3
-    bne     Lf612
-    ldx     #$55
-    lda     ram_88
-    cmp     #$0d
-    beq     Lf615
-    bcs     Lf612
-    ldx     #$60
-Lf612
-    jsr     Lfcc7
-Lf615
-    ldx     ram_E8
-    beq     Lf61c
-Lf619
-    jmp     Lf6ab
+    stx     planeCorrection             ; Center correction
+    stx     trajectoryThreshold
+    ;-----------------------------------------------------------
+    ; Deorbit Quality Check
+    ; omsYaw != 0: bad yaw angle -> abort ($65)
+    ; pitchValue > $0D: too steep -> abort ($55 if not $0D)
+    ; pitchValue = $0D: perfect angle -> don't abort
+    ; pitchValue < $0D: abort ($60 = too shallow)
+    ;-----------------------------------------------------------
+    ldx     #$65                        ; Abort: bad yaw
+    lda     omsYaw
+    bne     .deorbitAbort
+    ldx     #$55                        ; Abort: too steep
+    lda     pitchValue
+    cmp     #$0d                        ; Perfect reentry angle?
+    beq     .checkReentryState          ; Yes: proceed
+    bcs     .deorbitAbort               ; Too steep
+    ldx     #$60                        ; Abort: too shallow
+.deorbitAbort
+    jsr     Lfcc7                       ; Process abort
+;-----------------------------------------------------------
+;      Reentry Descent Logic
+;      Controls the shuttle's descent through atmosphere.
+;      reentryContactState = reentry heating state (non-zero = heating active).
+;      movementFlags movement flags updated for reentry attitude.
+;      Speed decreases as altitude drops. Visual heating effects
+;      triggered at specific altitude bands.
+;-----------------------------------------------------------
+.checkReentryState
+    ldx     reentryContactState                      ; Reentry heating state
+    beq     .doReentryDescent
+.jumpToReentryEffects
+    jmp     .reentryHeatEffects
     
-Lf61c
-    lda     ram_AB
-    and     #$0c
-    ora     #$01
-    sta     ram_AB
+.doReentryDescent
+    ;--- Set reentry movement flags (keep nose-up attitude) ---
+    lda     movementFlags
+    and     #$0c                        ; Preserve left/right bits
+    ora     #$01                        ; Add forward movement
+    sta     movementFlags
+    ;-----------------------------------------------------------
+    ; Descent Rate Calculation
+    ; In landing screen ($04): rate based on pitchValue + switch state.
+    ; Otherwise: rate from table (Lfda8) indexed by descentRateIndex.
+    ;-----------------------------------------------------------
     lda     currentScreenId
-    cmp     #$04
-    bne     Lf635
-    lda     ram_88
-    adc     #$03
-    ldx     ram_C6
-    bpl     Lf63c
+    cmp     #$04                        ; Landing screen?
+    bne     .useDescentTable
+    lda     pitchValue
+    adc     #$03                        ; Pitch affects descent rate
+    ldx     consoleSwitches
+    bpl     .setDescentRate             ; Check switch state
     lsr
-    bpl     Lf63c
-Lf635
-    ldx     ram_A4
+    bpl     .setDescentRate
+.useDescentTable
+    ldx     descentRateIndex                      ; Descent rate table index
     lda     Lfda8,x
-    sta     ram_C4
-Lf63c
-    inc     ram_C2
-    cmp     ram_C2
-    bcs     Lf619
+    sta     descentRate                      ; Store descent rate
+.setDescentRate
+    inc     descentFrameCounter                      ; Descent frame counter
+    cmp     descentFrameCounter                      ; Reached descent interval?
+    bcs     .jumpToReentryEffects       ; Not yet: skip
     lda     #$00
-    sta     ram_C2
-    jsr     Lfd42
-    lda     ram_A5
+    sta     descentFrameCounter                      ; Reset counter
+    jsr     Lfd42                       ; Decrease speed
+    ;-----------------------------------------------------------
+    ; Altitude Band Checks During Reentry
+    ; $A7+: no heating effects (too high)
+    ; $78-$A6: ionization heating zone (heatEffectTimer = heat timer)
+    ; $1E-$77: lower atmosphere
+    ; $1E exactly: transition to landing phase (flightPhase=4)
+    ;-----------------------------------------------------------
+    lda     altitude
     cmp     #$a7
-    bcs     Lf690
+    bcs     .noHeatingEffect            ; Above heating zone
     cmp     #$78
-    bcc     Lf65b
-    inc     ram_E1
-    bne     Lf690
-    dec     ram_E1
-    bne     Lf690
-Lf65b
-    cmp     #$1e
-    bne     Lf68a
-    inc     ram_B5
-    inc     currentScreenId
+    bcc     .checkLandingTransition     ; Below heating zone
+    ;--- Ionization heating band ($78-$A6) ---
+    inc     heatEffectTimer                      ; Increase heat effect timer
+    bne     .noHeatingEffect
+    dec     heatEffectTimer                      ; Clamp at $FF
+    bne     .noHeatingEffect
+.checkLandingTransition
+    cmp     #$1e                        ; Landing transition altitude?
+    bne     .checkHeatDecay
+    ;-----------------------------------------------------------
+    ; Landing Phase Transition (altitude = $1E)
+    ; Switch to flightPhase 4 (landing), set up landing screen,
+    ; initialize landing parameters. Autopilot sets specific pitch.
+    ; Per manual: "Line up runway for final approach."
+    ;-----------------------------------------------------------
+    inc     flightPhase                 ; Phase 4: landing
+    inc     currentScreenId             ; Landing screen
     ldx     #$02
-    stx     ram_F2
+    stx     landingDisplayMode                      ; Landing display mode
     lda     #$40
-    sta     ram_E9
-    dec     ram_A5
+    sta     starfieldScrollY                      ; Landing approach timer
+    dec     altitude                    ; Drop below $1E
     lda     #$00
-    sta     ram_E7
-    bit     ram_F9
-    bpl     Lf67e
-    stx     ram_88
-    bit     ram_F7
-    bpl     Lf680
-    lda     #$27
-    .byte   $2c ;bit                ;4-2 =  51 *
-Lf67e
-    lda     #$4f
-Lf680
-    sta     ram_B2
-    ldx     #$35
-    lda     ram_CA
-    cmp     #$41
-    beq     Lf612
-Lf68a
-    lda     ram_E1
-    beq     Lf690
-    dec     ram_E1
-Lf690
-    lda     ram_A5
+    sta     atmosphereDensity                      ; Clear atmosphere timer
+    bit     autopilotMode
+    bpl     .setManualLanding
+    stx     pitchValue                  ; Autopilot: set pitch to 2
+    bit     joystickDetected                      ; Training mode?
+    bpl     .setLandingY
+    lda     #$27                        ; Training: start at Y=$27
+    .byte   $2c ;bit                ;4-2 =  51 *  ; Skip next lda
+.setManualLanding
+    lda     #$4f                        ; Manual: start at Y=$4F
+.setLandingY
+    sta     yAxisPlane
+    ldx     #$35                        ; Abort: missed approach
+    lda     soundEffectId
+    cmp     #$41                        ; Abort sound playing?
+    beq     .deorbitAbort               ; Yes: abort
+.checkHeatDecay
+    ;--- Heat Effect Decay ---
+    lda     heatEffectTimer
+    beq     .noHeatingEffect
+    dec     heatEffectTimer                      ; Cool down
+.noHeatingEffect
+    ;-----------------------------------------------------------
+    ; Low Atmosphere Effects (altitude $1E-$30)
+    ; atmosphereDensity = atmosphere density counter for visual effects.
+    ;-----------------------------------------------------------
+    lda     altitude
     cmp     #$30
-    bcs     Lf6a0
+    bcs     .doDescentSpeedDec
     cmp     #$1e
-    bcc     Lf6a0
-    inc     ram_E7
-    bne     Lf6a0
-    dec     ram_E7
-Lf6a0
-    dec     ram_C3
-    bpl     Lf6ab
+    bcc     .doDescentSpeedDec
+    inc     atmosphereDensity                      ; Atmosphere density increases
+    bne     .doDescentSpeedDec
+    dec     atmosphereDensity                      ; Clamp
+.doDescentSpeedDec
+    dec     descentSpeedTimer                      ; Descent speed timer
+    bpl     .reentryHeatEffects
     lda     #$0a
-    sta     ram_C3
-    jsr     Lfeea
-Lf6ab
+    sta     descentSpeedTimer                      ; Reset speed decrease interval
+    jsr     Lfeea                       ; Decrease altitude
+;-----------------------------------------------------------
+;      Reentry Heat Effects & Landing Approach
+;      Handles landing screen timer (approachFrameTimer/starfieldScrollY),
+;      atmosphere reentry audio (wind noise), and
+;      final approach/touchdown logic.
+;-----------------------------------------------------------
+.reentryHeatEffects
     lda     currentScreenId
-    cmp     #$04
-    bne     Lf6c9
-    dec     ram_EB
-    bpl     Lf6c9
+    cmp     #$04                        ; Landing screen?
+    bne     .checkReentryAudio
+    ;--- Landing Approach Timer ---
+    dec     approachFrameTimer                      ; Approach frame counter
+    bpl     .checkReentryAudio
     lda     #$2a
-    sta     ram_EB
-    dec     ram_E9
-    bpl     Lf6c9
-    bit     ram_F0
-    bmi     Lf6c9
-    lda     ram_CA
-    bne     Lf6c9
-    lda     #$44
-    sta     ram_CA
-Lf6c9
-    lda     ram_A5
-    cmp     #$78
-    bcs     Lf721
+    sta     approachFrameTimer                      ; Reset timer (42 frames)
+    dec     starfieldScrollY                      ; Decrease approach timer
+    bpl     .checkReentryAudio
+    ;--- Check Cargo Door for Landing ---
+    bit     cargoDoorState
+    bmi     .checkReentryAudio          ; Door already closed
+    lda     soundEffectId
+    bne     .checkReentryAudio          ; Sound already playing
+    lda     #$44                        ; Cargo door warning sound
+    sta     soundEffectId
+.checkReentryAudio
+    ;-----------------------------------------------------------
+    ; Reentry Wind/Heating Audio
+    ; Below altitude $78: play reentry wind noise.
+    ; Volume depends on cargo door state.
+    ;-----------------------------------------------------------
+    lda     altitude
+    cmp     #$78                        ; Below heating zone?
+    bcs     .skipToFlightEffects2       ; No: skip audio
     ldx     #$1e
-    stx     AUDF1
+    stx     AUDF1                       ; Wind noise frequency
     ldx     #$08
-    stx     AUDC1
-    ldx     #$01
-    bit     ram_F0
-    bpl     Lf6df
-    ldx     #$03
-Lf6df
+    stx     AUDC1                       ; Noise waveform
+    ldx     #$01                        ; Low volume
+    bit     cargoDoorState
+    bpl     .setReentryVol
+    ldx     #$03                        ; Higher volume with door open
+.setReentryVol
     stx     AUDV1
-    lda     ram_98
-    bne     Lf736
-    ldy     ram_99
-    bne     Lf736
-    lda     ram_E8
-    bne     Lf712
-    dec     ram_E8
-    ldx     #$98
+    ;-----------------------------------------------------------
+    ; Touchdown Detection
+    ; speedFractionLow/speedFractionHigh = touchdown state flags.
+    ; reentryContactState = landing gear/ground contact state.
+    ;-----------------------------------------------------------
+    lda     speedFractionLow
+    bne     .checkTouchdownResult       ; Already touching down
+    ldy     speedFractionHigh
+    bne     .checkTouchdownResult
+    lda     reentryContactState                      ; Ground contact?
+    bne     .checkLandingPosition
+    ;--- First Ground Contact ---
+    dec     reentryContactState                      ; Set contact flag ($FF)
+    ldx     #$98                        ; Touchdown sound
     jsr     Lfce6
-    ldx     #$15
-    lda     ram_E9
-    bpl     Lf71e
-    ldx     #$20
+    ;-----------------------------------------------------------
+    ; Landing Quality Check
+    ; starfieldScrollY determines landing quality:
+    ;   >= 0: check further parameters
+    ;   < 0 ($80-$FF): check cargo door and pitch
+    ; Per manual: "Touch down gently with gear down."
+    ;-----------------------------------------------------------
+    ldx     #$15                        ; Abort: gear not down
+    lda     starfieldScrollY
+    bpl     .landingAbort
+    ldx     #$20                        ; Abort: approach too fast
     cmp     #$eb
-    bcc     Lf71e
-    ldx     #$40
-    lda     ram_F0
-    beq     Lf71e
-    lda     ram_88
+    bcc     .landingAbort
+    ldx     #$40                        ; Abort: cargo door issue
+    lda     cargoDoorState
+    beq     .landingAbort               ; Door not deployed properly
+    ;--- Check Pitch on Touchdown ---
+    lda     pitchValue
     adc     #$05
-    sta     ram_88
-    and     #$10
-    beq     Lf712
-    sta     ram_88
-Lf712
-    lda     ram_B2
-    cmp     #$18
-    bcc     Lf724
-    cmp     #$97
-    bcs     Lf724
-    ldx     #$10
-Lf71e
-    jsr     Lfcc7
-Lf721
-    jmp     Lf76f
+    sta     pitchValue
+    and     #$10                        ; Pitch overflow?
+    beq     .checkLandingPosition
+    sta     pitchValue                  ; Cap pitch
+.checkLandingPosition
+    ;--- Check Landing Y Position ---
+    lda     yAxisPlane
+    cmp     #$18                        ; Too low?
+    bcc     .checkLandingSuccess        ; Below runway = check success
+    cmp     #$97                        ; Too high?
+    bcs     .checkLandingSuccess        ; Above limit = check success
+    ldx     #$10                        ; Abort: off runway
+.landingAbort
+    jsr     Lfcc7                       ; Process landing abort
+.skipToFlightEffects2
+    jmp     .flightEffects
     
-Lf724
-    lda     ram_F3
-    bne     Lf732
-    lda     ram_88
-    bne     Lf732
-    inc     ram_F3
-    lda     #$a2
-    sta     ram_CA
-Lf732
-    lda     ram_E9
-    cmp     #$90
-Lf736
-    bne     Lf76f
-    ldx     #$30
-    lda     ram_88
-    beq     Lf743
-    jsr     Lfcc7
-    bcs     Lf76f
-Lf743
-    sty     ram_96
-    sty     ram_B6
-    sty     ram_BA
-    sty     ram_F9
-    ldx     #$21
-    bit     ram_F8
-    bpl     Lf753
-    ldx     #$19
-Lf753
-    stx     ram_85
-    ldx     #$05
-    bit     ram_F8
-    bmi     Lf76b
-    ldy     ram_E3
-    beq     Lf76b
-    inx
+;-----------------------------------------------------------
+;      Landing Success Check
+;      Evaluates pitch, approach timer, and configuration
+;      to determine mission outcome rating.
+;-----------------------------------------------------------
+.checkLandingSuccess
+    lda     landingPitchSuccess
+    bne     .checkFinalResult
+    lda     pitchValue
+    bne     .checkFinalResult
+    ;--- Perfect Pitch Landing ---
+    inc     landingPitchSuccess                      ; Mark successful pitch landing
+    lda     #$a2                        ; Success sound
+    sta     soundEffectId
+.checkFinalResult
+    lda     starfieldScrollY
+    cmp     #$90                        ; Final approach complete?
+.checkTouchdownResult
+    bne     .flightEffects              ; Not yet
+    ;-----------------------------------------------------------
+    ; Mission Complete Scoring
+    ; Evaluates landing quality, docking count, and fuel remaining
+    ; to determine final screen (mission rating).
+    ;   Screen $05: basic completion
+    ;   Screen $06: with dockings
+    ;   Screen $07: commander patch (6 dockings + 75+ fuel)
+    ;-----------------------------------------------------------
+    ldx     #$30                        ; Abort: bad final pitch
+    lda     pitchValue
+    beq     .scoreMission
+    jsr     Lfcc7                       ; Abort for bad pitch
+    bcs     .flightEffects
+.scoreMission
+    sty     speedDisplayLow             ; Clear speed display
+    sty     gameActive                  ; Game over
+    sty     attractTimer
+    sty     autopilotMode               ; Clear autopilot
+    ldx     #$21                        ; Default: mission success display
+    bit     trainingModeFlag                      ; Training mode?
+    bpl     .setEndDisplay
+    ldx     #$19                        ; Training: different display
+.setEndDisplay
+    stx     statusDisplayId
+    ;--- Determine End Screen Based on Performance ---
+    ldx     #$05                        ; Screen: basic completion
+    bit     trainingModeFlag
+    bmi     .setEndScreen               ; Training: always screen $05
+    ldy     dockingCount                      ; Docking count
+    beq     .setEndScreen               ; No dockings: screen $05
+    inx                                 ; Screen $06: with dockings
     cpy     #$06
-    bne     Lf76b
-    lda     ram_9B
-    cmp     #$75
-    bcc     Lf76b
-    inx
-Lf76b
+    bne     .setEndScreen               ; Not max dockings
+    lda     fuelHigh
+    cmp     #$75                        ; Enough fuel for commander patch?
+    bcc     .setEndScreen
+    inx                                 ; Screen $07: COMMANDER PATCH!
+.setEndScreen
     stx     currentScreenId
-    sty     ram_F8
-Lf76f
-    ldy     ram_F4
-    beq     Lf789
+    sty     trainingModeFlag
+;-----------------------------------------------------------
+;      Flight Effects Handler (pendingSpeedEffect)
+;      Processes deferred speed changes from display kernel.
+;      pendingSpeedEffect: 0=none, 1=decrease speed, 2=increase speed.
+;-----------------------------------------------------------
+.flightEffects
+    ldy     pendingSpeedEffect
+    beq     .statusDisplay              ; No pending effect
     cpy     #$01
-    bne     Lf77c
-    beq     Lf786
+    bne     .checkEffect2
+    beq     .doDecSpeed
 bank1EntryFromBank0
     jmp     bank1Handler
     
-Lf77c
+.checkEffect2
     cpy     #$02
-    bne     Lf789
-    jsr     Lfd20
-    jmp     Lf789
+    bne     .statusDisplay
+    jsr     Lfd20                       ; Increase speed
+    jmp     .statusDisplay
     
-Lf786
-    jsr     Lfd42
-Lf789
-    ldx     ram_85
-    cpx     #$0d
-    bne     Lf799
+.doDecSpeed
+    jsr     Lfd42                       ; Decrease speed
+;-----------------------------------------------------------
+;      Status Display Value Calculation
+;      Converts the current flight parameter (selected by
+;      statusDisplayId) into BCD digits for the 7-segment
+;      cockpit display. Each display ID shows a different value.
+;-----------------------------------------------------------
+.statusDisplay
+    ldx     statusDisplayId
+    cpx     #$0d                        ; Orbital distance display?
+    bne     .checkDisplayType
+    ;--- Display $0D: Orbital Separation (shuttleOrbitalPos - satelliteOrbitalPos) ---
     clc
-    lda     ram_B1
-    sbc     ram_B0
-    eor     #$ff
-    jmp     Lf7c0
+    lda     shuttleOrbitalPos
+    sbc     satelliteOrbitalPos
+    eor     #$ff                        ; Negate for display
+    jmp     .convertToDisplay
     
-Lf799
-    lda     ram_B2
+.checkDisplayType
+    ;-----------------------------------------------------------
+    ; Display Parameter Selection
+    ; Maps statusDisplayId to the corresponding flight value:
+    ;   $0F = yAxisPlane (pitch indicator position)
+    ;   $17 = starfieldScrollY (approach timer / docking proximity)
+    ;   $11 = $D2 - altitude (distance from target orbit)
+    ;   $13 = pitchValue*4 - $1B (pitch angle in degrees)
+    ;   $15 = omsYaw (OMS yaw value)
+    ;   Other = skip to digit rendering
+    ;-----------------------------------------------------------
+    lda     yAxisPlane                  ; Default value
     cpx     #$0f
-    beq     Lf7be
-    lda     ram_E9
+    beq     .signedConvert              ; Display $0F: Y-axis position
+    lda     starfieldScrollY
     cpx     #$17
-    beq     Lf7be
+    beq     .signedConvert              ; Display $17: approach timer
     lda     #$d2
     sec
-    sbc     ram_A5
+    sbc     altitude                    ; Distance from 210nm orbit
     cpx     #$11
-    beq     Lf7be
-    lda     ram_88
+    beq     .signedConvert              ; Display $11: altitude delta
+    lda     pitchValue
     asl
     asl
-    sbc     #$1b
+    sbc     #$1b                        ; Convert to displayable angle
     cpx     #$13
-    beq     Lf7be
+    beq     .signedConvert              ; Display $13: pitch angle
     cpx     #$15
-    bne     Lf7f5
-    lda     ram_B3
-Lf7be
+    bne     .skipConversion             ; Not a known display: skip
+    lda     omsYaw                      ; Display $15: OMS yaw
+.signedConvert
+    ;-----------------------------------------------------------
+    ; Signed-to-BCD Conversion
+    ; Input: A = signed byte value to display.
+    ; If negative (>= $80): negate and set sign flag ($A0).
+    ; Converts to 3-digit BCD in displayDigitsHigh:displayDigitsLow.
+    ;-----------------------------------------------------------
     cmp     #$80
-Lf7c0
-    ldx     #$00
-    bcc     Lf7ca
-    ldx     #$a0
-    eor     #$ff
+.convertToDisplay
+    ldx     #$00                        ; Sign: positive
+    bcc     .positiveValue
+    ldx     #$a0                        ; Sign: negative (display "-")
+    eor     #$ff                        ; Negate
     adc     #$00
-Lf7ca
-    stx     ram_A3
-    tay
+.positiveValue
+    stx     displayDigitsHigh                      ; Store sign/hundreds digit
+    tay                                 ; Save value
     lsr
     lsr
     lsr
-    lsr
+    lsr                                 ; Upper nibble = tens estimate
     tax
-    lda     Lfd9a,x
-    sta     ram_A2
+    lda     Lfd9a,x                     ; BCD lookup table
+    sta     displayDigitsLow                      ; Store tens digit
     cpx     #$0d
-    bcc     Lf7dd
-    inc     ram_A3
-Lf7dd
+    bcc     .noHundredsInc
+    inc     displayDigitsHigh                      ; Adjust hundreds
+.noHundredsInc
     cpx     #$07
-    bcc     Lf7e3
-    inc     ram_A3
-Lf7e3
+    bcc     .noBcdAdjust
+    inc     displayDigitsHigh                      ; BCD correction
+.noBcdAdjust
     tya
-    and     #$0f
+    and     #$0f                        ; Lower nibble = ones
     cmp     #$0a
-    bcc     Lf7ec
-    adc     #$05
-Lf7ec
+    bcc     .addOnes
+    adc     #$05                        ; BCD adjust for values >= 10
+.addOnes
     sed
-    adc     ram_A2
-    sta     ram_A2
-    bcc     Lf7f5
-    inc     ram_A3
-Lf7f5
+    adc     displayDigitsLow                      ; Add ones to tens
+    sta     displayDigitsLow
+    bcc     .skipConversion
+    inc     displayDigitsHigh                      ; Carry into hundreds
+.skipConversion
     cld
+;-----------------------------------------------------------
+;      7-Segment Digit Rendering
+;      Converts BCD flight data into graphic pointers for the
+;      cockpit instrument display. Processes 7 digits (X=6..0)
+;      from the speedDisplayLow array. Each digit's high/low
+;      nibble is converted to a graphic offset via Lfddc.
+;-----------------------------------------------------------
+renderDigits
 Lf7f6
-    ldx     #$06
-    ldy     ram_85
-    lda     ram_F1
-    beq     Lf800
-    ldy     #$09
-Lf800
-    sty     ram_FA
+    ldx     #$06                        ; 7 digit positions (0-6)
+    ldy     statusDisplayId
+    lda     errorDisplayFlag                      ; Error flag?
+    beq     .setDisplayIndex
+    ldy     #$09                        ; Override: error display
+.setDisplayIndex
+    sty     tempVar                      ; Save active display index
     cpy     #$0d
-    bcc     Lf808
-    ldy     #$0d
-Lf808
-    lda.wy  ram_96,y
-    and     #$f0
-    lsr
-    jsr     Lfddc
+    bcc     .digitLoop
+    ldy     #$0d                        ; Clamp to max display index
+.digitLoop
+    lda.wy  speedDisplayLow,y           ; Get digit pair
+    and     #$f0                        ; Upper nibble (tens)
+    lsr                                 ; Convert to graphic offset
+    jsr     Lfddc                       ; Store graphic pointer
     dex
-    lda.wy  ram_96,y
-    and     #$0f
+    lda.wy  speedDisplayLow,y           ; Same digit pair
+    and     #$0f                        ; Lower nibble (ones)
     asl
     asl
-    asl
-    jsr     Lfddc
+    asl                                 ; Convert to graphic offset
+    jsr     Lfddc                       ; Store graphic pointer
     dey
     dex
-    bpl     Lf808
+    bpl     .digitLoop
+    ;-----------------------------------------------------------
+    ; Blank Leading Zeros
+    ; Replace zero graphic pointers ($00) with blank ($54).
+    ;-----------------------------------------------------------
     ldx     #$06
-    ldy     #$54
-Lf825
+    ldy     #$54                        ; Blank digit pattern offset
+.blankLeadingZeros
     lda     screenPtr1L,x
-    bne     Lf82f
-    sty     screenPtr1L,x
+    bne     .selectGraphicSet           ; Non-zero: stop blanking
+    sty     screenPtr1L,x              ; Replace with blank
     dex
     dex
-    bne     Lf825
-Lf82f
-    lda     ram_FA
+    bne     .blankLeadingZeros
+.selectGraphicSet
+    ;-----------------------------------------------------------
+    ; Select Graphic Set for Status Display
+    ; tempVar/2 indexes into graphicOffsetTable to choose the
+    ; appropriate instrument graphic (fuel, speed, altitude, etc).
+    ; Displays >= $0C use the multi-screen pointer setup.
+    ;-----------------------------------------------------------
+    lda     tempVar
     lsr
     tax
-    lda     graphicOffsetTable,x
+    lda     graphicOffsetTable,x        ; Get graphic base offset
     cpx     #$0c
-    bcs     Lf848
+    bcs     .multiScreenSetup
+    ;--- Standard 2-line graphic ---
     sta     screenPtr6L
     adc     #$06
     sta     screenPtr5L
-    lda     #$de
+    lda     #$de                        ; High byte: graphic ROM page
     sta     screenPtr6H
     sta     screenPtr5H
-    bne     Lf857
-Lf848
+    bne     .waitForOverscan
+.multiScreenSetup
+    ;--- Multi-line graphic (6 screen pointers) ---
     ldx     #$0a
-    ldy     #$df
+    ldy     #$df                        ; High byte for multi-screen
     clc
-Lf84d
+.setupScreenPtrs
     sta     screenPtr1L,x
     sty     screenPtr1H,x
-    adc     #$07
+    adc     #$07                        ; Each graphic is 7 bytes apart
     dex
     dex
-    bpl     Lf84d
-Lf857
+    bpl     .setupScreenPtrs
+;-----------------------------------------------------------
+;      Wait for VBLANK Timer / Overscan End
+;      Spins until INTIM reaches 0, then begins visible frame.
+;      Launch phase adds extra WSYNC lines for thrust arrow
+;      flicker effect during countdown (phase 5 = double wait).
+;-----------------------------------------------------------
+.waitForOverscan
     ldx     INTIM
-    bne     Lf857
+    bne     .waitForOverscan
     stx     WSYNC
 ;---------------------------------------
-    ldy     ram_B4
-    beq     Lf870
-    lda     ram_C1
-    and     #$02
-    beq     Lf870
-    cpy     #$05
-    bne     Lf86e
+    ldy     launchPhase
+    beq     .startVisibleFrame
+    lda     frameCounter
+    and     #$02                        ; Flicker every 2 frames
+    beq     .startVisibleFrame
+    cpy     #$05                        ; Launch phase 5 = extra line
+    bne     .normalLaunchWait
+    stx     WSYNC                       ; Extra scanline for SRB sep effect
+;---------------------------------------
+.normalLaunchWait
+    stx     WSYNC                       ; Additional WSYNC for launch flicker
+;---------------------------------------
+.startVisibleFrame
+;-----------------------------------------------------------
+;      Visible Frame Setup
+;      Configures TIA for visible display area.
+;      Sets up VBLANK end, playfield reflection, player stretch,
+;      and determines which screen kernel to use based on
+;      current game state (launch, orbit, reentry, landing).
+;-----------------------------------------------------------
     stx     WSYNC
 ;---------------------------------------
-Lf86e
-    stx     WSYNC
-;---------------------------------------
-Lf870
-    stx     WSYNC
-;---------------------------------------
-    sta     ram_FA
+    sta     tempVar
     lda     #$0f
-    and     ram_B8
+    and     screenBlankFlags                      ; Screen blanking flags
     lsr
-    sta     VBLANK
+    sta     VBLANK                      ; End vertical blank (bit 1=0 = display on)
     dex
-    stx     PF2
+    stx     PF2                         ; PF2 = $FF (solid playfield)
     inx
-    stx     VDELP0
-    stx     VDELP1
+    stx     VDELP0                      ; Enable vertical delay for P0
+    stx     VDELP1                      ; Enable vertical delay for P1
     lda     #$80
-    sta     HMBL,x
+    sta     HMBL,x                      ; Reset ball horizontal motion
     lda     #$15
-    sta     CTRLPF
-    lda     ram_98
+    sta     CTRLPF                      ; Reflected PF, ball size 2, PF priority
+    ;-----------------------------------------------------------
+    ; Screen Type Branching
+    ; speedFractionLow: animation/screen state counter.
+    ;   >= 9: use orbit/cockpit kernel
+    ;   Engine off + pre-launch: use title screen
+    ;   In flight (flightPhase > 0): use cockpit kernel
+    ;   Otherwise: use launch screen with T/C arrows
+    ;-----------------------------------------------------------
+    lda     speedFractionLow
     cmp     #$09
-    sta     RESBL
-    bcs     Lf8c2
-    ldy     ram_B7
-    beq     Lf8c8
-    ldy     ram_B5
-    bne     Lf8c2
+    sta     RESBL                       ; Position ball (timing-sensitive)
+    bcs     .useCockpitKernel
+    ldy     enginePowerOn
+    beq     .useFlightKernel
+    ldy     flightPhase
+    bne     .useCockpitKernel
+    ;-----------------------------------------------------------
+    ; Launch Screen Kernel Setup
+    ; Calculates vertical positions for T arrow, C arrow,
+    ; and the gap between them on the launch display.
+    ; tempVar/tempVar3 = top/bottom section heights.
+    ; tempVar2 = middle gap size.
+    ;-----------------------------------------------------------
     eor     #$0f
     sbc     #$05
     rol
-    sta     ram_FA
-    sta     ram_FC
+    sta     tempVar                      ; Top section height
+    sta     tempVar3                      ; Bottom section (same initially)
     lda     #$14
-    sbc     ram_FA
+    sbc     tempVar
     asl
     adc     #$0b
-    sta     ram_FB
-    lda     ram_B4
-    beq     Lf8bb
-    lda     ram_C1
+    sta     tempVar2                      ; Middle gap height
+    ;--- Launch flicker adjustment for countdown display ---
+    lda     launchPhase
+    beq     .calcLaunchColor
+    lda     frameCounter
     and     #$02
-    beq     Lf8bb
-    inc     ram_FC
-    dec     ram_FA
-Lf8bb
-    lda     ram_AE
+    beq     .calcLaunchColor
+    inc     tempVar3                      ; Flicker: shift arrow positions
+    dec     tempVar
+.calcLaunchColor
+    lda     countdownTimer
     adc     #$06
-    tay
-    bcc     Lf8fb
-Lf8c2
-    ldy     ram_B5
-    bne     Lf8c8
-    inc     ram_B5
-Lf8c8
+    tay                                 ; Y = color index for countdown
+    bcc     .setGroundColors            ; No overflow: use ground palette
+.useCockpitKernel
+    ldy     flightPhase
+    bne     .useFlightKernel
+    inc     flightPhase                 ; Auto-advance to flight phase 1
+.useFlightKernel
+    ;-----------------------------------------------------------
+    ; Flight/Cockpit Display Colors
+    ; Sets background and player colors based on game state:
+    ;   - separationFlashTimer: separation flash override (white flash)
+    ;   - heatEffectTimer: ionization heating (random flash colors from Lfebf)
+    ;   - atmosphereDensity: atmosphere effects (grey tint)
+    ;   - Normal: sky color from Lfec5 table, player from Lfd8a
+    ;   - Engine off: use index 5 (dark sky for title)
+    ;-----------------------------------------------------------
     lda     #$01
-    sta     ram_FA
-    lda     ram_A4
+    sta     tempVar                      ; Minimum section height
+    lda     descentRateIndex
     lsr
     eor     #$0f
-    tay
+    tay                                 ; Y = color table index
     lda     rngSeed
-    bit     ram_EC
-    beq     Lf8de
-    dec     ram_EC
-    lda     #$1e
-    bne     Lf8e8
-Lf8de
-    cmp     ram_E1
-    bcs     Lf8ed
-    and     #$07
+    bit     separationFlashTimer                      ; Separation flash active?
+    beq     .checkHeating
+    dec     separationFlashTimer                      ; Decrement flash timer
+    lda     #$1e                        ; White flash color
+    bne     .setPlayerColor
+.checkHeating
+    cmp     heatEffectTimer                      ; In heating zone?
+    bcs     .checkAtmosphere
+    and     #$07                        ; Random color from heating palette
     tay
-    lda     Lfebf,y
-Lf8e8
+    lda     Lfebf,y                     ; Heating color table
+.setPlayerColor
     sta     COLUP1
-    jmp     Lf903
+    jmp     .setBackgroundColor
     
-Lf8ed
-    cmp     ram_E7
-    bcs     Lf8f5
-    lda     #$08
-    bne     Lf8e8
-Lf8f5
-    lda     ram_B7
-    bne     Lf8fb
-    ldy     #$05
-Lf8fb
-    lda     Lfd8a,y
+.checkAtmosphere
+    cmp     atmosphereDensity                      ; In atmosphere zone?
+    bcs     .normalColors
+    lda     #$08                        ; Grey atmosphere tint
+    bne     .setPlayerColor
+.normalColors
+    lda     enginePowerOn
+    bne     .setGroundColors
+    ldy     #$05                        ; Engine off: title screen color
+.setGroundColors
+    lda     Lfd8a,y                     ; Player color from table
     sta     COLUP1
-    lda     Lfec5,y
-Lf903
+    lda     Lfec5,y                     ; Background color from table
+.setBackgroundColor
     sta     COLUBK
     sta     starfieldVerticalCounter
+;-----------------------------------------------------------
+;      Ground/Mountain Playfield Kernel
+;      Draws the ground view with mountains/terrain using
+;      PF0/PF1/PF2 registers. 10 scanlines of terrain data
+;      from Lfe27/Lff01/Lfe31 tables.
+;-----------------------------------------------------------
+groundKernel
 Lf907
     sta     WSYNC
 ;---------------------------------------
     sta     HMOVE
-    lda     Lfe27,x
+    lda     Lfe27,x                     ; PF0: left edge terrain
     sta     PF0
-    lda     Lff01,x
+    lda     Lff01,x                     ; PF1: center terrain
     sta     PF1
-    lda     Lfe31,x
+    lda     Lfe31,x                     ; PF2: right terrain
     sta     PF2
     sta     HMCLR
     inx
     cpx     #$0a
-    bcc     Lf907
-    ldx     ram_FA
+    bcc     groundKernel
+    ldx     tempVar
 Lf923
     sta     WSYNC
 ;---------------------------------------
@@ -4801,14 +5342,14 @@ Lf923
     sta     PF2
     dex
     bne     Lf923
-    lda     ram_B7
+    lda     enginePowerOn
     beq     Lf991
-    lda     ram_B5
+    lda     flightPhase
     bne     Lf991
     sta     REFP0
     lda     #$07
     sta     NUSIZ0
-    lda     ram_86
+    lda     trajectoryDotPos
     jsr     Lfe00
     ldx     #$0a
 Lf947
@@ -4818,7 +5359,7 @@ Lf947
     lda     Lfe78,x
     sta     GRP0
     lda     Lfea0,x
-    adc     ram_AE
+    adc     countdownTimer
     sta     COLUP0
     lda     Lfe8c,x
     sta     HMP0
@@ -4827,13 +5368,13 @@ Lf947
     stx     WSYNC
 ;---------------------------------------
     stx     GRP0
-    ldx     ram_FB
+    ldx     tempVar2
 Lf965
     stx     WSYNC
 ;---------------------------------------
     dex
     bne     Lf965
-    lda     ram_87
+    lda     planeDotPos
     jsr     Lfe00
     ldx     #$0a
 Lf971
@@ -4843,7 +5384,7 @@ Lf971
     lda     Lfe82,x
     sta     GRP0
     lda     Lfea0,x
-    adc     ram_AE
+    adc     countdownTimer
     sta     COLUP0
     lda     Lfe96,x
     sta     HMP0
@@ -4852,26 +5393,26 @@ Lf971
     stx     WSYNC
 ;---------------------------------------
     stx     GRP0
-    ldx     ram_FC
+    ldx     tempVar3
     bne     Lf9fe
 Lf991
     cmp     #$04
     beq     Lfa01
     txs
     lda     #$04
-    sta     ram_FC
-    ldy     ram_89
+    sta     tempVar3
+    ldy     starfieldColumnIndex
     lda     #$3c
-    sta     ram_FB
+    sta     tempVar2
 Lf9a0
     sta     WSYNC
 ;---------------------------------------
     sta     HMOVE
-    lda     (ram_DC),y
+    lda     (gfxDataPtrL),y
     sta     GRP0
     lda     Lfeb9,y
     sta     ENAM1
-    dec     ram_FB
+    dec     tempVar2
     bmi     Lf9f1
     dey
     sta     HMCLR
@@ -4886,14 +5427,14 @@ Lf9c2
     tsx
     inx
     txs
-    lda     ram_89,x
-    sta     ram_FA
-    lda     (ram_DC),y
+    lda     starfieldColumnIndex,x
+    sta     tempVar
+    lda     (gfxDataPtrL),y
     dey
     sta     WSYNC
 ;---------------------------------------
     sta     GRP0
-    lda     ram_FA
+    lda     tempVar
 Lf9d2
     sbc     #$0f
     bcs     Lf9d2
@@ -4908,17 +5449,17 @@ Lf9d2
     jmp     Lf9a0
     
 Lf9e5
-    dec     ram_FC
-    ldx     ram_FC
-    lda     ram_D8,x
-    sta     ram_DC
+    dec     tempVar3
+    ldx     tempVar3
+    lda     columnGfxPtrTable,x
+    sta     gfxDataPtrL
     ldy     #$11
     bne     Lf9a0
 Lf9f1
     ldx     #$ff
     txs
     inx
-    ldy     ram_89
+    ldy     starfieldColumnIndex
     cpy     #$14
     bne     Lf9fd
     sta     WSYNC
@@ -4929,18 +5470,18 @@ Lf9fe
     jmp     Lfba7
     
 Lfa01
-    ldx     ram_A5
+    ldx     altitude
 Lfa03
     sta     WSYNC
 ;---------------------------------------
     dex
     bpl     Lfa03
-    lda     ram_88
+    lda     pitchValue
     tax
     eor     #$1f
     sec
     sbc     #$0f
-    sta     ram_FC
+    sta     tempVar3
 Lfa12
     sta     WSYNC
 ;---------------------------------------
@@ -4950,7 +5491,7 @@ Lfa12
     stx     REFP0
     lda     #$05
     sta     NUSIZ0
-    lda     ram_86
+    lda     trajectoryDotPos
     jsr     Lfdf5
     ldx     #$07
 Lfa25
@@ -4960,7 +5501,7 @@ Lfa25
     lda     Lfdc5,x
     jsr     Lfb9c
     bne     Lfa25
-    lda     ram_87
+    lda     planeDotPos
     jsr     Lfdf5
     ldx     #$07
 Lfa38
@@ -4970,7 +5511,7 @@ Lfa38
     lda     Lfdcc,x
     jsr     Lfb9c
     bne     Lfa38
-    lda     ram_B2
+    lda     yAxisPlane
     clc
     adc     #$6d
     bcs     Lfa4f
@@ -4981,7 +5522,7 @@ Lfa4f
 Lfa51
     jsr     Lfe00
     inx
-    lda     ram_B2
+    lda     yAxisPlane
     clc
     adc     #$24
     cmp     #$a0
@@ -5014,7 +5555,7 @@ Lfa71
     stx     GRP0
     stx     GRP1
     sty     COLUBK
-    lda     ram_B2
+    lda     yAxisPlane
     cmp     #$50
     bcc     Lfa99
     adc     #$5f
@@ -5034,7 +5575,7 @@ Lfa99
     sta     HMOVE
     jsr     Lff00
     ldy     #$00
-    lda     ram_B2
+    lda     yAxisPlane
     cmp     #$50
     bcc     Lfac5
     ldx     #$10
@@ -5061,7 +5602,7 @@ Lfad7
 ;---------------------------------------
     lda     #$20
     sta     COLUBK
-    lda     ram_B2
+    lda     yAxisPlane
     cmp     #$50
     bcc     Lfae7
     sbc     #$50
@@ -5072,17 +5613,17 @@ Lfae7
     sbc     #$b0
 Lfaef
     lsr
-    sta     ram_FA
-    lda     ram_E8
+    sta     tempVar
+    lda     reentryContactState
     beq     Lfb02
-    lda     ram_C1
+    lda     frameCounter
     and     #$03
     bne     Lfb02
-    lda     ram_B6
+    lda     gameActive
     beq     Lfb02
-    dec     ram_E9
+    dec     starfieldScrollY
 Lfb02
-    lda     ram_E9
+    lda     starfieldScrollY
     eor     #$ff
     clc
     adc     #$36
@@ -5093,12 +5634,12 @@ Lfb02
     sta     COLUBK
     lda     #$1d
     sec
-    sbc     ram_A5
+    sbc     altitude
     clc
-    adc     ram_FC
-    sta     ram_FC
+    adc     tempVar3
+    sta     tempVar3
     ldy     #$0f
-    lda     ram_C1
+    lda     frameCounter
     and     #$10
     bne     Lfb25
     ldy     #$0a
@@ -5116,7 +5657,7 @@ kernelDrawCockpitWindow
 ;---------------------------------------
     sta     HMOVE                       ; Apply fine motion (moves stars left/right).
     iny
-    cpy     ram_FA                      ; Compare loop counter to Motion Threshold?
+    cpy     tempVar                      ; Compare loop counter to Motion Threshold?
     bcc     Lfb3e                       ; Branch if "fast motion" update not needed yet.
     ldy     #$00
     lda     starfieldHorizontalMotion,x ; Load motion value from table.
@@ -5155,7 +5696,7 @@ Lfb52
     lda     #$02                        ; Else, Enable M1 (1 pixel).
 Lfb5c
     sta     ENAM1
-    dec     ram_FC                      ; Decrement scanline counter.
+    dec     tempVar3                      ; Decrement scanline counter.
     bpl     kernelDrawCockpitWindow     ; Loop for next scanline.
     txs
     ldx     #$0a
@@ -5169,10 +5710,10 @@ Lfb65
     sta     PF1
     lda     Lfe30,x
     sta     PF2
-    stx     ram_FB
+    stx     tempVar2
     tsx
     iny
-    cpy     ram_FA
+    cpy     tempVar
     bcc     Lfb88
     ldy     #$00
     lda     starfieldHorizontalMotion,x
@@ -5187,7 +5728,7 @@ Lfb8c
     sta     ENAM0
     sta     ENAM1
 Lfb94
-    ldx     ram_FB
+    ldx     tempVar2
     dex
     bne     Lfb65
     jmp     exitLogicToKernel
@@ -5207,18 +5748,18 @@ Lfba7
     bne     Lfba7
     stx     GRP0
     stx     ENAM1
-    lda     ram_B7
+    lda     enginePowerOn
     beq     Lfbc2
     lda     #$10
-    ldy     ram_B5
+    ldy     flightPhase
     beq     Lfbc2
     ldy     starfieldVerticalCounter
     cpy     #$90
     bne     Lfbc2
-    lda     ram_88
+    lda     pitchValue
 Lfbc2
-    sta     ram_FC
-    lda     ram_EF
+    sta     tempVar3
+    lda     cockpitAnimCounter
     sta     WSYNC
 ;---------------------------------------
     and     #$0f
@@ -5262,11 +5803,11 @@ Lfc01
 Lfc0a
     sta     HMCLR
     lda     starfieldVerticalCounter
-    dec     ram_FC
+    dec     tempVar3
     bpl     Lfc18
     lda     Lfe55,y
     sec
-    adc     ram_EA
+    adc     satelliteColorOffset
 Lfc18
     dex
     beq     exitLogicToKernel
@@ -5293,47 +5834,47 @@ exitLogicToKernel
     jmp     resetBank1
     
 bank1Handler
-    bit     ram_F9
+    bit     autopilotMode
     bmi     waitForTimerVSYNC
-    lda     ram_B5
+    lda     flightPhase
     cmp     #$02
     bne     Lfc60
-    bit     ram_C6
+    bit     consoleSwitches
     bmi     Lfc5c
-    lda     ram_E6
+    lda     cargoDoorTimer
     bpl     Lfc60
     ldx     #$41
-    stx     ram_CA
+    stx     soundEffectId
     cmp     #$ff
     bne     Lfc60
     ldx     #$85
     jsr     Lfcc7
 Lfc5c
     ldx     #$01
-    stx     ram_E6
+    stx     cargoDoorTimer
 Lfc60
-    lda     ram_ED
+    lda     separationEventTimer
     bne     waitForTimerVSYNC
-    bit     ram_C6
+    bit     consoleSwitches
     bpl     Lfc85
     ldx     #$50
-    lda     ram_B5
+    lda     flightPhase
     beq     waitForTimerVSYNC
     and     #$01
     bne     Lfc82
-    lda     ram_F0
+    lda     cargoDoorState
     bne     waitForTimerVSYNC
-    dec     ram_F0
+    dec     cargoDoorState
     .byte   $2c ;bit                ;4-5 =  30 *
 Lfc79
-    inc     ram_F0
+    inc     cargoDoorState
     ldx     #$72
     jsr     Lfce6
     bne     waitForTimerVSYNC
 Lfc82
     jsr     Lfcc7
 Lfc85
-    lda     ram_F0
+    lda     cargoDoorState
     bne     Lfc79
 ;-----------------------------------------------------------
 ;      Wait For Timer / Start VSYNC (Bank 1)
@@ -5345,43 +5886,45 @@ waitForTimerVSYNC
     sty     WSYNC
 ;---------------------------------------
     sty     VSYNC
-    lda     ram_F2
+    lda     landingDisplayMode
     beq     Lfca2
-    lda     ram_CA
+    lda     soundEffectId
     bne     Lfca2
-    dec     ram_F2
+    dec     landingDisplayMode
     lda     #$82
-    sta     ram_CA
+    sta     soundEffectId
 Lfca2
-    lda     ram_DE
+    lda     targetHorizPos
     jsr     Lfe00
     stx     WSYNC
 ;---------------------------------------
     stx     VSYNC
-    jmp     Lf011
+    jmp     mainFrameLoop
     
+subtractFuel
 Lfcae
-    bit     ram_F8
+    bit     trainingModeFlag
     bmi     Lfd09
     sed
     sec
-    sta     ram_FA
-    lda     ram_9A
-    sbc     ram_FA
-    sta     ram_9A
-    lda     ram_9B
+    sta     tempVar
+    lda     fuelLow
+    sbc     tempVar
+    sta     fuelLow
+    lda     fuelHigh
     sbc     #$00
-    sta     ram_9B
+    sta     fuelHigh
     cld
     bcs     Lfd09
     ldx     #$99
+abortMission
 Lfcc7
     sec
-    lda     ram_B6
+    lda     gameActive
     beq     Lfd09
-    stx     ram_9F
+    stx     abortCode
     txa
-    ldx     ram_F8
+    ldx     trainingModeFlag
     beq     Lfced
     inx
     ldy     #$05
@@ -5390,90 +5933,90 @@ Lfcd6
     beq     Lfcf1
     dey
     bne     Lfcd6
-    bit     ram_F9
+    bit     autopilotMode
     bmi     Lfd09
-    sta     ram_F1
+    sta     errorDisplayFlag
     ldx     #$b4
 Lfce6
-    stx     ram_CA
+    stx     soundEffectId
     ldx     #$fe
-    stx     ram_C9
+    stx     soundSequenceIndex
     rts
     
 Lfced
-    stx     ram_9A
-    stx     ram_9B
+    stx     fuelLow
+    stx     fuelHigh
 Lfcf1
-    stx     ram_BA
-    stx     ram_F1
-    stx     ram_B6
-    stx     ram_B4
-    stx     ram_AB
-    stx     ram_E1
-    stx     ram_B3
-    stx     ram_E7
-    stx     ram_F9
-    stx     ram_F8
+    stx     attractTimer
+    stx     errorDisplayFlag
+    stx     gameActive
+    stx     launchPhase
+    stx     movementFlags
+    stx     heatEffectTimer
+    stx     omsYaw
+    stx     atmosphereDensity
+    stx     autopilotMode
+    stx     trainingModeFlag
     ldx     #$1b
-    stx     ram_85
+    stx     statusDisplayId
 Lfd09
     rts
     
     .byte   $95,$70,$75,$80,$10             ; $fd0a (*)
     
 Lfd0f
-    ora     ram_AB
-    sta     ram_AB
-    lda     ram_E3
+    ora     movementFlags
+    sta     movementFlags
+    lda     dockingCount
     beq     Lfd1d
     bit     rngSeed
     bmi     Lfd1d
-    inc     ram_B0
+    inc     satelliteOrbitalPos
 Lfd1d
     ldx     #$0f
     rts
     
 Lfd20
-    lda     ram_A5
+    lda     altitude
     cmp     #$ff
     beq     Lfd40
     sed
-    lda     ram_98
+    lda     speedFractionLow
     clc
     adc     #$01
-    sta     ram_98
+    sta     speedFractionLow
     bcc     Lfd38
-    lda     ram_99
+    lda     speedFractionHigh
     adc     #$00
-    sta     ram_99
-    inc     ram_A4
+    sta     speedFractionHigh
+    inc     descentRateIndex
 Lfd38
-    lda     ram_98
+    lda     speedFractionLow
     and     #$0f
     bne     Lfd40
 Lfd3e
-    inc     ram_A5
+    inc     altitude
 Lfd40
     cld
     rts
     
 Lfd42
     sed
-    lda     ram_98
+    lda     speedFractionLow
     sec
     sbc     #$01
-    sta     ram_98
+    sta     speedFractionLow
     bcs     Lfd54
-    lda     ram_99
+    lda     speedFractionHigh
     sbc     #$00
-    sta     ram_99
-    dec     ram_A4
+    sta     speedFractionHigh
+    dec     descentRateIndex
 Lfd54
-    lda     ram_98
+    lda     speedFractionLow
     and     #$0f
     bne     Lfd40
-    dec     ram_A5
-    lda     ram_A5
+    dec     altitude
+    lda     altitude
     cmp     #$ff
     bne     Lfd40
     beq     Lfd3e
@@ -5517,7 +6060,7 @@ Lfdd7
 Lfddc
     cpy     #$04
     bcs     Lfde6
-    bit     ram_E1
+    bit     heatEffectTimer
     bpl     Lfde6
     lda     #$50
 Lfde6
@@ -5532,7 +6075,7 @@ Lfdee
     
 Lfdf5
     clc
-    adc     ram_B2
+    adc     yAxisPlane
     bcs     Lfdfe
     cmp     #$a0
     bcc     Lfe00
@@ -5649,6 +6192,7 @@ Lfe69
     sta     rngSeed,x
     dex
     bne     Lfe69
+initGameVars
 Lfe6e
     ldx     #$21
 Lfe70
@@ -5682,7 +6226,7 @@ Lfe82
 Lfe8c
     .byte   %10001001 ; |#   #  #|            $fe8c (G)
     
-Lfe8d
+launchEventParams
     .byte   $01,$e0,$e0,$f2,$00,$11,$20,$21 ; $fe8d (D)
     .byte   $e2                             ; $fe95 (D)
 Lfe96
@@ -5702,7 +6246,7 @@ Lfea0
     .byte   BLACK|$4                        ; $fea9 (C)
     .byte   BLACK|$4                        ; $feaa (C)
     
-Lfeab
+launchEventTimings
     .byte   $04,$00,$03,$07,$10,$13,$15,$22 ; $feab (*)
     .byte   $40,$41,$65,$66,$70,$72         ; $feb3 (*)
 Lfeb9
@@ -5728,36 +6272,36 @@ Lfec5
     .byte   $60,$70,$82,$62,$64,$84,$86     ; $fece (*)
     
 Lfed5
-    inc     ram_A6
+    inc     speed
     bne     Lfedc
-    dec     ram_A6
+    dec     speed
     rts
     
 Lfedc
     sed
-    lda     ram_96
+    lda     speedDisplayLow
     clc
     adc     #$01
-    sta     ram_96
-    lda     ram_97
+    sta     speedDisplayLow
+    lda     speedDisplayHigh
     adc     #$00
     bcc     Lfefd
 Lfeea
-    dec     ram_A6
+    dec     speed
     bne     Lfef1
-    inc     ram_A6
+    inc     speed
     rts
     
 Lfef1
     sed
     sec
-    lda     ram_96
+    lda     speedDisplayLow
     sbc     #$01
-    sta     ram_96
-    lda     ram_97
+    sta     speedDisplayLow
+    lda     speedDisplayHigh
     sbc     #$00
 Lfefd
-    sta     ram_97
+    sta     speedDisplayHigh
     cld
 Lff00
     rts
