@@ -1,4 +1,4 @@
-; Disassembly of ~\Projects\Programming\reversing\6502\shuttle\orig\Space Shuttle.bin
+﻿; Disassembly of ~\Projects\Programming\reversing\6502\shuttle\orig\Space Shuttle.bin
 ; Disassembled 02/12/26 16:14:53
 ; Using Stella 7.0
 ;
@@ -331,8 +331,6 @@ starfieldVerticalCounter = $fd  ; Starfield vertical position counter
 ;      Non Locatable Labels
 ;-----------------------------------------------------------
 
-Lf129           = $f129
-
 
 ;-----------------------------------------------------------
 ;      User Defined Labels
@@ -432,20 +430,20 @@ waitForVBlankTimer
     stx     RESBL
     ldx     dockingCount
     cpx     #$04
-    bcc     Ld0a3
+    bcc     beginDashboardKernel
     lda     flightPhase
     cmp     #$02
-    bne     Ld0a3
+    bne     beginDashboardKernel
     lda     frameCounter
     and     $debd,x
-    bne     Ld0a3
+    bne     beginDashboardKernel
     bit     rngSeed
-    bmi     Ld0a1
+    bmi     windShearIncY
     dec     yAxisPlane
     .byte   $2c ;bit                ;4-5 =  60 *
-Ld0a1
+windShearIncY
     inc     yAxisPlane
-Ld0a3
+beginDashboardKernel
     sta     WSYNC
 ;---------------------------------------
     sta     HMOVE
@@ -461,7 +459,7 @@ Ld0a3
     sta     HMCLR
     sta     ENABL
     sta     RESP1
-Ld0bf
+kernelDrawThrustBar
     sta     WSYNC
 ;---------------------------------------
     lda     #$30
@@ -485,7 +483,7 @@ Ld0bf
     sta.w   RESP0
     sty     PF0
     dex
-    bne     Ld0bf
+    bne     kernelDrawThrustBar
     sta     WSYNC
 ;---------------------------------------
     sta     HMOVE
@@ -503,12 +501,12 @@ Ld0bf
     sta     COLUP0
     ldx     #BLACK|$c
     lda     arrowsMisaligned
-    beq     Ld11d
+    beq     setArrowColors
     lda     frameCounter
     and     #$20
-    beq     Ld11d
+    beq     setArrowColors
     ldx     #$82
-Ld11d
+setArrowColors
     stx     COLUP1
     ldx     #$08
     lda     thrustArrowX
@@ -516,9 +514,9 @@ Ld11d
 ;---------------------------------------
     sta     HMOVE
     sec
-Ld128
+thrustArrowPosLoop
     sbc     #$0f
-    bcs     Ld128
+    bcs     thrustArrowPosLoop
     eor     #$0f
     asl
     asl
@@ -560,21 +558,21 @@ kernelDrawCockpitWindows
     sec
     sbc     satelliteOrbitalPos
     cmp     #$80
-    bne     Ld180
+    bne     setupInstrumentBG
     ldx     dockingProgress
     cpx     #$ff
-    bne     Ld180
+    bne     setupInstrumentBG
     inc     dockingProgress
     lda     rngSeed
     sta     yAxisPlane
-Ld180
+setupInstrumentBG
     ldx     #BLACK|$4
-Ld182
+drawBlankBGLoop
     sta     WSYNC
 ;---------------------------------------
     sta     HMOVE
     dex
-    bne     Ld182
+    bne     drawBlankBGLoop
     stx     COLUBK
     stx     REFP0
     stx     REFP1
@@ -602,27 +600,27 @@ Ld182
     sty     COLUBK
     lda     #$fe
     sta     PF2
-    bcs     Ld1cd
+    bcs     setNormalFuelColor
     lda     frameCounter
     and     #$10
-    beq     Ld1cd
+    beq     setNormalFuelColor
     ldx     #$86
     stx     COLUPF
     ldy     #$80
-    bne     Ld1e1
-Ld1cd
+    bne     applyDigitColors
+setNormalFuelColor
     stx     COLUPF
     ldy     #BLACK|$a
     lda     statusDisplayId
     cmp     #$19
-    bcc     Ld1df
-    beq     Ld1e1
+    bcc     setDigitColorNormal
+    beq     applyDigitColors
     lda     frameCounter
     and     #$10
-    beq     Ld1e1
-Ld1df
+    beq     applyDigitColors
+setDigitColorNormal
     ldy     #$58
-Ld1e1
+applyDigitColors
     sty     COLUP0
     sty     COLUP1
     sta     HMCLR
@@ -644,16 +642,16 @@ Ld1e1
     sty     fuelPenaltyAccum
     sty     NUSIZ0
     lda     errorDisplayFlag
-    bne     Ld217
+    bne     setupMainView
     lda     statusDisplayId
     cmp     #$17
-    beq     Ld214
+    beq     enableStatusDot
     cmp     #$05
-    bcs     Ld217
-Ld214
+    bcs     setupMainView
+enableStatusDot
     asl
     sta     ENAM0
-Ld217
+setupMainView
     sta     WSYNC
 ;---------------------------------------
     sta     HMOVE
@@ -684,21 +682,21 @@ Ld217
     sta     screenPtr1H
     lda     currentScreenId
     and     #$01
-    beq     Ld252
+    beq     loadScreenPtrs
     lda     #$7d
-Ld252
+loadScreenPtrs
     ldx     #$08
     clc
     sta     HMCLR
     sta     WSYNC
 ;---------------------------------------
     sta     HMOVE
-Ld25b
+fillScreenPtrLoop
     sta     screenPtr2L,x
     adc     #$19
     dex
     dex
-    bpl     Ld25b
+    bpl     fillScreenPtrLoop
     sta     WSYNC
 ;---------------------------------------
     sta     HMOVE
@@ -714,19 +712,19 @@ Ld25b
     lda     frameCounter
     ldx     currentScreenId
     bit     heatEffectTimer
-    bpl     Ld285
+    bpl     checkViewUpdate
     and     #$fc
-    beq     Ld28a
-    bne     Ld290
-Ld285
+    beq     setScrollPosition
+    bne     setStaticViewPtr
+checkViewUpdate
     and     $d9f8,x
-    beq     Ld290
-Ld28a
+    beq     setStaticViewPtr
+setScrollPosition
     lda     #$e5
     sec
     sbc     viewVerticalOffset
     .byte   $2c ;bit                ;4-2 =   9 *
-Ld290
+setStaticViewPtr
     lda     #$cc
     sta     screenPtr1L
     lda     #$06
@@ -777,13 +775,13 @@ kernelDrawMainView
     cmp     #$14
     stx     HMBL
     sta     RESBL
-    bcs     Ld2f4
+    bcs     calcFlameOffset
     ldy     #$00
     cmp     #$0c
-    bcc     Ld2f4
+    bcc     calcFlameOffset
     sbc     #$0c
     tay
-Ld2f4
+calcFlameOffset
     sty     tempVar
     tya
     eor     #$07
@@ -794,7 +792,7 @@ Ld2f4
 ;---------------------------------------
     sta     HMOVE
     sec
-Ld304
+fillFlamePtrLoop
     sta     screenPtr2L,x
     sbc     #$08
     sta     screenPtr1L,x
@@ -803,7 +801,7 @@ Ld304
     dex
     dex
     dex
-    bpl     Ld304
+    bpl     fillFlamePtrLoop
     sta     HMCLR
     sta     HMOVE
     ldx     #$00
@@ -879,36 +877,36 @@ kernelDrawStatusBar
     stx     GRP0
     stx     NUSIZ1
     ldx     launchPhase
-    beq     Ld3aa
+    beq     launchPhaseWSYNC
     lda     frameCounter
     and     #$02
-    bne     Ld3ac
+    bne     extraWSYNC
     inx
-Ld3aa
+launchPhaseWSYNC
     stx     WSYNC
 ;---------------------------------------
-Ld3ac
+extraWSYNC
     stx     WSYNC
 ;---------------------------------------
     cpx     #$05
-    beq     Ld3b4
+    beq     beginOverscanLogic
     stx     WSYNC
 ;---------------------------------------
-Ld3b4
+beginOverscanLogic
     ldx     #$dc
     stx     TIM8T
     bit     autopilotMode
-    bmi     Ld403
+    bmi     checkArrowAlignment
     lda     gameActive
-    beq     Ld403
+    beq     checkArrowAlignment
     lda     descentRateIndex
-    beq     Ld403
+    beq     checkArrowAlignment
     ldy     currentScreenId
-    beq     Ld3cf
+    beq     loadTrajectoryPenalty
     cpy     #$03
-    bne     Ld403
+    bne     checkArrowAlignment
     adc     #$14
-Ld3cf
+loadTrajectoryPenalty
     tax
     lda     $d868,x
     ldx     trainingModeFlag
@@ -916,125 +914,125 @@ Ld3cf
     clc
     adc     $dafa,x
     cmp     trajectoryThreshold
-    bcc     Ld3e7
+    bcc     addFuelPenalty
     sbc     $d9e6,x
     cmp     trajectoryThreshold
-    bcc     Ld3f9
-    beq     Ld3f9
-Ld3e7
+    bcc     clearWarningIfActive
+    beq     clearWarningIfActive
+addFuelPenalty
     inc     fuelPenaltyAccum
     ldx     dockingCount
     cpx     #$06
-    bne     Ld3f1
+    bne     queueWarningSound
     inc     fuelPenaltyAccum
-Ld3f1
+queueWarningSound
     lda     #$41
     ldx     soundEffectId
-    bne     Ld403
-    beq     Ld401
-Ld3f9
+    bne     checkArrowAlignment
+    beq     writeSoundEffectId
+clearWarningIfActive
     lda     #$00
     ldx     soundEffectId
     cpx     #$41
-    bne     Ld403
-Ld401
+    bne     checkArrowAlignment
+writeSoundEffectId
     sta     soundEffectId
-Ld403
+checkArrowAlignment
     ldx     #$00
     lda     thrustArrowX
     cmp     computerArrowAuxX
-    bcc     Ld411
+    bcc     setArrowMisaligned
     sbc     #$0b
     cmp     computerArrowAuxX
-    bcc     Ld412
-Ld411
+    bcc     storeAlignmentResult
+setArrowMisaligned
     dex
-Ld412
+storeAlignmentResult
     stx     arrowsMisaligned
     lda     SWCHA
     cmp     #$ff
-    beq     Ld422
+    beq     updateAttractMode
     ldx     #$ff
     stx     joystickDetected
     inx
     stx     screenBlankFlags
-Ld422
+updateAttractMode
     inc     attractSubTimer
-    bne     Ld444
+    bne     checkLandingSound
     lda     attractTimer
     cmp     #$0f
-    bcc     Ld430
+    bcc     incAttractTimer
     ldx     gameActive
     stx     enginePowerOn
-Ld430
+incAttractTimer
     inc     attractTimer
-    bne     Ld444
+    bne     checkLandingSound
     inc     screenBlankFlags
     lda     screenBlankFlags
     and     #$04
-    beq     Ld444
+    beq     checkLandingSound
     sta     screenBlankFlags
     lda     #$00
     sta     gameActive
     sta     enginePowerOn
-Ld444
+checkLandingSound
     lda     currentScreenId
     cmp     #$04
-    bne     Ld45f
+    bne     everyEighthFrame
     lda     starfieldScrollY
-    bmi     Ld45f
+    bmi     everyEighthFrame
     dec     landingFlickerTimer
-    bne     Ld45f
+    bne     everyEighthFrame
     asl
     ora     #$02
     sta     landingFlickerTimer
     lda     soundEffectId
-    bne     Ld45f
+    bne     everyEighthFrame
     lda     #$34
     sta     soundEffectId
-Ld45f
+everyEighthFrame
     lda     frameCounter
     and     #$07
-    bne     Ld48b
+    bne     checkSoundSequenceInit
     bit     autopilotMode
-    bpl     Ld481
+    bpl     resetEngineTimer
     lda     flightPhase
     cmp     #$02
-    bne     Ld477
+    bne     checkDeorbitPitch
     dec     pitchValue
-    bpl     Ld481
-Ld473
+    bpl     resetEngineTimer
+autoPitchUp
     inc     pitchValue
-    bpl     Ld481
-Ld477
+    bpl     resetEngineTimer
+checkDeorbitPitch
     cmp     #$04
-    beq     Ld481
+    beq     resetEngineTimer
     lda     pitchValue
     cmp     #$0d
-    bne     Ld473
-Ld481
+    bne     autoPitchUp
+resetEngineTimer
     lda     enginePowerOn
-    beq     Ld489
+    beq     tickEngineTimer
     ldx     #$01
     stx     engineOnTimer
-Ld489
+tickEngineTimer
     dec     engineOnTimer
-Ld48b
+checkSoundSequenceInit
     ldx     soundSequenceIndex
     cpx     #$fe
-    bne     Ld495
+    bne     processSoundCh0
     stx     soundEnvelopeCounter
     inc     soundSequenceIndex
-Ld495
+processSoundCh0
     lda     soundEffectId
-    beq     Ld4c8
+    beq     silenceChannel0
     sta     AUDC0
     jsr     $ddfb
     tax
     lda     $d94c,x
     inc     soundEnvelopeCounter
     cmp     soundEnvelopeCounter
-    bcs     Ld4d0
+    bcs     processEngineDrone
     lda     #$00
     sta     soundEnvelopeCounter
     inc     soundSequenceIndex
@@ -1042,24 +1040,24 @@ Ld495
     adc     soundSequenceIndex
     tax
     lda     $d903,x
-    beq     Ld4c8
+    beq     silenceChannel0
     sta     AUDF0
     jsr     $ddfb
     ldx     gameActive
-    bne     Ld4c3
+    bne     setSoundVolume
     txa
-Ld4c3
+setSoundVolume
     sta     AUDV0
     jmp     $d4d0
     
-Ld4c8
+silenceChannel0
     sta     AUDV0
     sta     soundEffectId
     ldx     #$fe
     stx     soundSequenceIndex
-Ld4d0
+processEngineDrone
     lda     gameActive
-    beq     Ld502
+    beq     silenceBothChannels
     
     .byte   $a9,$03,$85,$1a,$a9,$06,$85,$16 ; $d4d4 *)
     .byte   $a9,$1f,$85,$18,$a5,$81,$c9,$0f ; $d4dc *)
@@ -1068,106 +1066,106 @@ Ld4d0
     .byte   $65,$b4,$a6,$ca,$d0,$0a,$a2,$02 ; $d4f4 *)
     .byte   $86,$15,$a2,$0e,$86,$17         ; $d4fc *)
     
-Ld502
+silenceBothChannels
     sta     AUDV0
     sta     AUDV1
     lda     enginePowerOn
-    beq     Ld52a
+    beq     calcOrbitalMoveRate
     lda     flightPhase
-    bne     Ld514
+    bne     orbitalPhaseSetup
     jmp     $d728
     
-Ld511
+jumpToSatelliteCalc
     jmp     $d647
     
-Ld514
+orbitalPhaseSetup
     .byte   $a5,$b4,$f0,$06,$a9,$02,$85,$ab ; $d514 *)
     .byte   $d0,$1e,$a5,$c4,$d0,$1a,$a5,$a6 ; $d51c *)
     .byte   $c9,$df,$b0,$02,$a9,$e0         ; $d524 *)
     
-Ld52a
+calcOrbitalMoveRate
     sbc     #$08
     eor     #$ff
     bit     autopilotMode
-    bpl     Ld534
+    bpl     storeMovementThreshold
     
     .byte   $a9,$18                         ; $d532 *)
     
-Ld534
+storeMovementThreshold
     sta     tempVar
     ldx     omsBurnActive
-    beq     Ld53c
+    beq     advanceOrbitalFraction
     
     .byte   $e6,$be                         ; $d53a *)
     
-Ld53c
+advanceOrbitalFraction
     inc     orbitalMoveFraction
     cmp     orbitalMoveFraction
-    bcs     Ld511
+    bcs     jumpToSatelliteCalc
     lda     #$00
     sta     orbitalMoveFraction
     inc     shuttleOrbitalPos
-    bpl     Ld554
+    bpl     decSatelliteColor
     
     .byte   $a5,$ea,$c9,$08,$f0,$08         ; $d54a *)
     
-Ld550
+incSatelliteColor
     inc     satelliteColorOffset
-    bpl     Ld558
-Ld554
+    bpl     advanceOrbitalCounters
+decSatelliteColor
     dec     satelliteColorOffset
-    bmi     Ld550
-Ld558
+    bmi     incSatelliteColor
+advanceOrbitalCounters
     inc     orbitalSubCounter
     lda     flightPhase
     cmp     #$02
-    bne     Ld564
+    bne     advanceSatelliteOrbit
     
     .byte   $24,$f9,$30,$05                 ; $d560 *)
     
-Ld564
+advanceSatelliteOrbit
     lda     orbitalSubCounter
     lsr
-    bcc     Ld56b
+    bcc     advanceCockpitAnim
     inc     satelliteOrbitalPos
-Ld56b
+advanceCockpitAnim
     inc     cockpitAnimCounter
     lda     enginePowerOn
-    beq     Ld577
+    beq     rotateStarfieldColumns
     
     .byte   $a5,$ab,$29,$01,$f0,$1d         ; $d571 *)
     
-Ld577
+rotateStarfieldColumns
     dec     starfieldColumnIndex
     lda     starfieldColumnIndex
     cmp     #$0e
-    bne     Ld594
+    bne     processRightMovement
     lda     #$14
     sta     starfieldColumnIndex
     ldx     #$0b
     lda     starfieldColumns,x
     tay
     dex
-    bmi     Ld592
+    bmi     storeWrappedColumn
     lda     starfieldColumns,x
     sty     starfieldColumns,x
     jmp     $d587
     
-Ld592
+storeWrappedColumn
     sty     starfieldColumnLast
-Ld594
+processRightMovement
     lda     movementFlags
     and     #$08
-    beq     Ld5ab
+    beq     processDownMovement
     
     .byte   $a2,$0b,$d6,$8a,$b5,$8a,$c9,$ff ; $d59a *)
     .byte   $d0,$04,$a9,$84,$95,$8a,$ca,$10 ; $d5a2 *)
     .byte   $f1                             ; $d5aa *)
     
-Ld5ab
+processDownMovement
     lda     movementFlags
     and     #$02
-    beq     Ld5d4
+    beq     processUpMovement
     
     .byte   $e6,$89,$a5,$89,$c9,$15,$d0,$17 ; $d5b1 *)
     .byte   $a9,$0f,$85,$89,$a2,$00,$b5,$8a ; $d5b9 *)
@@ -1175,22 +1173,22 @@ Ld5ab
     .byte   $94,$8a,$4c,$c1,$d5,$85,$8a,$c6 ; $d5c9 *)
     .byte   $ef,$c6,$ef                     ; $d5d1 *)
     
-Ld5d4
+processUpMovement
     lda     movementFlags
     and     #$04
-    beq     Ld5eb
+    beq     checkEngineAndJump
     
     .byte   $a2,$0b,$f6,$8a,$b5,$8a,$c9,$85 ; $d5da *)
     .byte   $90,$04,$a9,$00,$95,$8a,$ca,$10 ; $d5e2 *)
     .byte   $f1                             ; $d5ea *)
     
-Ld5eb
+checkEngineAndJump
     lda     enginePowerOn
-    beq     Ld5f5
+    beq     jumpToStarfieldSetup
     
     .byte   $a5,$b5,$c9,$02,$f0,$03         ; $d5ef *)
     
-Ld5f5
+jumpToStarfieldSetup
     jmp     $d728
     
     .byte   $a0,$01,$a5,$fa,$a6,$e2,$e0,$ff ; $d5f8 *)
@@ -1204,15 +1202,15 @@ Ld5f5
     .byte   $fa,$dc,$b0,$09,$0a,$0a,$90,$03 ; $d638 *)
     .byte   $c6,$b2,$2c,$e6,$b2,$84,$f4     ; $d640 *)
     
-Ld647
+calcSatelliteDistance
     lda     satelliteOrbitalPos
     sec
     sbc     shuttleOrbitalPos
     cmp     #$10
-    bcc     Ld653
+    bcc     getSatelliteSize
     jmp     $d6d2
     
-Ld653
+getSatelliteSize
     lsr
     tax
     lda     $d893,x
@@ -1223,122 +1221,122 @@ Ld653
     clc
     adc     satelliteColorOffset
     cmp     #$9f
-    bcc     Ld66b
+    bcc     setSatelliteColor
     
     .byte   $a9,$9f                         ; $d669 *)
     
-Ld66b
+setSatelliteColor
     sta     COLUP0
     ldy     #$00
     lda     yAxisPlane
     clc
     adc     #$50
     cmp     #$a0
-    bcs     Ld684
+    bcs     branchOnSatDistance
     adc     #$b0
-    bcs     Ld681
+    bcs     checkYBoundary
     
     .byte   $c8,$49,$ff,$69,$01             ; $d67c *)
     
-Ld681
+checkYBoundary
     cmp     $dfe6,x
-Ld684
-    bcs     Ld6d0
+branchOnSatDistance
+    bcs     satelliteTooFar
     cpx     #$00
-    beq     Ld696
+    beq     calcSatelliteYOffset
     
     .byte   $86,$fc,$e0,$06,$90,$01,$98,$4a ; $d68a *)
     .byte   $c6,$fc,$d0,$fb                 ; $d692 *)
     
-Ld696
+calcSatelliteYOffset
     sta     tempVar
     lda     yAxisPlane
     cpy     #$01
-    beq     Ld6a2
+    beq     calcSmoothTargetPos
     clc
     adc     tempVar
     .byte   $2c ;bit                ;4-3 =  22
-Ld6a2
+calcSmoothTargetPos
     sbc     tempVar
     clc
     adc     #$50
     cmp     targetHorizPosSmooth
-    beq     Ld6b8
+    beq     setupSatRenderFlip
     lda     frameCounter
     and     #$03
-    bne     Ld6b8
-    bcs     Ld6b6
+    bne     setupSatRenderFlip
+    bcs     incTargetHorizSmooth
     
     .byte   $c6,$df,$2c                     ; $d6b3 *)
     
-Ld6b6
+incTargetHorizSmooth
     inc     targetHorizPosSmooth
-Ld6b8
+setupSatRenderFlip
     ldy     targetHorizPosSmooth
     lda     frameCounter
     lsr
     sta     REFP0
     and     #$08
-    bne     Ld6c7
+    bne     calcSatScreenX
     txa
     ora     #$08
     tax
-Ld6c7
+calcSatScreenX
     sec
     tya
     sbc     $d9ca,x
-    bcc     Ld728
+    bcc     setupStarfieldPointers
     
     .byte   $b0,$3b                         ; $d6ce *)
-Ld6d0
+satelliteTooFar
     .byte   $b0,$56                         ; $d6d0 *)
     
-Ld6d2
+checkSatBehind
     cmp     #$80
-    bcc     Ld6de
+    bcc     satelliteMediumRange
     ldx     #$ce
     ldy     #$05
     lda     #BLUE_CYAN|$d
-    bcs     Ld6e8
+    bcs     applySatSpriteParams
     
-Ld6de
+satelliteMediumRange
     .byte   $c9,$40,$90,$46,$a2,$0e,$a0,$00 ; $d6de *)
     .byte   $a9,$90                         ; $d6e6 *)
     
-Ld6e8
+applySatSpriteParams
     stx     tempVar2
     sty     NUSIZ0
     sta     COLUP0
     lda     targetHorizPosSmooth
-    beq     Ld728
+    beq     setupStarfieldPointers
     cmp     #$94
-    beq     Ld728
+    beq     setupStarfieldPointers
     lda     #$94
     ldx     yAxisPlane
     cpx     #$80
-    bcc     Ld700
+    bcc     compareSatToTarget
     
     .byte   $a9,$00                         ; $d6fe *)
     
-Ld700
+compareSatToTarget
     cmp     targetHorizPosSmooth
-    bcs     Ld707
+    bcs     updateSatTargetPos
     
     .byte   $c6,$df,$2c                     ; $d704 *)
     
-Ld707
+updateSatTargetPos
     inc     targetHorizPosSmooth
     lda     targetHorizPosSmooth
     sta     targetHorizPos
     lda     flightPhase
     cmp     #$02
-    bne     Ld728
+    bne     setupStarfieldPointers
     
     .byte   $a5,$88,$d0,$11,$a5,$b3,$69,$0f ; $d713 *)
     .byte   $c9,$21,$b0,$09,$a5,$b7,$f0,$05 ; $d71b *)
     .byte   $a5,$a5,$e9,$c2,$2c             ; $d723 *)
     
-Ld728
+setupStarfieldPointers
     lda     #$6a
     sta     tempVar
     ldx     #$04
@@ -1349,31 +1347,31 @@ Ld728
     sec
     sbc     #$15
     sta     tempVar
-    bpl     Ld756
+    bpl     storeColumnPtrLoop
     
     .byte   $69,$16,$18,$65,$fb,$4c,$58,$d7 ; $d73c *)
     
-Ld744
+calcNextColumnPtr
     lda     tempVar
     sec
     sbc     #$12
     sta     tempVar
-    bpl     Ld756
+    bpl     storeColumnPtrLoop
     
     .byte   $c9,$e2,$90,$05,$69,$15,$4c,$3e ; $d74d *)
     .byte   $d7                             ; $d755 *)
     
-Ld756
+storeColumnPtrLoop
     lda     #$04
     sta     columnGfxPtrTable,x
     dex
-    bpl     Ld744
+    bpl     calcNextColumnPtr
     lda     #$ff
     sta     gfxDataPtrH
     lda     currentScreenId
     bne     endOfKernelSwitch
     
-Ld765
+calcViewOffset3
     .byte   $20,$da,$d9,$b0,$0f,$a5,$aa,$69 ; $d765 *)
     .byte   $02,$85,$ad,$85,$f6,$a5,$a4     ; $d76d *)
     
@@ -1391,9 +1389,9 @@ bankSwitch0to1
 ;-----------------------------------------------------------
 endOfKernelSwitch
     cmp     #$03
-    beq     Ld765
+    beq     calcViewOffset3
     cmp     #$02
-    bne     Ld7ea
+    bne     calcViewOffset1
     
     .byte   $20,$da,$d9,$90,$28,$a5,$b2,$e9 ; $d79d *)
     .byte   $80,$20,$fb,$dd,$18,$e9,$01,$b0 ; $d7a5 *)
@@ -1406,18 +1404,18 @@ endOfKernelSwitch
     .byte   $a9,$1b,$90,$02,$a9,$ff,$69,$01 ; $d7dd *)
     .byte   $49,$1f,$4a,$10,$57             ; $d7e5 *)
     
-Ld7ea
+calcViewOffset1
     cmp     #$01
-    bne     Ld808
+    bne     calcViewOffset4
     
     .byte   $20,$a3,$d9,$20,$da,$d9,$a5,$b0 ; $d7ee *)
     .byte   $b0,$02,$a5,$b1,$4a,$4a,$4a,$aa ; $d7f6 *)
     .byte   $18,$69,$05,$85,$ad,$bd,$ec,$de ; $d7fe *)
     .byte   $d0,$bf                         ; $d806 *)
     
-Ld808
+calcViewOffset4
     cmp     #$04
-    bne     Ld847
+    bne     evaluateLandingScore
     
     .byte   $20,$da,$d9,$b0,$14,$a5,$e9,$10 ; $d80c *)
     .byte   $02,$a9,$00,$4a,$4a,$85,$ad,$a5 ; $d814 *)
@@ -1427,32 +1425,32 @@ Ld808
     .byte   $13,$85,$ad,$a5,$a5,$4a,$f0,$03 ; $d834 *)
     .byte   $49,$0f,$2c,$a9,$10,$18,$69,$03 ; $d83c *)
     
-Ld844
+jumpToBankSwitch
     jmp     $d774
     
-Ld847
+evaluateLandingScore
     lda     #$00
     sta     viewHorizontalOffset
     ldx     fuelHigh
     ldy     dockingCount
     lda     #$03
     cpx     #$35
-    bcc     Ld85b
+    bcc     checkPilotRank
     cpy     #$02
-    bcc     Ld85b
+    bcc     checkPilotRank
     
     .byte   $a9,$09                         ; $d859 *)
     
-Ld85b
+checkPilotRank
     cpx     #$45
-    bcc     Ld865
+    bcc     applyRankAndSwitch
     cpy     #$04
-    bcc     Ld865
+    bcc     applyRankAndSwitch
     
     .byte   $a9,$0f                         ; $d863 *)
     
-Ld865
-    bne     Ld844
+applyRankAndSwitch
+    bne     jumpToBankSwitch
     
     .byte   $00,$04,$04,$04,$04,$04,$05,$05 ; $d867 *)
     .byte   $06,$07,$08,$0a,$0c,$0e,$11,$14 ; $d86f *)
@@ -1600,14 +1598,14 @@ copyrightGfx
     .byte   $56,$36,$16,$00,$0a,$2a,$12,$08 ; $d948 *)
     .byte   $12,$0a,$04,$08,$03,$05,$02,$12 ; $d950 *)
     
-Ld958
+positionSpriteHorizB0
     sta     WSYNC
 ;---------------------------------------
     sta     HMOVE
     sec
-Ld95d
+horizPosLoopB0
     sbc     #$0f
-    bcs     Ld95d
+    bcs     horizPosLoopB0
     eor     #$0f
     asl
     asl
@@ -1627,7 +1625,7 @@ Ld95d
     sta     HMP0,x
     rts
     
-Ld979
+kernelDrawInstruments
     ldy     tempVar
     lda     (screenPtr1L),y
     sta     tempVar3
@@ -1649,7 +1647,7 @@ Ld979
     sty     GRP1
     sty     GRP0
     dec     tempVar
-    bpl     Ld979
+    bpl     kernelDrawInstruments
     rts
     
     .byte   $a2,$02,$a5,$88,$d0,$13,$a5,$b3 ; $d9a3 *)
@@ -3747,7 +3745,7 @@ mainFrameLoop
     inc     separationEventTimer
     bne     .skipSeparationFlash        ; Still counting? Skip
     ldx     #$38                        ; Separation sound effect index
-    jsr     Lfce6                       ; Play sound
+    jsr     queueSoundEffect                       ; Play sound
     lda     #$05
     sta     separationFlashTimer                      ; Set visual flash timer
 .skipSeparationFlash
@@ -3793,7 +3791,7 @@ mainFrameLoop
     bcs     .skipTrainingSet
     stx     trainingModeFlag                      ; Set training mode flag
 .skipTrainingSet
-    jsr     Lfe65                       ; Reset game state for new flight
+    jsr     coldStartClearRAM                       ; Reset game state for new flight
     sty     difficultyLevel
     ldy     #$08
     sty     switchDebounceTimer                      ; Reset debounce counter
@@ -3856,7 +3854,7 @@ mainFrameLoop
     sta     soundEffectId
     bne     launchMETLogic
 .selectNotPressed
-Lf208
+resetDebounceTimer
     lda     #$01
     sta     switchDebounceTimer                      ; Reset debounce
 ;-----------------------------------------------------------
@@ -3883,7 +3881,7 @@ launchMETLogic
     cmp     #$a0                        ; In countdown?
     bne     incrementMET                ; No: count up (MET positive)
     ldx     #$04                        ; Countdown beep sound
-    jsr     Lfce6
+    jsr     queueSoundEffect
     ldx     #$07                        ; Display: countdown screen
     lda     metLow
     sbc     #$01                        ; Decrement countdown seconds
@@ -4009,7 +4007,7 @@ ascentLogic
     dec     altitudeUpdateTimer                      ; Altitude change timer
     bpl     .skipSpeedInc
     sta     altitudeUpdateTimer                      ; Reset timer with calculated rate
-    jsr     Lfed5                       ; Increment altitude
+    jsr     incSpeedAndDisplay                       ; Increment altitude
 .skipSpeedInc
     ;-----------------------------------------------------------
     ; Speed-Dependent Update Rate
@@ -4037,7 +4035,7 @@ ascentLogic
     ;-----------------------------------------------------------
     ; Update Trajectory & Plane Dots During Ascent
     ; Trajectory dot converges left (closer to target orbit line),
-    ; plane dot drifts right. Speed increases via Lfd20.
+    ; plane dot drifts right. Speed increases via increaseSpeed.
     ;-----------------------------------------------------------
     lda     trajectoryDotPos
     sbc     #$04                        ; Move trajectory dot left
@@ -4050,7 +4048,7 @@ ascentLogic
     bcs     .incSpeed                   ; Clamp at $A0
     sta     planeDotPos
 .incSpeed
-    jsr     Lfd20                       ; Increase shuttle speed
+    jsr     increaseSpeed                       ; Increase shuttle speed
 .checkWindShear
     ;-----------------------------------------------------------
     ; Random Wind Shear During Ascent
@@ -4245,7 +4243,7 @@ handleJoystickInput
     ;-----------------------------------------------------------
     ; Successful Docking!
     ; Refuel from satellite, track total dockings (dockingCount).
-    ; Fuel bonus depends on docking count (Lfdee table).
+    ; Fuel bonus depends on docking count (fuelRefillTable table).
     ; Per manual: "Maximum of 6 satellite dockings possible."
     ;-----------------------------------------------------------
     ldx     #$24                        ; Docking sound
@@ -4262,7 +4260,7 @@ handleJoystickInput
     adc     #$01
     sta     missionScore
     lda     fuelHigh
-    adc     Lfdee,x                     ; Fuel bonus per docking
+    adc     fuelRefillTable,x                     ; Fuel bonus per docking
     sta     fuelHigh
     bcc     .refuelDone
     lda     #$99                        ; Cap fuel at 99xx
@@ -4320,7 +4318,7 @@ handleJoystickInput
     ldx     difficultyLevel                      ; Otherwise use difficulty level
 .useStationRate
     lda     frameCounter
-    and     Lfe39,x                     ; Rate mask from table
+    and     satelliteSectionPad,x                     ; Rate mask from table
     bne     .checkAltitudeAbort         ; Skip frames based on difficulty
     lda     yAxisPlane
     cmp     #$51                        ; Below center?
@@ -4359,7 +4357,7 @@ handleJoystickInput
     cmp     #$a9                        ; Required orbital speed
     bne     .orbitOmsInput
 .doAbort
-    jsr     abortMission                ; Abort! (Lfcc7)
+    jsr     abortMission                ; Abort! (abortMission)
 ;-----------------------------------------------------------
 ;      OMS (Orbital Maneuvering System) Input
 ;      Handles joystick-driven OMS burns for orbit changes.
@@ -4377,7 +4375,7 @@ handleJoystickInput
     ldx     #$18
     stx     inputDelayTimer                      ; Reset rate limiter (24 frames)
     stx     omsBurnActive                      ; Mark OMS burn active
-    jsr     Lfce6                       ; Play OMS burn sound
+    jsr     queueSoundEffect                       ; Play OMS burn sound
     ;-----------------------------------------------------------
     ; Calculate Fuel Cost for OMS Burn
     ; Higher joystick nibble inverted = burn intensity.
@@ -4416,12 +4414,12 @@ handleJoystickInput
     ;--- OMS Down: decrease altitude ---
     bit     INPT4
     bmi     .omsDownNoFire
-    jsr     Lfd42                       ; Fire+Down: decrease speed
+    jsr     decreaseSpeed                       ; Fire+Down: decrease speed
     jmp     .setOmsDisplay
     
 .omsDownNoFire
     ldx     #$0d
-    jsr     Lfed5                       ; Increase altitude (retrograde)
+    jsr     incSpeedAndDisplay                       ; Increase altitude (retrograde)
 .checkOmsUp
     tya
     lsr
@@ -4432,13 +4430,13 @@ handleJoystickInput
     sta     omsBurnActive                      ; Clear burn flag
     bit     INPT4
     bmi     .omsUpNoFire
-    jsr     Lfd20                       ; Fire+Up: increase speed
+    jsr     increaseSpeed                       ; Fire+Up: increase speed
 .setOmsDisplay
     ldx     #$11                        ; Display: OMS burn status
     bne     .storeOmsDisplay
 .omsUpNoFire
     ldx     #$0d
-    jsr     Lfeea                       ; Decrease altitude (prograde)
+    jsr     decSpeedAndDisplay                       ; Decrease altitude (prograde)
 .checkOmsFireOnly
     ;--- Fire button only (no up/down): Y-axis adjustment ---
     bit     INPT4
@@ -4450,7 +4448,7 @@ handleJoystickInput
     ;--- OMS Left: pitch/yaw + Y up ---
     lda     #$04
     inc     yAxisPlane
-    jsr     Lfd0f                       ; Store movement flags
+    jsr     setMovementAndPerturb                       ; Store movement flags
 .checkOmsRight
     tya
     lsr
@@ -4458,7 +4456,7 @@ handleJoystickInput
     ;--- OMS Right: pitch/yaw + Y down ---
     dec     yAxisPlane
     lda     #$08
-    jsr     Lfd0f                       ; Store movement flags
+    jsr     setMovementAndPerturb                       ; Store movement flags
 .storeOmsDisplay
     stx     statusDisplayId
 .endOmsInput
@@ -4547,7 +4545,7 @@ handleJoystickInput
     lda     soundEffectId
     cmp     #$58                        ; Deorbit burn sound active?
     beq     .checkDeorbitBurn
-    lda     Lfd84,x                     ; Get drift direction from table
+    lda     difficultyMultTable,x                     ; Get drift direction from table
     sta     movementFlags
     ldy     #$00
     sty     orbitalSubCounter
@@ -4595,7 +4593,7 @@ handleJoystickInput
     cpx     #$02
     bcs     .burnResult2Plus
 .burnIncAlt
-    jsr     Lfed5                       ; Increase altitude
+    jsr     incSpeedAndDisplay                       ; Increase altitude
     cpy     #$08
     bcs     .deorbitLogic
     bcc     .burnDecSpeed
@@ -4608,7 +4606,7 @@ handleJoystickInput
 .burnResult3Plus
     cpx     #$06
     bcs     .burnResult6Plus
-    jsr     Lfeea                       ; Decrease altitude
+    jsr     decSpeedAndDisplay                       ; Decrease altitude
     cpy     #$07
     bcs     .burnIncSpeed
     bcc     .deorbitLogic
@@ -4625,11 +4623,11 @@ handleJoystickInput
     beq     .deorbitLogic               ; Optimal: no speed change
     bcc     .burnDecSpeed
 .burnIncSpeed
-    jsr     Lfd20                       ; Increase speed
+    jsr     increaseSpeed                       ; Increase speed
     jmp     .deorbitLogic
     
 .burnDecSpeed
-    jsr     Lfd42                       ; Decrease speed
+    jsr     decreaseSpeed                       ; Decrease speed
 ;-----------------------------------------------------------
 ;      Deorbit / Reentry Transition Logic
 ;      Checks if conditions met to begin deorbit:
@@ -4697,7 +4695,7 @@ handleJoystickInput
     bcs     .deorbitAbort               ; Too steep
     ldx     #$60                        ; Abort: too shallow
 .deorbitAbort
-    jsr     Lfcc7                       ; Process abort
+    jsr     abortMission                       ; Process abort
 ;-----------------------------------------------------------
 ;      Reentry Descent Logic
 ;      Controls the shuttle's descent through atmosphere.
@@ -4721,7 +4719,7 @@ handleJoystickInput
     ;-----------------------------------------------------------
     ; Descent Rate Calculation
     ; In landing screen ($04): rate based on pitchValue + switch state.
-    ; Otherwise: rate from table (Lfda8) indexed by descentRateIndex.
+    ; Otherwise: rate from table (descentRateTable) indexed by descentRateIndex.
     ;-----------------------------------------------------------
     lda     currentScreenId
     cmp     #$04                        ; Landing screen?
@@ -4734,7 +4732,7 @@ handleJoystickInput
     bpl     .setDescentRate
 .useDescentTable
     ldx     descentRateIndex                      ; Descent rate table index
-    lda     Lfda8,x
+    lda     descentRateTable,x
     sta     descentRate                      ; Store descent rate
 .setDescentRate
     inc     descentFrameCounter                      ; Descent frame counter
@@ -4742,7 +4740,7 @@ handleJoystickInput
     bcs     .jumpToReentryEffects       ; Not yet: skip
     lda     #$00
     sta     descentFrameCounter                      ; Reset counter
-    jsr     Lfd42                       ; Decrease speed
+    jsr     decreaseSpeed                       ; Decrease speed
     ;-----------------------------------------------------------
     ; Altitude Band Checks During Reentry
     ; $A7+: no heating effects (too high)
@@ -4816,7 +4814,7 @@ handleJoystickInput
     bpl     .reentryHeatEffects
     lda     #$0a
     sta     descentSpeedTimer                      ; Reset speed decrease interval
-    jsr     Lfeea                       ; Decrease altitude
+    jsr     decSpeedAndDisplay                       ; Decrease altitude
 ;-----------------------------------------------------------
 ;      Reentry Heat Effects & Landing Approach
 ;      Handles landing screen timer (approachFrameTimer/starfieldScrollY),
@@ -4874,7 +4872,7 @@ handleJoystickInput
     ;--- First Ground Contact ---
     dec     reentryContactState                      ; Set contact flag ($FF)
     ldx     #$98                        ; Touchdown sound
-    jsr     Lfce6
+    jsr     queueSoundEffect
     ;-----------------------------------------------------------
     ; Landing Quality Check
     ; starfieldScrollY determines landing quality:
@@ -4907,7 +4905,7 @@ handleJoystickInput
     bcs     .checkLandingSuccess        ; Above limit = check success
     ldx     #$10                        ; Abort: off runway
 .landingAbort
-    jsr     Lfcc7                       ; Process landing abort
+    jsr     abortMission                       ; Process landing abort
 .skipToFlightEffects2
     jmp     .flightEffects
     
@@ -4941,7 +4939,7 @@ handleJoystickInput
     ldx     #$30                        ; Abort: bad final pitch
     lda     pitchValue
     beq     .scoreMission
-    jsr     Lfcc7                       ; Abort for bad pitch
+    jsr     abortMission                       ; Abort for bad pitch
     bcs     .flightEffects
 .scoreMission
     sty     speedDisplayLow             ; Clear speed display
@@ -4987,11 +4985,11 @@ bank1EntryFromBank0
 .checkEffect2
     cpy     #$02
     bne     .statusDisplay
-    jsr     Lfd20                       ; Increase speed
+    jsr     increaseSpeed                       ; Increase speed
     jmp     .statusDisplay
     
 .doDecSpeed
-    jsr     Lfd42                       ; Decrease speed
+    jsr     decreaseSpeed                       ; Decrease speed
 ;-----------------------------------------------------------
 ;      Status Display Value Calculation
 ;      Converts the current flight parameter (selected by
@@ -5062,7 +5060,7 @@ bank1EntryFromBank0
     lsr
     lsr                                 ; Upper nibble = tens estimate
     tax
-    lda     Lfd9a,x                     ; BCD lookup table
+    lda     nibbleToTensTable,x                     ; BCD lookup table
     sta     displayDigitsLow                      ; Store tens digit
     cpx     #$0d
     bcc     .noHundredsInc
@@ -5090,10 +5088,9 @@ bank1EntryFromBank0
 ;      Converts BCD flight data into graphic pointers for the
 ;      cockpit instrument display. Processes 7 digits (X=6..0)
 ;      from the speedDisplayLow array. Each digit's high/low
-;      nibble is converted to a graphic offset via Lfddc.
+;      nibble is converted to a graphic offset via storeDigitGfxPtr.
 ;-----------------------------------------------------------
 renderDigits
-Lf7f6
     ldx     #$06                        ; 7 digit positions (0-6)
     ldy     statusDisplayId
     lda     errorDisplayFlag                      ; Error flag?
@@ -5108,14 +5105,14 @@ Lf7f6
     lda.wy  speedDisplayLow,y           ; Get digit pair
     and     #$f0                        ; Upper nibble (tens)
     lsr                                 ; Convert to graphic offset
-    jsr     Lfddc                       ; Store graphic pointer
+    jsr     storeDigitGfxPtr                       ; Store graphic pointer
     dex
     lda.wy  speedDisplayLow,y           ; Same digit pair
     and     #$0f                        ; Lower nibble (ones)
     asl
     asl
     asl                                 ; Convert to graphic offset
-    jsr     Lfddc                       ; Store graphic pointer
+    jsr     storeDigitGfxPtr                       ; Store graphic pointer
     dey
     dex
     bpl     .digitLoop
@@ -5267,9 +5264,9 @@ Lf7f6
     ; Flight/Cockpit Display Colors
     ; Sets background and player colors based on game state:
     ;   - separationFlashTimer: separation flash override (white flash)
-    ;   - heatEffectTimer: ionization heating (random flash colors from Lfebf)
+    ;   - heatEffectTimer: ionization heating (random flash colors from launchEventData3)
     ;   - atmosphereDensity: atmosphere effects (grey tint)
-    ;   - Normal: sky color from Lfec5 table, player from Lfd8a
+    ;   - Normal: sky color from launchEventData4 table, player from initialParamsExtended
     ;   - Engine off: use index 5 (dark sky for title)
     ;-----------------------------------------------------------
     lda     #$01
@@ -5289,7 +5286,7 @@ Lf7f6
     bcs     .checkAtmosphere
     and     #$07                        ; Random color from heating palette
     tay
-    lda     Lfebf,y                     ; Heating color table
+    lda     launchEventData3,y                     ; Heating color table
 .setPlayerColor
     sta     COLUP1
     jmp     .setBackgroundColor
@@ -5304,9 +5301,9 @@ Lf7f6
     bne     .setGroundColors
     ldy     #$05                        ; Engine off: title screen color
 .setGroundColors
-    lda     Lfd8a,y                     ; Player color from table
+    lda     initialParamsExtended,y                     ; Player color from table
     sta     COLUP1
-    lda     Lfec5,y                     ; Background color from table
+    lda     launchEventData4,y                     ; Background color from table
 .setBackgroundColor
     sta     COLUBK
     sta     starfieldVerticalCounter
@@ -5314,25 +5311,24 @@ Lf7f6
 ;      Ground/Mountain Playfield Kernel
 ;      Draws the ground view with mountains/terrain using
 ;      PF0/PF1/PF2 registers. 10 scanlines of terrain data
-;      from Lfe27/Lff01/Lfe31 tables.
+;      from groundPF0Data/groundPF1Data/groundPF2Data tables.
 ;-----------------------------------------------------------
 groundKernel
-Lf907
     sta     WSYNC
 ;---------------------------------------
     sta     HMOVE
-    lda     Lfe27,x                     ; PF0: left edge terrain
+    lda     groundPF0Data,x                     ; PF0: left edge terrain
     sta     PF0
-    lda     Lff01,x                     ; PF1: center terrain
+    lda     groundPF1Data,x                     ; PF1: center terrain
     sta     PF1
-    lda     Lfe31,x                     ; PF2: right terrain
+    lda     groundPF2Data,x                     ; PF2: right terrain
     sta     PF2
     sta     HMCLR
     inx
     cpx     #$0a
     bcc     groundKernel
     ldx     tempVar
-Lf923
+groundPaddingLoop
     sta     WSYNC
 ;---------------------------------------
     lda     #$30
@@ -5341,89 +5337,89 @@ Lf923
     sta     PF1
     sta     PF2
     dex
-    bne     Lf923
+    bne     groundPaddingLoop
     lda     enginePowerOn
-    beq     Lf991
+    beq     dispatchViewKernel
     lda     flightPhase
-    bne     Lf991
+    bne     dispatchViewKernel
     sta     REFP0
     lda     #$07
     sta     NUSIZ0
     lda     trajectoryDotPos
-    jsr     Lfe00
+    jsr     positionSpriteHoriz
     ldx     #$0a
-Lf947
+drawTrajectoryDotLoop
     sta     WSYNC
 ;---------------------------------------
     sta     HMOVE
-    lda     Lfe78,x
+    lda     returnFromInit,x
     sta     GRP0
-    lda     Lfea0,x
+    lda     dotColorCycleTable,x
     adc     countdownTimer
     sta     COLUP0
-    lda     Lfe8c,x
+    lda     trajectoryDotMotion,x
     sta     HMP0
     dex
-    bne     Lf947
+    bne     drawTrajectoryDotLoop
     stx     WSYNC
 ;---------------------------------------
     stx     GRP0
     ldx     tempVar2
-Lf965
+dotGapLoop
     stx     WSYNC
 ;---------------------------------------
     dex
-    bne     Lf965
+    bne     dotGapLoop
     lda     planeDotPos
-    jsr     Lfe00
+    jsr     positionSpriteHoriz
     ldx     #$0a
-Lf971
+drawPlaneDotLoop
     sta     WSYNC
 ;---------------------------------------
     sta     HMOVE
-    lda     Lfe82,x
+    lda     planeDotSpriteData,x
     sta     GRP0
-    lda     Lfea0,x
+    lda     dotColorCycleTable,x
     adc     countdownTimer
     sta     COLUP0
-    lda     Lfe96,x
+    lda     launchEventParams2,x
     sta     HMP0
     dex
-    bne     Lf971
+    bne     drawPlaneDotLoop
     stx     WSYNC
 ;---------------------------------------
     stx     GRP0
     ldx     tempVar3
-    bne     Lf9fe
-Lf991
+    bne     jumpToBlankLoop
+dispatchViewKernel
     cmp     #$04
-    beq     Lfa01
+    beq     landingKernelEntry
     txs
     lda     #$04
     sta     tempVar3
     ldy     starfieldColumnIndex
     lda     #$3c
     sta     tempVar2
-Lf9a0
+starfieldMainLoop
     sta     WSYNC
 ;---------------------------------------
     sta     HMOVE
     lda     (gfxDataPtrL),y
     sta     GRP0
-    lda     Lfeb9,y
+    lda     starfieldEnableTable,y
     sta     ENAM1
     dec     tempVar2
-    bmi     Lf9f1
+    bmi     endStarfieldLoop
     dey
     sta     HMCLR
-    bmi     Lf9e5
+    bmi     loadNextColumn
     cpy     #$02
-    beq     Lf9c2
+    beq     switchStarColumn
     cpy     #$08
-    beq     Lf9c2
+    beq     switchStarColumn
     cpy     #$0e
-    bne     Lf9a0
-Lf9c2
+    bne     starfieldMainLoop
+switchStarColumn
     tsx
     inx
     txs
@@ -5435,9 +5431,9 @@ Lf9c2
 ;---------------------------------------
     sta     GRP0
     lda     tempVar
-Lf9d2
+starPositionLoop
     sbc     #$0f
-    bcs     Lf9d2
+    bcs     starPositionLoop
     eor     #$0f
     asl
     asl
@@ -5446,90 +5442,90 @@ Lf9d2
     adc     #$80
     sta     HMM1
     sta     RESM1
-    jmp     Lf9a0
+    jmp     starfieldMainLoop
     
-Lf9e5
+loadNextColumn
     dec     tempVar3
     ldx     tempVar3
     lda     columnGfxPtrTable,x
     sta     gfxDataPtrL
     ldy     #$11
-    bne     Lf9a0
-Lf9f1
+    bne     starfieldMainLoop
+endStarfieldLoop
     ldx     #$ff
     txs
     inx
     ldy     starfieldColumnIndex
     cpy     #$14
-    bne     Lf9fd
+    bne     prepBlankLines
     sta     WSYNC
 ;---------------------------------------
-Lf9fd
+prepBlankLines
     inx
-Lf9fe
-    jmp     Lfba7
+jumpToBlankLoop
+    jmp     blankScanlineCountdown
     
-Lfa01
+landingKernelEntry
     ldx     altitude
-Lfa03
+altitudeBlankLoop
     sta     WSYNC
 ;---------------------------------------
     dex
-    bpl     Lfa03
+    bpl     altitudeBlankLoop
     lda     pitchValue
     tax
     eor     #$1f
     sec
     sbc     #$0f
     sta     tempVar3
-Lfa12
+pitchAngleBlankLoop
     sta     WSYNC
 ;---------------------------------------
     dex
-    bpl     Lfa12
+    bpl     pitchAngleBlankLoop
     inx
     stx     REFP0
     lda     #$05
     sta     NUSIZ0
     lda     trajectoryDotPos
-    jsr     Lfdf5
+    jsr     addYAxisAndPosition
     ldx     #$07
-Lfa25
+landingTrajectoryLoop
     sta     WSYNC
 ;---------------------------------------
     sta     HMOVE
-    lda     Lfdc5,x
-    jsr     Lfb9c
-    bne     Lfa25
+    lda     trajectoryDotGfx,x
+    jsr     setMarkerGfxAndColor
+    bne     landingTrajectoryLoop
     lda     planeDotPos
-    jsr     Lfdf5
+    jsr     addYAxisAndPosition
     ldx     #$07
-Lfa38
+landingPlaneDotLoop
     sta     WSYNC
 ;---------------------------------------
     sta     HMOVE
-    lda     Lfdcc,x
-    jsr     Lfb9c
-    bne     Lfa38
+    lda     planeDotGfx,x
+    jsr     setMarkerGfxAndColor
+    bne     landingPlaneDotLoop
     lda     yAxisPlane
     clc
     adc     #$6d
-    bcs     Lfa4f
+    bcs     wrapYToRange
     cmp     #$a0
-    bcc     Lfa51
-Lfa4f
+    bcc     positionShuttleIndicator
+wrapYToRange
     sbc     #$a0
-Lfa51
-    jsr     Lfe00
+positionShuttleIndicator
+    jsr     positionSpriteHoriz
     inx
     lda     yAxisPlane
     clc
     adc     #$24
     cmp     #$a0
-    bcc     Lfa60
+    bcc     positionRunwaySprites
     sbc     #$a0
-Lfa60
-    jsr     Lfe00
+positionRunwaySprites
+    jsr     positionSpriteHoriz
     lda     #$17
     sta     NUSIZ0
     sta     NUSIZ1
@@ -5537,19 +5533,19 @@ Lfa60
     sty     COLUP0
     sty     COLUP1
     ldx     #$04
-Lfa71
+drawRunwayLoop
     sta     WSYNC
 ;---------------------------------------
     sta     HMOVE
-    lda     Lfdd7,x
+    lda     runwayColorData,x
     sta     COLUBK
-    lda     Lfdd3,x
+    lda     runwayGfxData,x
     sta     GRP0
     sta     GRP1
     dex
     sty     HMP0
     sty     HMP1
-    bne     Lfa71
+    bne     drawRunwayLoop
     sta     WSYNC
 ;---------------------------------------
     stx     GRP0
@@ -5557,46 +5553,46 @@ Lfa71
     sty     COLUBK
     lda     yAxisPlane
     cmp     #$50
-    bcc     Lfa99
+    bcc     positionRunwayMarkers
     adc     #$5f
     clc
-Lfa99
+positionRunwayMarkers
     adc     #$52
     tay
     ldx     #$02
-    jsr     Lfe00
+    jsr     positionSpriteHoriz
     tya
     clc
     adc     #$01
     inx
-    jsr     Lfe00
+    jsr     positionSpriteHoriz
     sta     WSYNC
 ;---------------------------------------
     sta     HMOVE
-    jsr     Lff00
+    jsr     returnFromSpeedUpdate
     ldy     #$00
     lda     yAxisPlane
     cmp     #$50
-    bcc     Lfac5
+    bcc     setLeftDriftMotion
     ldx     #$10
     stx     HMM0
     ldx     #$01
     stx     HMM1
     cmp     #$78
-    jmp     Lfacf
+    jmp     setDriftDirection
     
-Lfac5
+setLeftDriftMotion
     ldx     #$f0
     stx     HMM1
     ldx     #$00
     stx     HMM0
     cmp     #$28
-Lfacf
-    beq     Lfad7
+setDriftDirection
+    beq     applyDriftAndSync
     ldy     #$10
-    bcc     Lfad7
+    bcc     applyDriftAndSync
     ldy     #$f0
-Lfad7
+applyDriftAndSync
     sty     starfieldHorizontalMotion,x
     sta     WSYNC
 ;---------------------------------------
@@ -5604,25 +5600,25 @@ Lfad7
     sta     COLUBK
     lda     yAxisPlane
     cmp     #$50
-    bcc     Lfae7
+    bcc     calcCenterDeviation
     sbc     #$50
-Lfae7
+calcCenterDeviation
     cmp     #$29
-    bcc     Lfaef
+    bcc     storeDeviationCheck
     eor     #$ff
     sbc     #$b0
-Lfaef
+storeDeviationCheck
     lsr
     sta     tempVar
     lda     reentryContactState
-    beq     Lfb02
+    beq     calcApproachScrollPos
     lda     frameCounter
     and     #$03
-    bne     Lfb02
+    bne     calcApproachScrollPos
     lda     gameActive
-    beq     Lfb02
+    beq     calcApproachScrollPos
     dec     starfieldScrollY
-Lfb02
+calcApproachScrollPos
     lda     starfieldScrollY
     eor     #$ff
     clc
@@ -5641,9 +5637,9 @@ Lfb02
     ldy     #$0f
     lda     frameCounter
     and     #$10
-    bne     Lfb25
+    bne     setApproachColors
     ldy     #$0a
-Lfb25
+setApproachColors
     sty     COLUP0
     sty     COLUP1
     sty     CXCLR
@@ -5658,21 +5654,21 @@ kernelDrawCockpitWindow
     sta     HMOVE                       ; Apply fine motion (moves stars left/right).
     iny
     cpy     tempVar                      ; Compare loop counter to Motion Threshold?
-    bcc     Lfb3e                       ; Branch if "fast motion" update not needed yet.
+    bcc     clearStarMotion                       ; Branch if "fast motion" update not needed yet.
     ldy     #$00
     lda     starfieldHorizontalMotion,x ; Load motion value from table.
     sta     HMM0,x                      ; Apply to HMM0 (or HMM1 if X=1).
-    bcs     Lfb42
-Lfb3e
+    bcs     checkStarVertCounter
+clearStarMotion
     lda     #$00
     sta     HMM0,x                      ; Clear motion if below threshold.
-Lfb42
+checkStarVertCounter
     lda     #$00
     dec     starfieldVerticalCounter    ; Decrement the star/line pattern counter.
-    bpl     Lfb4c
+    bpl     collisionClipM0
     sta     ENAM0                       ; If counter wrapped, clear ENAM0.
-    bmi     Lfb5c                       ; And clear ENAM1 (via fallthrough/branch logic).
-Lfb4c
+    bmi     storeM1AndLoop                       ; And clear ENAM1 (via fallthrough/branch logic).
+collisionClipM0
     ;-----------------------------------------------------------
     ; Masking Trick:
     ; The code attempts to enable the Missiles (Stars/Lines)
@@ -5684,80 +5680,80 @@ Lfb4c
     
     ; Check Missile 0 (Orange vertical lines).
     bit     CXM0FB                      ; Check M0 collision with Playfield/Player.
-    bmi     Lfb52                       ; If hit (inside wall/frame), skip enable (keep 0/Off).
+    bmi     storeM0Enable                       ; If hit (inside wall/frame), skip enable (keep 0/Off).
     lda     #$02                        ; Else, Enable M0 (1 pixel).
-Lfb52
+storeM0Enable
     sta     ENAM0
 
     lda     #$00                        ; Prepare 0 (Off).
     ; Check Missile 1 (Green Stars).
     bit     CXM1FB                      ; Check M1 collision with Playfield/Player.
-    bmi     Lfb5c                       ; If hit (inside wall/frame), skip enable (keep 0/Off).
+    bmi     storeM1AndLoop                       ; If hit (inside wall/frame), skip enable (keep 0/Off).
     lda     #$02                        ; Else, Enable M1 (1 pixel).
-Lfb5c
+storeM1AndLoop
     sta     ENAM1
     dec     tempVar3                      ; Decrement scanline counter.
     bpl     kernelDrawCockpitWindow     ; Loop for next scanline.
     txs
     ldx     #$0a
-Lfb65
+kernelCockpitBorder
     sta     WSYNC
 ;---------------------------------------
     sta     HMOVE
-    lda     Lfe26,x
+    lda     cockpitBorderPF0,x
     sta     PF0
-    lda     Lff00,x
+    lda     returnFromSpeedUpdate,x
     sta     PF1
-    lda     Lfe30,x
+    lda     cockpitBorderPF2,x
     sta     PF2
     stx     tempVar2
     tsx
     iny
     cpy     tempVar
-    bcc     Lfb88
+    bcc     clearBorderMotion
     ldy     #$00
     lda     starfieldHorizontalMotion,x
     sta     HMM0,x
-    bcs     Lfb8c
-Lfb88
+    bcs     checkBorderVertCounter
+clearBorderMotion
     lda     #$00
     sta     HMM0,x
-Lfb8c
+checkBorderVertCounter
     dec     starfieldVerticalCounter
-    bpl     Lfb94
+    bpl     borderLoopAndExit
     sta     ENAM0
     sta     ENAM1
-Lfb94
+borderLoopAndExit
     ldx     tempVar2
     dex
-    bne     Lfb65
+    bne     kernelCockpitBorder
     jmp     exitLogicToKernel
     
-Lfb9c
+setMarkerGfxAndColor
     sta     GRP0
-    lda     Lfdbe,x
+    lda     markerColorTable,x
     sta     COLUP0
     sta     HMCLR
     dex
     rts
     
-Lfba7
+blankScanlineCountdown
     stx     WSYNC
 ;---------------------------------------
     dex
-    bne     Lfba7
+    bne     blankScanlineCountdown
     stx     GRP0
     stx     ENAM1
     lda     enginePowerOn
-    beq     Lfbc2
+    beq     beginSatelliteSection
     lda     #$10
     ldy     flightPhase
-    beq     Lfbc2
+    beq     beginSatelliteSection
     ldy     starfieldVerticalCounter
     cpy     #$90
-    bne     Lfbc2
+    bne     beginSatelliteSection
     lda     pitchValue
-Lfbc2
+beginSatelliteSection
     sta     tempVar3
     lda     cockpitAnimCounter
     sta     WSYNC
@@ -5771,9 +5767,9 @@ Lfbc2
     lda     #$15
     ldx     #$05
     sta     NUSIZ0
-Lfbd8
+positionSatMissile
     dex
-    bne     Lfbd8
+    bne     positionSatMissile
     sta     RESM0
     sta     HMM0,x
     lda     #$c0
@@ -5783,48 +5779,48 @@ Lfbd8
     ldx     #$11
     lda     #PURPLE|$9
     sta     RESP0
-Lfbec
+satelliteDisplayLoop
     sta     WSYNC
 ;---------------------------------------
     sta     HMOVE
     sta     COLUPF
-    lda     Lfe33,x
+    lda     satelliteSectionPF0,x
     sta     PF0
-    lda     Lfe3b,x
+    lda     satelliteSectionPF1,x
     sta     PF1
-    lda     Lfe43,x
+    lda     satelliteSectionPF2,x
     sta     PF2
-Lfc01
+writeSatSpriteLine
     lda     #$ff
     sta     GRP0
     dey
-    bpl     Lfc0a
+    bpl     checkSatTransition
     ldy     #$0f
-Lfc0a
+checkSatTransition
     sta     HMCLR
     lda     starfieldVerticalCounter
     dec     tempVar3
-    bpl     Lfc18
-    lda     Lfe55,y
+    bpl     countSatLinesAndExit
+    lda     satelliteColorGradient,y
     sec
     adc     satelliteColorOffset
-Lfc18
+countSatLinesAndExit
     dex
     beq     exitLogicToKernel
     cpx     #$0a
-    bcs     Lfbec
+    bcs     satelliteDisplayLoop
     sta     WSYNC
 ;---------------------------------------
     sta     COLUBK
     lda     #BLACK|$0
     sta     COLUPF
-    lda     Lfe26,x
+    lda     cockpitBorderPF0,x
     sta     PF0
-    lda     Lff00,x
+    lda     returnFromSpeedUpdate,x
     sta     PF1
-    lda     Lfe30,x
+    lda     cockpitBorderPF2,x
     sta     PF2
-    bcc     Lfc01
+    bcc     writeSatSpriteLine
 ;-----------------------------------------------------------
 ;      Exit Logic -> Switch to Kernel (Bank 1 -> Bank 0)
 ;-----------------------------------------------------------
@@ -5838,44 +5834,44 @@ bank1Handler
     bmi     waitForTimerVSYNC
     lda     flightPhase
     cmp     #$02
-    bne     Lfc60
+    bne     checkSeparationEvent
     bit     consoleSwitches
-    bmi     Lfc5c
+    bmi     resetCargoDoorTimer
     lda     cargoDoorTimer
-    bpl     Lfc60
+    bpl     checkSeparationEvent
     ldx     #$41
     stx     soundEffectId
     cmp     #$ff
-    bne     Lfc60
+    bne     checkSeparationEvent
     ldx     #$85
-    jsr     Lfcc7
-Lfc5c
+    jsr     abortMission
+resetCargoDoorTimer
     ldx     #$01
     stx     cargoDoorTimer
-Lfc60
+checkSeparationEvent
     lda     separationEventTimer
     bne     waitForTimerVSYNC
     bit     consoleSwitches
-    bpl     Lfc85
+    bpl     checkDoorCloseNeeded
     ldx     #$50
     lda     flightPhase
     beq     waitForTimerVSYNC
     and     #$01
-    bne     Lfc82
+    bne     callAbortMission
     lda     cargoDoorState
     bne     waitForTimerVSYNC
     dec     cargoDoorState
     .byte   $2c ;bit                ;4-5 =  30 *
-Lfc79
+toggleCargoDoors
     inc     cargoDoorState
     ldx     #$72
-    jsr     Lfce6
+    jsr     queueSoundEffect
     bne     waitForTimerVSYNC
-Lfc82
-    jsr     Lfcc7
-Lfc85
+callAbortMission
+    jsr     abortMission
+checkDoorCloseNeeded
     lda     cargoDoorState
-    bne     Lfc79
+    bne     toggleCargoDoors
 ;-----------------------------------------------------------
 ;      Wait For Timer / Start VSYNC (Bank 1)
 ;-----------------------------------------------------------
@@ -5887,24 +5883,23 @@ waitForTimerVSYNC
 ;---------------------------------------
     sty     VSYNC
     lda     landingDisplayMode
-    beq     Lfca2
+    beq     positionTargetVSYNC
     lda     soundEffectId
-    bne     Lfca2
+    bne     positionTargetVSYNC
     dec     landingDisplayMode
     lda     #$82
     sta     soundEffectId
-Lfca2
+positionTargetVSYNC
     lda     targetHorizPos
-    jsr     Lfe00
+    jsr     positionSpriteHoriz
     stx     WSYNC
 ;---------------------------------------
     stx     VSYNC
     jmp     mainFrameLoop
     
 subtractFuel
-Lfcae
     bit     trainingModeFlag
-    bmi     Lfd09
+    bmi     returnFromSubtractFuel
     sed
     sec
     sta     tempVar
@@ -5915,38 +5910,37 @@ Lfcae
     sbc     #$00
     sta     fuelHigh
     cld
-    bcs     Lfd09
+    bcs     returnFromSubtractFuel
     ldx     #$99
 abortMission
-Lfcc7
     sec
     lda     gameActive
-    beq     Lfd09
+    beq     returnFromSubtractFuel
     stx     abortCode
     txa
     ldx     trainingModeFlag
-    beq     Lfced
+    beq     clearFuel
     inx
     ldy     #$05
-Lfcd6
-    cmp     Lfd09,y
-    beq     Lfcf1
+abortCodeFilterLoop
+    cmp     returnFromSubtractFuel,y
+    beq     resetAllGameState
     dey
-    bne     Lfcd6
+    bne     abortCodeFilterLoop
     bit     autopilotMode
-    bmi     Lfd09
+    bmi     returnFromSubtractFuel
     sta     errorDisplayFlag
     ldx     #$b4
-Lfce6
+queueSoundEffect
     stx     soundEffectId
     ldx     #$fe
     stx     soundSequenceIndex
     rts
     
-Lfced
+clearFuel
     stx     fuelLow
     stx     fuelHigh
-Lfcf1
+resetAllGameState
     stx     attractTimer
     stx     errorDisplayFlag
     stx     gameActive
@@ -5959,77 +5953,77 @@ Lfcf1
     stx     trainingModeFlag
     ldx     #$1b
     stx     statusDisplayId
-Lfd09
+returnFromSubtractFuel
     rts
     
     .byte   $95,$70,$75,$80,$10             ; $fd0a (*)
     
-Lfd0f
+setMovementAndPerturb
     ora     movementFlags
     sta     movementFlags
     lda     dockingCount
-    beq     Lfd1d
+    beq     returnWithX0F
     bit     rngSeed
-    bmi     Lfd1d
+    bmi     returnWithX0F
     inc     satelliteOrbitalPos
-Lfd1d
+returnWithX0F
     ldx     #$0f
     rts
     
-Lfd20
+increaseSpeed
     lda     altitude
     cmp     #$ff
-    beq     Lfd40
+    beq     returnFromSpeedChange
     sed
     lda     speedFractionLow
     clc
     adc     #$01
     sta     speedFractionLow
-    bcc     Lfd38
+    bcc     checkSpeedTensCarry
     lda     speedFractionHigh
     adc     #$00
     sta     speedFractionHigh
     inc     descentRateIndex
-Lfd38
+checkSpeedTensCarry
     lda     speedFractionLow
     and     #$0f
-    bne     Lfd40
-Lfd3e
+    bne     returnFromSpeedChange
+incAltitude
     inc     altitude
-Lfd40
+returnFromSpeedChange
     cld
     rts
     
-Lfd42
+decreaseSpeed
     sed
     lda     speedFractionLow
     sec
     sbc     #$01
     sta     speedFractionLow
-    bcs     Lfd54
+    bcs     checkSpeedDecTens
     lda     speedFractionHigh
     sbc     #$00
     sta     speedFractionHigh
     dec     descentRateIndex
-Lfd54
+checkSpeedDecTens
     lda     speedFractionLow
     and     #$0f
-    bne     Lfd40
+    bne     returnFromSpeedChange
     dec     altitude
     lda     altitude
     cmp     #$ff
-    bne     Lfd40
-    beq     Lfd3e
+    bne     returnFromSpeedChange
+    beq     incAltitude
     
-Lfd64
+initialGameVarsTable
     .byte   $01,$0f,$12,$0d,$05,$19,$66,$6e ; $fd64 (D)
     .byte   $0d,$14,$07,$47,$2b,$67,$17,$57 ; $fd6c (D)
     .byte   $0e,$76,$2f,$4a,$7f,$5c,$00,$00 ; $fd74 (D)
     .byte   $00,$00,$99,$99,$15,$a0,$00,$00 ; $fd7c (D)
-Lfd84
+difficultyMultTable
     .byte   $01,$05                         ; $fd84 (D)
     .byte   $04,$06,$02,$0a                 ; $fd86 (*)
-Lfd8a
+initialParamsExtended
     .byte   $08,$09,$0f,$0f,$0f             ; $fd8a (*)
     
     .byte   BLACK|$f                        ; $fd8f (C)
@@ -6039,55 +6033,55 @@ Lfd8a
     .byte   BLACK|$8                        ; $fd91 (C)
     
     .byte   $88,$88,$86,$86,$68,$68,$86,$86 ; $fd92 (*)
-Lfd9a
+nibbleToTensTable
     .byte   $00,$16,$32,$48,$64,$80,$96,$12 ; $fd9a (*)
     .byte   $28,$44,$60,$76,$92,$08         ; $fda2 (*)
-Lfda8
+descentRateTable
     .byte   $24,$40,$03,$04,$04,$03,$03,$02 ; $fda8 (*)
     .byte   $02,$02,$02,$02,$02,$02,$03,$03 ; $fdb0 (*)
     .byte   $06,$06,$06,$07,$14,$14         ; $fdb8 (*)
-Lfdbe
+markerColorTable
     .byte   $0e,$0e,$08,$1a,$0c,$0e,$0e     ; $fdbe (*)
-Lfdc5
+trajectoryDotGfx
     .byte   $0e,$00,$1f,$3c,$ff,$7f,$3e     ; $fdc5 (*)
-Lfdcc
+planeDotGfx
     .byte   $18,$00,$1f,$7c,$fe,$3f,$7c     ; $fdcc (*)
-Lfdd3
+runwayGfxData
     .byte   $38,$ff,$ee,$cc                 ; $fdd3 (*)
-Lfdd7
+runwayColorData
     .byte   $88,$ae,$7c,$7a,$78             ; $fdd7 (*)
     
-Lfddc
+storeDigitGfxPtr
     cpy     #$04
-    bcs     Lfde6
+    bcs     writeGfxPointer
     bit     heatEffectTimer
-    bpl     Lfde6
+    bpl     writeGfxPointer
     lda     #$50
-Lfde6
+writeGfxPointer
     sta     screenPtr1L,x
     lda     #$de
     sta     screenPtr1H,x
     dex
     rts
     
-Lfdee
+fuelRefillTable
     .byte   $15,$20,$25,$30,$35,$40,$40     ; $fdee (*)
     
-Lfdf5
+addYAxisAndPosition
     clc
     adc     yAxisPlane
-    bcs     Lfdfe
+    bcs     wrapPositionSub
     cmp     #$a0
-    bcc     Lfe00
-Lfdfe
+    bcc     positionSpriteHoriz
+wrapPositionSub
     sbc     #$9f
-Lfe00
+positionSpriteHoriz
     sta     WSYNC
 ;---------------------------------------
     sec
-Lfe03
+horizPosDivLoop
     sbc     #$0f
-    bcs     Lfe03
+    bcs     horizPosDivLoop
     eor     #$0f
     asl
     asl
@@ -6109,10 +6103,10 @@ graphicOffsetTable
     .byte   $af,$bb,$c7,$d3                 ; $fe1e (*)
     .byte   $b4                             ; $fe22 (D)
     .byte   $87,$0c,$5e                     ; $fe23 (*)
-Lfe26
+cockpitBorderPF0
     .byte   $35                             ; $fe26 (*)
     
-Lfe27
+groundPF0Data
     .byte   %11110000 ; |****    |            $fe27 (P)
     .byte   %11110000 ; |****    |            $fe28 (P)
     .byte   %11110000 ; |****    |            $fe29 (P)
@@ -6122,23 +6116,23 @@ Lfe27
     .byte   %01110000 ; | ***    |            $fe2d (P)
     .byte   %01110000 ; | ***    |            $fe2e (P)
     .byte   %01110000 ; | ***    |            $fe2f (P)
-Lfe30
+cockpitBorderPF2
     .byte   %01110000 ; | ***    |            $fe30 (P)
-Lfe31
+groundPF2Data
     .byte   %11100000 ; |***     |            $fe31 (P)
     .byte   %11000000 ; |**      |            $fe32 (P)
-Lfe33
+satelliteSectionPF0
     .byte   %11000000 ; |**      |            $fe33 (P)
     .byte   %10000000 ; |*       |            $fe34 (P)
     .byte   %10000000 ; |*       |            $fe35 (P)
     .byte   %10000000 ; |*       |            $fe36 (P)
     .byte   %00000000 ; |        |            $fe37 (P)
     .byte   %00000000 ; |        |            $fe38 (P)
-Lfe39
+satelliteSectionPad
     .byte   %00000000 ; |        |            $fe39 (P)
     .byte   %00000000 ; |        |            $fe3a (P)
     
-Lfe3b
+satelliteSectionPF1
     .byte   $02,$01                         ; $fe3b (*)
     
     .byte   %11110000 ; |****    |            $fe3d (P)
@@ -6147,7 +6141,7 @@ Lfe3b
     .byte   %00000000 ; |        |            $fe40 (P)
     .byte   %00000000 ; |        |            $fe41 (P)
     .byte   %00000000 ; |        |            $fe42 (P)
-Lfe43
+satelliteSectionPF2
     .byte   %00000000 ; |        |            $fe43 (P)
     .byte   %00000000 ; |        |            $fe44 (P)
     .byte   %11111111 ; |********|            $fe45 (P)
@@ -6167,7 +6161,7 @@ Lfe43
     .byte   %11111100 ; |******  |            $fe53 (P)
     .byte   %00000000 ; |        |            $fe54 (P)
     
-Lfe55
+satelliteColorGradient
     .byte   PURPLE|$6                       ; $fe55 (CP)
     .byte   PURPLE|$5                       ; $fe56 (CP)
     .byte   PURPLE|$4                       ; $fe57 (CP)
@@ -6185,22 +6179,21 @@ Lfe55
     .byte   PURPLE|$2                       ; $fe63 (CP)
     .byte   PURPLE|$3                       ; $fe64 (CP)
     
-Lfe65
+coldStartClearRAM
     lda     #$00
     ldx     #$77
-Lfe69
+clearRAMLoop
     sta     rngSeed,x
     dex
-    bne     Lfe69
+    bne     clearRAMLoop
 initGameVars
-Lfe6e
     ldx     #$21
-Lfe70
-    lda     Lfd64,x
+copyInitVarsLoop
+    lda     initialGameVarsTable,x
     sta     rngSeed,x
     dex
-    bpl     Lfe70
-Lfe78
+    bpl     copyInitVarsLoop
+returnFromInit
     rts
     
     .byte   %10001000 ; |#   #   |            $fe79 (G)
@@ -6212,7 +6205,7 @@ Lfe78
     .byte   %10111011 ; |# ### ##|            $fe7f (G)
     .byte   %10111011 ; |# ### ##|            $fe80 (G)
     .byte   %01011001 ; | # ##  #|            $fe81 (G)
-Lfe82
+planeDotSpriteData
     .byte   %00010001 ; |   #   #|            $fe82 (G)
     .byte   %11011101 ; |## ### #|            $fe83 (G)
     .byte   %11011101 ; |## ### #|            $fe84 (G)
@@ -6223,16 +6216,16 @@ Lfe82
     .byte   %11111110 ; |####### |            $fe89 (G)
     .byte   %11101111 ; |### ####|            $fe8a (G)
     .byte   %11001101 ; |##  ## #|            $fe8b (G)
-Lfe8c
+trajectoryDotMotion
     .byte   %10001001 ; |#   #  #|            $fe8c (G)
     
 launchEventParams
     .byte   $01,$e0,$e0,$f2,$00,$11,$20,$21 ; $fe8d (D)
     .byte   $e2                             ; $fe95 (D)
-Lfe96
+launchEventParams2
     .byte   $20,$02,$e1,$22,$e0,$e1,$f0,$01 ; $fe96 (D)
     .byte   $12,$21                         ; $fe9e (D)
-Lfea0
+dotColorCycleTable
     .byte   $22                             ; $fea0 (D)
     
     .byte   ORANGE|$2                       ; $fea1 (C)
@@ -6249,15 +6242,15 @@ Lfea0
 launchEventTimings
     .byte   $04,$00,$03,$07,$10,$13,$15,$22 ; $feab (*)
     .byte   $40,$41,$65,$66,$70,$72         ; $feb3 (*)
-Lfeb9
+starfieldEnableTable
     .byte   $76,$77                         ; $feb9 (D)
     .byte   $80                             ; $febb (*)
     .byte   $85,$88,$89                     ; $febc (D)
-Lfebf
+launchEventData3
     .byte   $e6,$32                         ; $febf (D)
     .byte   $f4                             ; $fec1 (*)
     .byte   $00,$24,$20                     ; $fec2 (D)
-Lfec5
+launchEventData4
     .byte   $36,$46                         ; $fec5 (D)
     .byte   $90                             ; $fec7 (*)
     .byte   $90,$90                         ; $fec8 (D)
@@ -6271,13 +6264,13 @@ Lfec5
     .byte   $80                             ; $fecd (D)
     .byte   $60,$70,$82,$62,$64,$84,$86     ; $fece (*)
     
-Lfed5
+incSpeedAndDisplay
     inc     speed
-    bne     Lfedc
+    bne     bcdIncSpeedDisplay
     dec     speed
     rts
     
-Lfedc
+bcdIncSpeedDisplay
     sed
     lda     speedDisplayLow
     clc
@@ -6285,14 +6278,14 @@ Lfedc
     sta     speedDisplayLow
     lda     speedDisplayHigh
     adc     #$00
-    bcc     Lfefd
-Lfeea
+    bcc     storeSpeedHigh
+decSpeedAndDisplay
     dec     speed
-    bne     Lfef1
+    bne     bcdDecSpeedDisplay
     inc     speed
     rts
     
-Lfef1
+bcdDecSpeedDisplay
     sed
     sec
     lda     speedDisplayLow
@@ -6300,13 +6293,13 @@ Lfef1
     sta     speedDisplayLow
     lda     speedDisplayHigh
     sbc     #$00
-Lfefd
+storeSpeedHigh
     sta     speedDisplayHigh
     cld
-Lff00
+returnFromSpeedUpdate
     rts
     
-Lff01
+groundPF1Data
     .byte   %11000000 ; |##      |            $ff01 (G)
     .byte   %10000000 ; |#       |            $ff02 (G)
     .byte   %10000000 ; |#       |            $ff03 (G)
@@ -6555,7 +6548,7 @@ satelliteGfx
     .byte   %00000000 ; |        |            $fff5 (G)
     .byte   %00000000 ; |        |            $fff6 (G)
     .byte   %00000000 ; |        |            $fff7 (G)
-Lfff8
+bank1Vectors
     .byte   $00                             ; $fff8 (D)
     .byte   $00,$00,$00                     ; $fff9 (*)
     .byte	$03,$f0

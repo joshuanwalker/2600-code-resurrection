@@ -140,7 +140,7 @@ The CPU spins on `INTIM` until the overscan timer expires, then asserts VSYNC fo
 
 | Scanline | Work |
 | ---------- | ------ |
-| 1 | Assert VSYNC (`sty VSYNC` where Y=2). Process landing display mode — if `landingDisplayMode` is non-zero and no sound is playing, decrement it and trigger landing sound (`$82`). Position satellite sprite horizontally via `Lfe00`. |
+| 1 | Assert VSYNC (`sty VSYNC` where Y=2). Process landing display mode — if `landingDisplayMode` is non-zero and no sound is playing, decrement it and trigger landing sound (`$82`). Position satellite sprite horizontally via `positionSpriteHoriz`. |
 | 2 | De-assert VSYNC (`stx VSYNC` where X=0). Jump to `mainFrameLoop`. |
 
 #### Phase 2: VBLANK (~41 Scanlines of CPU Time)
@@ -205,7 +205,7 @@ The remainder of VBLANK is a large phase dispatcher based on `flightPhase` and `
 | 16 | `.orbitPhaseDispatch` | Routes to sub-phases: `flightPhase=3` → reentry speed management, `flightPhase=4` → docking display, else → general orbital operations. |
 | 17 | `.checkOrbitInput` | Joystick input with rate-limiting (`inputDelayTimer`): forward/back adjusts speed (X-axis), left/right adjusts Y-axis, fire+up/down adjusts Z-axis (altitude). |
 | 18 | `.dockingProgress` | Checks 5 docking conditions simultaneously: `yAxisPlane=0`, `pitchValue=0`, `targetHorizPos` in $47–$4F range, orbital position match (`shuttleOrbitalPos=satelliteOrbitalPos`), altitude=$D2. All must hold for 2 seconds (`dockingProgress` counter reaches $80). |
-| 19 | `.doRefuel` | On successful dock: adds fuel from `Lfdee` table (15→40 units, increasing per dock), increments `missionScore` (BCD), `dockingCount` (max 6). |
+| 19 | `.doRefuel` | On successful dock: adds fuel from `fuelRefillTable` (15→40 units, increasing per dock), increments `missionScore` (BCD), `dockingCount` (max 6). |
 | 20 | `.checkAltitudeAbort` | Orbit abort conditions: altitude=$FF (overflow) → abort. Altitude<$C3 (195 nm) → abort $70 (atmospheric burn-up). Speed≠$A9 → abort $80. |
 
 ###### OMS Burns (`flightPhase=2`, with engines active)
@@ -221,7 +221,7 @@ The remainder of VBLANK is a large phase dispatcher based on `flightPhase` and `
 | Step | Label | Description |
 | ------ | ------- | ------------- |
 | 24 | `.deorbitLogic` | Monitors descent: `speed < $BF` and `altitude < $D7` triggers deorbit evaluation. Quality check: `omsYaw≠0` → abort $65, `pitchValue` outside tolerance → abort. At altitude $C8: transitions to `flightPhase=3` (reentry mode). |
-| 25 | `.doReentryDescent` | **Three altitude bands**: ≥$A7 (167nm+) = no heating; $78–$A6 = ionization zone (increments `heatEffectTimer` — random color flashes); <$78 = lower atmosphere (increments `atmosphereDensity` — grey tint effect). Descent rate from `Lfda8` table or pitch+switch formula. |
+| 25 | `.doReentryDescent` | **Three altitude bands**: ≥$A7 (167nm+) = no heating; $78–$A6 = ionization zone (increments `heatEffectTimer` — random color flashes); <$78 = lower atmosphere (increments `atmosphereDensity` — grey tint effect). Descent rate from `descentRateTable` or pitch+switch formula. |
 | 26 | *(landing transition)* | At altitude $1E (30nm): transitions to `flightPhase=4` (landing). Sets `landingDisplayMode=2`, `starfieldScrollY=$80` (approach timer). |
 
 ###### Landing (`flightPhase=4`)
@@ -238,7 +238,7 @@ The remainder of VBLANK is a large phase dispatcher based on `flightPhase` and `
 | ------ | ------- | ------------- |
 | 30 | `.flightEffects` | Processes `pendingSpeedEffect` — deferred speed increment/decrement flagged by the display kernel during the previous frame. |
 | 31 | `.statusDisplay` | Converts `statusDisplayId` to a displayable value. Maps IDs to flight parameters: $0D=orbital separation (`shuttleOrbitalPos−satelliteOrbitalPos`), $0F=Y-axis, $11=altitude, $13=pitch, $15=OMS yaw, $17=approach timer. |
-| 32 | `.convertToDisplay` | Signed-to-BCD conversion: produces 3 BCD digits in `displayDigitsHigh`:`displayDigitsLow`. Negative values get $A0 sign prefix. Uses `Lfd9a` nibble-to-tens lookup. |
+| 32 | `.convertToDisplay` | Signed-to-BCD conversion: produces 3 BCD digits in `displayDigitsHigh`:`displayDigitsLow`. Negative values get $A0 sign prefix. Uses `nibbleToTensTable` nibble-to-tens lookup. |
 | 33 | `renderDigits` | Converts 7 BCD digits into graphic pointers (`screenPtr1L`–`screenPtr6L`) by indexing into `numberSprites` table. Blanks leading zeros. Selects instrument label sprite from `graphicOffsetTable`. |
 
 The VBLANK logic then waits for the timer to expire before beginning the visible frame.
@@ -257,7 +257,7 @@ Immediately after the VBLANK timer expires, Bank 1 clears the VBLANK register an
 
 | Kernel | Condition | Scanlines | Description |
 | -------- | ----------- | ----------- | ------------- |
-| **Ground Kernel** | All flight phases | 10 | `groundKernel` ($F907): Draws terrain strip using `PF0`/`PF1`/`PF2` from three playfield data tables (`Lfe27`, `Lff01`, `Lfe31`). Color set from sky/ground table based on flight phase. |
+| **Ground Kernel** | All flight phases | 10 | `groundKernel` ($F907): Draws terrain strip using `PF0`/`PF1`/`PF2` from three playfield data tables (`groundPF0Data`, `groundPF1Data`, `groundPF2Data`). Color set from sky/ground table based on flight phase. |
 | **Launch Dot Kernel** | `flightPhase=1` | 2×10 | Two 10-line sections drawing the trajectory reference dot and plane correction dot. Each dot uses color cycling and horizontal motion to indicate alignment. The gap between dots shows the countdown counter or phase number. |
 | **Starfield Kernel** | Orbit phases | 60 | 60-line starfield display: 4 columns of stars using indirect `(gfxDataPtrL),y` reads from `columnGfxPtrTable`. Stars scroll via column rotation and vertical counter. Missile sprites enabled/disabled per-scanline for additional star points. |
 | **Landing Kernel** | `flightPhase=4` | ~60 | Altitude-dependent blank lines above terrain. Trajectory and plane dots repositioned for descent indicator. Y-axis indicator via missile. Runway rendering with earth curvature colors. |
@@ -275,11 +275,11 @@ Bank 0 draws the upper cockpit dashboard from top to bottom:
 
 | Section | Lines | Scanlines | Description |
 | --------- | ------- | ----------- | ------------- |
-| **TIA Setup** | — | 0 | Clears all sprites, sets colors (BLUE players, YELLOW playfield), positions computer arrow sprites via horizontal positioning subroutine (`$D958`). |
+| **TIA Setup** | — | 0 | Clears all sprites, sets colors (BLUE players, YELLOW playfield), positions computer arrow sprites via horizontal positioning subroutine (`positionSpriteHorizB0`). |
 | **Top Dashboard** | `waitForVBlankTimer` | 8 | Playfield border pattern (`PF0`/`PF1`/`PF2`). Draws arrow graphics via `GRP0`/`GRP1`. During orbit with ≥4 dockings, adds random `yAxisPlane` jitter simulating satellite turbulence. |
-| **Thrust Bar** | `Ld0bf` | 5 | Draws the "T"/"C" thrust alignment bar. Uses a repeating `GRP0`/`GRP1` write pattern with `RESP0`/`RESP1` coarse repositioning (11 `sta.w` writes) to create a multi-copy bar effect spanning the screen width. |
+| **Thrust Bar** | `kernelDrawThrustBar` | 5 | Draws the "T"/"C" thrust alignment bar. Uses a repeating `GRP0`/`GRP1` write pattern with `RESP0`/`RESP1` coarse repositioning (11 `sta.w` writes) to create a multi-copy bar effect spanning the screen width. |
 | **Cockpit Frame** | `kernelDrawCockpitWindows` | 8 | Cockpit window border with `GRP0`/`GRP1` window sprites. Color flash logic for misaligned T/C arrows. Positions thrust arrow (T) sprite horizontally. |
-| **Instrument Readout** | `Ld979` subroutine | 6 | **48-pixel multiplexed display**: 6 indirect pointers (`screenPtr1L`–`screenPtr6L`) drive `GRP0`/`GRP1` writes with vertical delay (`VDELP0`/`VDELP1`), rendering a full 6-digit flight instrument readout. The same technique used in many 2600 games for wide score displays. Fuel warning: low fuel blinks `COLUPF`. |
+| **Instrument Readout** | `kernelDrawInstruments` subroutine | 6 | **48-pixel multiplexed display**: 6 indirect pointers (`screenPtr1L`–`screenPtr6L`) drive `GRP0`/`GRP1` writes with vertical delay (`VDELP0`/`VDELP1`), rendering a full 6-digit flight instrument readout. The same technique used in many 2600 games for wide score displays. Fuel warning: low fuel blinks `COLUPF`. |
 | **Main View Window** | `kernelDrawMainView` | 25 | The central cockpit display showing context-dependent graphics selected by `currentScreenId`. Uses the same 6 indirect pointers to draw one of 7 screen graphics: launch pad, orbit view, satellite approach, reentry, landing/runway, STS-101 mission complete, or an alternate reentry view. Each screen is stored as 5 columns × 25 bytes in Bank 0's data section. |
 | **Engine Flame** | *(below main view)* | 8 | Draws engine exhaust below the main view. Conditionally renders flame graphic based on `engineOnTimer`. |
 | **Activision Logo** | `kernelDrawStatusBar` | 8 | Renders the Activision copyright strip using 6 `GRP0`/`GRP1` writes per line with `COLUPF` color cycling for the rainbow effect. Sets `VBLANK` at the end — overscan begins. |
@@ -302,11 +302,11 @@ The complete scanline layout from top to bottom of the visible frame:
  ╞═════════════════════════════════════╡
  │        Top Dashboard Border         │  Bank 0: waitForVBlankTimer (8 lines)
  ├─────────────────────────────────────┤
- │     T/C Thrust Alignment Bar        │  Bank 0: Ld0bf (5 lines)
+ │     T/C Thrust Alignment Bar        │  Bank 0: kernelDrawThrustBar (5 lines)
  ├─────────────────────────────────────┤
  │       Cockpit Window Frame          │  Bank 0: kernelDrawCockpitWindows (8 lines)
  ├─────────────────────────────────────┤
- │     Instrument Readout (6 digits)   │  Bank 0: Ld979 (6 lines)
+ │     Instrument Readout (6 digits)   │  Bank 0: kernelDrawInstruments (6 lines)
  ├─────────────────────────────────────┤
  │       Main View Window              │  Bank 0: kernelDrawMainView (25 lines)
  │   (launch/orbit/satellite/reentry/  │
@@ -489,13 +489,13 @@ If no input is detected for an extended period, the game enters attract mode. Th
 | ------- | --------- | ------------- |
 | `subtractFuel` | $FCAE | BCD fuel subtraction. Skips in training mode. Underflow → abort ($99). |
 | `abortMission` | $FCC7 | Sets `abortCode`, clears game state. Training mode filters abort severity. |
-| `Lfce6` | $FCE6 | Queues sound: sets `soundEffectId` and `soundSequenceIndex=$FE`. |
-| `Lfd20` | $FD20 | Increase speed: BCD increment `speedFractionLow`/`High`, carry → `inc altitude`. |
-| `Lfd42` | $FD42 | Decrease speed: BCD decrement with borrow → `dec altitude`. |
-| `initGameVars` | $FE6E | Copies 34 bytes from ROM table (`Lfd64`) to RAM $80–$A1. |
-| `Lfe00` | $FE00 | Horizontal positioning: divide-by-15 coarse + HMP0 fine adjust. |
-| `Ld958` | $D958 | Bank 0 version of horizontal positioning (identical algorithm). |
-| `Ld979` | $D979 | 48-pixel multiplex renderer for instrument readout. |
+| `queueSoundEffect` | $FCE6 | Queues sound: sets `soundEffectId` and `soundSequenceIndex=$FE`. |
+| `increaseSpeed` | $FD20 | Increase speed: BCD increment `speedFractionLow`/`High`, carry → `inc altitude`. |
+| `decreaseSpeed` | $FD42 | Decrease speed: BCD decrement with borrow → `dec altitude`. |
+| `initGameVars` | $FE6E | Copies 34 bytes from ROM table (`initialGameVarsTable`) to RAM $80–$A1. |
+| `positionSpriteHoriz` | $FE00 | Horizontal positioning: divide-by-15 coarse + HMP0 fine adjust. |
+| `positionSpriteHorizB0` | $D958 | Bank 0 version of horizontal positioning (identical algorithm). |
+| `kernelDrawInstruments` | $D979 | 48-pixel multiplex renderer for instrument readout. |
 
 ### Zero-Page RAM Map
 
