@@ -50,7 +50,7 @@ make run GAME=shuttle
 The game uses a **2-bank ROM** (8KB total, F8 bankswitch) with strobes at `bank0Strobe` (`$FFF8`) and `bank1Strobe` (`$FFF9`). Unlike more complex bankswitching schemes, F8 uses simple address reads — any access to the strobe address causes the hardware to swap banks.
 
 | Aspect | Bank 0 (`$D000`–`$DFFF`) | Bank 1 (`$F000`–`$FFFF`) |
-|--------|--------------------------|--------------------------|
+| -------- | -------------------------- | -------------------------- |
 | **Role** | Display kernels & graphic data | Game logic & frame setup |
 | **Contains** | Upper dashboard rendering, cockpit view, instrument readout, Activision logo, sound engine, orbital movement, all graphic/sprite data tables | Main game loop (all mission phases), visible frame lower kernels (starfield, ground, landing), subroutines, game data tables |
 
@@ -61,7 +61,7 @@ Both banks begin with a **safety guard**: Bank 0's entry (`resetBank0`) immediat
 The Atari 2600's console switches are repurposed as flight deck controls:
 
 | Console Switch | Flight Deck Function |
-|----------------|---------------------|
+| ---------------- | --------------------- |
 | Power On/Off | Internal Power |
 | Color/B&W | Primary Engines |
 | Left Difficulty | Backup Engines |
@@ -139,7 +139,7 @@ mainFrameLoop ──► VBLANK timer set ──► Game Logic (Bank 1)
 The CPU spins on `INTIM` until the overscan timer expires, then asserts VSYNC for 2 scanlines:
 
 | Scanline | Work |
-|----------|------|
+| ---------- | ------ |
 | 1 | Assert VSYNC (`sty VSYNC` where Y=2). Process landing display mode — if `landingDisplayMode` is non-zero and no sound is playing, decrement it and trigger landing sound (`$82`). Position satellite sprite horizontally via `Lfe00`. |
 | 2 | De-assert VSYNC (`stx VSYNC` where X=0). Jump to `mainFrameLoop`. |
 
@@ -152,7 +152,7 @@ All game logic runs while the TIA outputs a blank screen. The VBLANK timer is se
 ##### Initialization & Housekeeping
 
 | Step | Label | Description |
-|------|-------|-------------|
+| ------ | ------- | ------------- |
 | 1 | `mainFrameLoop` | Set `TIM64T = $29`. Update PRNG (8-bit LFSR). Increment `frameCounter`. |
 | 2 | *(auto-start)* | Every 64 frames: if `countdownTimer` reaches 9 and game is inactive, auto-launch in autopilot mode. |
 | 3 | *(fuel burn)* | Every 16 frames: base burn = 1. During launch (`flightPhase=1`): +6 extra. If T/C arrows misaligned: +2 penalty. Call `subtractFuel`. |
@@ -160,28 +160,28 @@ All game logic runs while the TIA outputs a blank screen. The VBLANK timer is se
 ##### MECO & Orbit Transition
 
 | Step | Label | Description |
-|------|-------|-------------|
+| ------ | ------- | ------------- |
 | 4 | `.checkEngineSwitch` | **MECO (Main Engine Cut-Off)**: Autopilot mode triggers at altitude $D2 (210 nm). Manual mode: reads Color/B&W switch (Primary Engines) and Left Difficulty (Backup Engines). |
 | 5 | `.orbitAbortCheck` | On MECO: evaluates orbit quality from `planeCorrection`. If plane angle too far off (≥$10 error) → `abortMission`. Otherwise transitions to `flightPhase=2` (orbit). |
 
 ##### T/C Arrow Logic
 
 | Step | Label | Description |
-|------|-------|-------------|
+| ------ | ------- | ------------- |
 | 6 | `.moveComputerArrow` | Computer arrow auto-tracks to target position derived from `autoThrustCommand`. |
 | 7 | `.checkFireButton` | Player controls thrust arrow (T) via fire button + joystick up/down. Clamped to range $0F–$8B. Arrow misalignment indicator (`arrowsMisaligned`) set when T≠C. |
 
 ##### Trajectory & Timing
 
 | Step | Label | Description |
-|------|-------|-------------|
+| ------ | ------- | ------------- |
 | 8 | `.checkPlaneDot` | Updates trajectory and plane dot positions based on pitch and plane correction values. |
 | 9 | `.skipSeparationFlash` | Manages SRB/ET separation visual effect — `separationEventTimer` overflow triggers white flash and sound. |
 
 ##### Console Switch Handling
 
 | Step | Label | Description |
-|------|-------|-------------|
+| ------ | ------- | ------------- |
 | 10 | `.checkFirstPress` | **Game Reset** (Activate Countdown): first press starts countdown. Hold 2 seconds → full game restart. Debounced via `switchDebounceTimer`. |
 | 11 | `.cycleFlightDisplay` | **Game Select** (Status): cycles `statusDisplayId` through instrument displays. Also selects difficulty level (Flight #1–#3) before launch via repeated presses, and toggles autopilot/training mode accordingly. |
 
@@ -192,7 +192,7 @@ The remainder of VBLANK is a large phase dispatcher based on `flightPhase` and `
 ###### Launch Phase (`flightPhase=1`)
 
 | Step | Label | Description |
-|------|-------|-------------|
+| ------ | ------- | ------------- |
 | 12 | `launchMETLogic` | **MET (Mission Elapsed Time) Clock**: BCD-ticks every 59 frames. Countdown phase: `metHigh=$A0` (T-minus). T-0 check at `metLow=$00`. Post-liftoff: phase 5 at MET 0:03 (hold-down bolt release), phase 7 at MET 0:25 with ET separation flash+sound. |
 | 13 | `handleLaunchScrub` | On countdown abort: resets MET to T-16, clears phase, plays scrub sound ($38). |
 | 14 | *(event dispatcher)* | Matches `metLow` against `launchEventTimings` table (14 entries) to set `autoThrustCommand` — drives automated thrust changes during ascent. |
@@ -201,7 +201,7 @@ The remainder of VBLANK is a large phase dispatcher based on `flightPhase` and `
 ###### Orbit Phase (`flightPhase=2`)
 
 | Step | Label | Description |
-|------|-------|-------------|
+| ------ | ------- | ------------- |
 | 16 | `.orbitPhaseDispatch` | Routes to sub-phases: `flightPhase=3` → reentry speed management, `flightPhase=4` → docking display, else → general orbital operations. |
 | 17 | `.checkOrbitInput` | Joystick input with rate-limiting (`inputDelayTimer`): forward/back adjusts speed (X-axis), left/right adjusts Y-axis, fire+up/down adjusts Z-axis (altitude). |
 | 18 | `.dockingProgress` | Checks 5 docking conditions simultaneously: `yAxisPlane=0`, `pitchValue=0`, `targetHorizPos` in $47–$4F range, orbital position match (`shuttleOrbitalPos=satelliteOrbitalPos`), altitude=$D2. All must hold for 2 seconds (`dockingProgress` counter reaches $80). |
@@ -211,7 +211,7 @@ The remainder of VBLANK is a large phase dispatcher based on `flightPhase` and `
 ###### OMS Burns (`flightPhase=2`, with engines active)
 
 | Step | Label | Description |
-|------|-------|-------------|
+| ------ | ------- | ------------- |
 | 21 | `.orbitOmsInput` | **OMS (Orbital Maneuvering System)**: joystick drives orbital burns. Fuel cost = inverted SWCHA nibble × base rate. Dispatches autopilot vs. manual burns. |
 | 22 | `.manualOmsBurn` | Console switches active: joystick directly controls pitch and yaw. Deorbit burn trigger: switches + fire button simultaneously. |
 | 23 | `.omsBurnProcess` | Processes OMS fuel consumption with BCD subtraction. Updates speed/altitude based on burn parameters. |
@@ -219,7 +219,7 @@ The remainder of VBLANK is a large phase dispatcher based on `flightPhase` and `
 ###### Deorbit & Reentry (`flightPhase=3`)
 
 | Step | Label | Description |
-|------|-------|-------------|
+| ------ | ------- | ------------- |
 | 24 | `.deorbitLogic` | Monitors descent: `speed < $BF` and `altitude < $D7` triggers deorbit evaluation. Quality check: `omsYaw≠0` → abort $65, `pitchValue` outside tolerance → abort. At altitude $C8: transitions to `flightPhase=3` (reentry mode). |
 | 25 | `.doReentryDescent` | **Three altitude bands**: ≥$A7 (167nm+) = no heating; $78–$A6 = ionization zone (increments `heatEffectTimer` — random color flashes); <$78 = lower atmosphere (increments `atmosphereDensity` — grey tint effect). Descent rate from `Lfda8` table or pitch+switch formula. |
 | 26 | *(landing transition)* | At altitude $1E (30nm): transitions to `flightPhase=4` (landing). Sets `landingDisplayMode=2`, `starfieldScrollY=$80` (approach timer). |
@@ -227,7 +227,7 @@ The remainder of VBLANK is a large phase dispatcher based on `flightPhase` and `
 ###### Landing (`flightPhase=4`)
 
 | Step | Label | Description |
-|------|-------|-------------|
+| ------ | ------- | ------------- |
 | 27 | *(approach)* | `approachFrameTimer` ticks down; on underflow resets to $2A (42 frames) and decrements `starfieldScrollY` (approach progress). Cargo door check → abort if doors still open. Reentry wind audio. |
 | 28 | `.checkLandingSuccess` | **Touchdown detection**: checks pitch (must be 0), Y-axis position, approach timer ≤ 0. On success: evaluates landing quality for screen selection. |
 | 29 | `.scoreMission` | Screen $05 = basic landing. Screen $06 = with dockings. Screen $07 = **Commander Patch** (requires 6 dockings AND fuel ≥ 75 units). |
@@ -235,7 +235,7 @@ The remainder of VBLANK is a large phase dispatcher based on `flightPhase` and `
 ##### Post-Phase Logic
 
 | Step | Label | Description |
-|------|-------|-------------|
+| ------ | ------- | ------------- |
 | 30 | `.flightEffects` | Processes `pendingSpeedEffect` — deferred speed increment/decrement flagged by the display kernel during the previous frame. |
 | 31 | `.statusDisplay` | Converts `statusDisplayId` to a displayable value. Maps IDs to flight parameters: $0D=orbital separation (`shuttleOrbitalPos−satelliteOrbitalPos`), $0F=Y-axis, $11=altitude, $13=pitch, $15=OMS yaw, $17=approach timer. |
 | 32 | `.convertToDisplay` | Signed-to-BCD conversion: produces 3 BCD digits in `displayDigitsHigh`:`displayDigitsLow`. Negative values get $A0 sign prefix. Uses `Lfd9a` nibble-to-tens lookup. |
@@ -256,7 +256,7 @@ This inverted rendering order is possible because the TIA has no framebuffer —
 Immediately after the VBLANK timer expires, Bank 1 clears the VBLANK register and sets up the TIA (`VDELP0/1` enabled, `CTRLPF` reflected + priority). The kernel then branches based on game state:
 
 | Kernel | Condition | Scanlines | Description |
-|--------|-----------|-----------|-------------|
+| -------- | ----------- | ----------- | ------------- |
 | **Ground Kernel** | All flight phases | 10 | `groundKernel` ($F907): Draws terrain strip using `PF0`/`PF1`/`PF2` from three playfield data tables (`Lfe27`, `Lff01`, `Lfe31`). Color set from sky/ground table based on flight phase. |
 | **Launch Dot Kernel** | `flightPhase=1` | 2×10 | Two 10-line sections drawing the trajectory reference dot and plane correction dot. Each dot uses color cycling and horizontal motion to indicate alignment. The gap between dots shows the countdown counter or phase number. |
 | **Starfield Kernel** | Orbit phases | 60 | 60-line starfield display: 4 columns of stars using indirect `(gfxDataPtrL),y` reads from `columnGfxPtrTable`. Stars scroll via column rotation and vertical counter. Missile sprites enabled/disabled per-scanline for additional star points. |
@@ -274,7 +274,7 @@ At `exitLogicToKernel`, execution does `sta WSYNC` then `jmp resetBank1`. The fi
 Bank 0 draws the upper cockpit dashboard from top to bottom:
 
 | Section | Lines | Scanlines | Description |
-|---------|-------|-----------|-------------|
+| --------- | ------- | ----------- | ------------- |
 | **TIA Setup** | — | 0 | Clears all sprites, sets colors (BLUE players, YELLOW playfield), positions computer arrow sprites via horizontal positioning subroutine (`$D958`). |
 | **Top Dashboard** | `waitForVBlankTimer` | 8 | Playfield border pattern (`PF0`/`PF1`/`PF2`). Draws arrow graphics via `GRP0`/`GRP1`. During orbit with ≥4 dockings, adds random `yAxisPlane` jitter simulating satellite turbulence. |
 | **Thrust Bar** | `Ld0bf` | 5 | Draws the "T"/"C" thrust alignment bar. Uses a repeating `GRP0`/`GRP1` write pattern with `RESP0`/`RESP1` coarse repositioning (11 `sta.w` writes) to create a multi-copy bar effect spanning the screen width. |
@@ -327,7 +327,7 @@ Note: The screen renders **bottom-up** in code execution order (Bank 1 draws the
 After the Activision logo, `VBLANK` is asserted and the overscan timer is armed via `TIM8T`. During overscan, Bank 0 handles time-critical display calculations:
 
 | Step | Label | Description |
-|------|-------|-------------|
+| ------ | ------- | ------------- |
 | 1 | *(fuel penalty)* | Calculate trajectory/fuel penalty from `fuelPenaltyAccum`. Autopilot: auto-correct pitch toward target value. |
 | 2 | **Sound Engine** | Two-channel audio processing. Channel 0: reads `soundEffectId`, advances `soundSequenceIndex` through sound data, sets `AUDC0`/`AUDF0`/`AUDV0`. Sound IDs encode effect type ($24=dock, $34=click, $41=warning, $44=cargo, $58=deorbit, $82=landing, $98=touchdown, $A2=success, $B4=general). Channel 1: engine drone. |
 | 3 | **Orbital Movement** | Advances `shuttleOrbitalPos` based on speed and `orbitalMoveFraction`. Rotates starfield column array (`starfieldColumns`, 12 elements) to create parallax scrolling effect. Processes `movementFlags` (bit0=forward, bit1=down, bit2=up, bit3=right). |
@@ -341,14 +341,14 @@ At `endOfKernelSwitch`, Bank 0 reads `bank1Strobe` to return to Bank 1. Executio
 ##### Post-Kernel Logic (Bank 1)
 
 | Step | Label | Description |
-|------|-------|-------------|
+| ------ | ------- | ------------- |
 | 6 | `bank1Handler` | **Cargo door check**: during orbit (`flightPhase=2`), if `cargoDoorTimer` overflows negative, triggers warning sound ($41). If it reaches $FF, aborts mission ($85 — heat buildup). Also handles separation event sequencing. |
 | 7 | `waitForTimerVSYNC` | Spins on `INTIM` until overscan timer expires. Pulses VSYNC (2 scanlines). Positions target satellite sprite. Jumps to `mainFrameLoop` — the cycle repeats. |
 
 ### Bank Switching Summary
 
 | # | Direction | Trigger | Purpose |
-|---|-----------|---------|---------|
+| --- | ----------- | --------- | --------- |
 | 1 | Bank 1 → 0 | `exitLogicToKernel` → `jmp resetBank1` → `bit bank0Strobe` | Enter Bank 0 for upper display kernel |
 | 2 | Bank 0 → 1 | `endOfKernelSwitch` → `bit bank1Strobe` | Return to Bank 1 for post-kernel logic |
 
@@ -420,7 +420,7 @@ flightPhase=4  Landing
 During ascent, the game uses a table-driven event system to automate thrust changes. The `launchEventTimings` table contains 14 MET timestamps. Each frame, `metLow` is compared against the table — on a match, `autoThrustCommand` is loaded from the corresponding `launchEventParams` entry. This drives the computer arrow (C), which the player must track with the thrust arrow (T).
 
 | MET Time | Event |
-|----------|-------|
+| ---------- | ------- |
 | 0:04 | Initial thrust command |
 | 0:07 | Roll program |
 | 0:10 | Max-Q throttle down |
@@ -439,7 +439,7 @@ During ascent, the game uses a table-driven event system to automate thrust chan
 Docking requires simultaneous satisfaction of 5 conditions, all of which must hold for approximately 2 seconds:
 
 | Condition | Variable | Required Value |
-|-----------|----------|----------------|
+| ----------- | ---------- | ---------------- |
 | Z-axis (altitude) aligned | `altitude` | $D2 (210 nm) |
 | Y-axis (lateral) aligned | `yAxisPlane` | $00 |
 | Pitch aligned | `pitchValue` | $00 |
@@ -455,7 +455,7 @@ After each successful docking, the satellite becomes more erratic — `dockingCo
 Upon successful landing (STS-101 mission in Flight #3), the game evaluates performance:
 
 | Screen | Condition | Meaning |
-|--------|-----------|---------|
+| -------- | ----------- | --------- |
 | $05 | Basic landing | Mission Specialist / Payload Specialist |
 | $06 | ≥1 successful docking | Pilot rank |
 | $07 | 6 dockings AND fuel ≥ 75 | **Commander Patch** (Activision badge) |
@@ -467,7 +467,7 @@ The Commander Patch was one of Activision's famous achievement patches — playe
 Critical failures trigger `abortMission` with specific error codes:
 
 | Code | Condition |
-|------|-----------|
+| ------ | ----------- |
 | $10 | Orbit quality too poor at MECO |
 | $65 | Yaw not zeroed for deorbit |
 | $70 | Altitude below 195nm (atmospheric burn-up) |
@@ -486,7 +486,7 @@ If no input is detected for an extended period, the game enters attract mode. Th
 ### Key Subroutines
 
 | Label | Address | Description |
-|-------|---------|-------------|
+| ------- | --------- | ------------- |
 | `subtractFuel` | $FCAE | BCD fuel subtraction. Skips in training mode. Underflow → abort ($99). |
 | `abortMission` | $FCC7 | Sets `abortCode`, clears game state. Training mode filters abort severity. |
 | `Lfce6` | $FCE6 | Queues sound: sets `soundEffectId` and `soundSequenceIndex=$FE`. |
@@ -502,7 +502,7 @@ If no input is detected for an extended period, the game enters attract mode. Th
 The game uses RAM addresses $80–$FD for all variables. Key groups:
 
 | Range | Purpose |
-|-------|---------|
+| ------- | --------- |
 | $80 | PRNG seed |
 | $81–$83 | Thrust arrow positions (player, computer, auxiliary) |
 | $84–$85 | Screen ID, status display selection |
