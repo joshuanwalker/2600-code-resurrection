@@ -8,7 +8,7 @@
 ;  by Dennis Debro - Aug. 8, 2018
 ; Furthur coding and comments
 ;  by Halkun
-;
+
 ;
 ;
 ; ==============================================================================
@@ -16,8 +16,6 @@
 ; = FOR EDUCATIONAL PURPOSES ONLY. THOUGH THE CODE WILL ASSEMBLE INTO THE		=
 ; = EXACT GAME ROM, THE LABELS AND COMMENTS ARE THE INTERPRETATION OF MY OWN	=
 ; = AND MAY NOT REPRESENT THE ORIGINAL VISION OF THE AUTHOR.					=
-; =																				=
-; =																				=
 ; ==============================================================================
 ;
 ; This is Howard Scott Warshaw's second game with Atari.
@@ -26,32 +24,7 @@
 
 	include "tia_constants.h"
 	include "vcs_constants.h"
-	
-;-----------------------------------------------------------
-;	color constants
-;-----------------------------------------------------------
-
-BLACK					= $00
-WHITE					= $0E
-YELLOW					= $10
-LT_RED					= $20
-RED						= $30
-ORANGE					= $40
-DK_PINK					= $50
-PURPLE					= $60
-DK_BLUE					= $70
-BLUE					= $80
-LT_BLUE					= $90
-GREEN_BLUE				= $A0
-GREEN					= $C0
-DK_GREEN				= $D0
-LT_BROWN				= $E0
-BROWN					= $F0
-
-
-
-
-
+	include "colors.h"
 
 
 ;===============================================================================
@@ -113,7 +86,7 @@ roomPFControlFlags		= $94	; Playfield priority and reflection flags (CTRLPF)
 pickupStatusFlags		= $95	; Bitmask: Items taken in current room (prevents infinite pickup)
 dirtPileGfxState		= $96	; Graphics pointer offset for dirt pile sprite (shrinks as Indy digs)
 digSpeedLimiter			= $97	; Overflow counter limiting dig speed (digs only on wrap to 0)
-swarmEventCounter		= $98	; Countdown for tsetse swarm spawns in Valley of Poison
+swarmSpawnCounter		= $98	; Countdown for tsetse swarm spawns in Valley of Poison
 screenInitFlag			= $99	; Non-zero if the screen needs initialization logic
 grenadeState			= $9a	; Status: Bit 7=Active, Bit 6=Wall Effect Trigger
 grenadeDetonateTime		= $9b	; timeOfDay value at which active grenade detonates
@@ -161,21 +134,21 @@ spiderRoomState			= $b6	; State: Animation timer (bits 0-2) / Aggressive mode (b
 ; 8-byte sprite in ROM. The Lo byte encodes item identity:
 ;   itemId = (slotLo - <inventorySprites) / HEIGHT_ITEM_SPRITES
 ; Slots are accessed two ways:
-;   Rendering:  (invSlotLo),y / (invSlotLo2),y  — indirect indexed per-slot
-;   Management: invSlotLo,x  (x = 0,2,4,6,8,10) — array base with byte offset
+;   Rendering:  (invSlotLo0),y / (invSlotLo1),y  — indirect indexed per-slot
+;   Management: invSlotLo0,x  (x = 0,2,4,6,8,10) — array base with byte offset
 ;----------------------------------------------------------------------------
-invSlotLo				= $b7	; Inventory Slot 1 (Sprite Ptr Low)  — also array base
-invSlotHi				= $b8	; Inventory Slot 1 (Sprite Ptr High)
-invSlotLo2				= $b9	; Inventory Slot 2 (Sprite Ptr Low)
-invSlotHi2				= $ba	; Inventory Slot 2 (Sprite Ptr High)
-invSlotLo3				= $bb	; Inventory Slot 3 (Sprite Ptr Low)
-invSlotHi3				= $bc	; Inventory Slot 3 (Sprite Ptr High)
-invSlotLo4				= $bd	; Inventory Slot 4 (Sprite Ptr Low)
-invSlotHi4				= $be	; Inventory Slot 4 (Sprite Ptr High)
-invSlotLo5				= $bf	; Inventory Slot 5 (Sprite Ptr Low)
-invSlotHi5				= $c0	; Inventory Slot 5 (Sprite Ptr High)
-invSlotLo6				= $c1	; Inventory Slot 6 (Sprite Ptr Low)
-invSlotHi6				= $c2	; Inventory Slot 6 (Sprite Ptr High)
+invSlotLo0				= $b7	; Inventory Slot 1 (Sprite Ptr Low)  — also array base
+invSlotHi0				= $b8	; Inventory Slot 1 (Sprite Ptr High)
+invSlotLo1				= $b9	; Inventory Slot 2 (Sprite Ptr Low)
+invSlotHi1				= $ba	; Inventory Slot 2 (Sprite Ptr High)
+invSlotLo2				= $bb	; Inventory Slot 3 (Sprite Ptr Low)
+invSlotHi2				= $bc	; Inventory Slot 3 (Sprite Ptr High)
+invSlotLo3				= $bd	; Inventory Slot 4 (Sprite Ptr Low)
+invSlotHi3				= $be	; Inventory Slot 4 (Sprite Ptr High)
+invSlotLo4				= $bf	; Inventory Slot 5 (Sprite Ptr Low)
+invSlotHi4				= $c0	; Inventory Slot 5 (Sprite Ptr High)
+invSlotLo5				= $c1	; Inventory Slot 6 (Sprite Ptr Low)
+invSlotHi5				= $c2	; Inventory Slot 6 (Sprite Ptr High)
 selectedItemSlot		= $c3	; Byte offset (0,2,4,6,8,10) into invSlot array for selected item
 inventoryItemCount		= $c4	; Number of items currently held (0-6)
 selectedInventoryId		= $c5	; ID of the item currently selected (e.g. ID_INVENTORY_WHIP)
@@ -793,7 +766,7 @@ updateAfterItemRemove:
 	rol		blackMarketState			; rotate left to show Indy not carrying Shovel
 setPickupProcessedFlag:
 	lda		pickupStatusFlags
-	jsr		updateRoomEventState
+	jsr		updateSwarmState
 	tya
 	ora		#$c0
 	sta		pickupStatusFlags
@@ -1291,12 +1264,12 @@ checkForArkRoom:
 	bit		arkRoomStateFlag
 	bmi		checkEasterEggFail			; If arkRoomStateFlag has bit 7 set, skip
 	ldx		#>devInitialsGfx0			; get programmer initials part 1 high byte
-	stx		invSlotHi					; put address in slot 1 high byte
-	stx		invSlotHi2					; put address in slot 2 high byte
+	stx		invSlotHi0					; put address in slot 1 high byte
+	stx		invSlotHi1					; put address in slot 2 high byte
 	lda		#<devInitialsGfx0			; get programmer initials low byte
-	sta		invSlotLo					; put in slot 1 low byte
+	sta		invSlotLo0					; put in slot 1 low byte
 	lda		#<devInitialsGfx1			; get programmer initials part 2 low byte
-	sta		invSlotLo2					; put in slot 2 low byte
+	sta		invSlotLo1					; put in slot 2 low byte
 checkEasterEggFail:
 	ldy		indyPosY					; get Indy's vertical position
 	cpy		#$7c						; 124 levels
@@ -2018,7 +1991,7 @@ dispatchRoomHandler
 setupNewRoom
 	lda		screenInitFlag				; Check status flag
 	beq		setRoomAttr					; If zero, skip subroutine
-	jsr		updateRoomEventState		; Run special screen setup routine
+	jsr		updateSwarmState			; Run special screen setup routine
 	lda		#$00						; Clear the flag afterward
 setRoomAttr
 	sta		screenInitFlag				; Store the updated flag
@@ -2041,7 +2014,7 @@ setRoomAttr
 	sta		kernelRenderState			; set object state value
 	ldx		#$04
 
-setupThievesDenObjects
+setupThievesDenObjs
 	; --------------------------------------------------------------------------
 	; INITIALIZE THIEVES POSITIONS
 	; Uses a lookup table to set initial HMOVE values for 5 thieves.
@@ -2050,7 +2023,7 @@ setupThievesDenObjects
 	lda		hmoveTable,y				; Load X position from table.
 	sta		thiefPosX,x					; Store
 	dex									; Next thief.
-	bpl		setupThievesDenObjects		; Loop through all Thieves' Den
+	bpl		setupThievesDenObjs		; Loop through all Thieves' Den
 										; enemy positions
 placeObjectPosX
 	jmp		setThievesPosX
@@ -2064,7 +2037,7 @@ initArkRoomObjPos
 	sta		indyPosY					; Set Indy's Y position in the Ark Room
 	rts
 
-clearGameStateMem
+clearThievesDenObjs
 	ldx		#$00						; Start at index 0
 	txa									; A also 0
 clearStateLoop
@@ -2090,10 +2063,10 @@ initRoomState
 	lda		grenadeState				; Load grenade/parachute state.
 	bpl		resetRoomFlags				; If bit 7 is clear (not active),
 										; skip setting the "warped/re-entered" flag.
-	ora		#$40						; Set bit 6 to indicate re-entry or warp status.
+	ora		#$40						; Set bit 6 to indicate moved to a new room
 	sta		grenadeState				; Update the state.
 resetRoomFlags
-	lda		#<fullDirtPile			; Full pile (topmost read window position)
+	lda		#<fullDirtPile				; Full pile (topmost read window position)
 	sta		dirtPileGfxState
 	ldx		#$00						; Initialize X to 0 for clearing.
 	stx		screenEventState			; Clear screen event state.
@@ -2102,7 +2075,7 @@ resetRoomFlags
 	stx		unused90					; Clear unknown flag at $90
 	lda		pickupStatusFlags			; Load pickup flags.
 	stx		pickupStatusFlags			; Clear pickup flags.
-	jsr		updateRoomEventState		; Update room event counters/offsets.
+	jsr		updateSwarmState			; Update room event counters/offsets.
 	rol		playerInputState			; Rotate input flags
 	clc
 	ror		playerInputState			; Reverse the bit rotation
@@ -2128,15 +2101,15 @@ loadRoomGfx
 	sta		p0GfxPtrHi					; Set high byte of sprite pointer for P0
 	lda		p0SpriteHeightData,x
 	sta		p0SpriteHeight				; Set sprite height for P0
-	lda		objectPosXTable,x
+	lda		p0PosXTable,x
 	sta		p0PosX						; Set default object X position
 	lda		m0PosXTable,x
 	sta		m0PosX						; Set default missile X position
 	lda		m0PosYTable,x
 	sta		m0PosY						; Set default missile Y position
 	cpx		#ID_THIEVES_DEN				; Are we in the Thieves' Den?
-	bcs		clearGameStateMem			; jump to clear game state memory.
-	adc		roomSpecialTable,x			; set special behavior flags for room
+	bcs		clearThievesDenObjs			; jump to clear game state memory.
+	adc		p0DrawStartTable,x			; set special behavior flags for room
 	sta		p0DrawStartLine					; Set kernel scanline boundary
 	lda		pf1GfxDataLo,x
 	sta		pf1GfxPtrLo					; Store PF1 graphics pointer LSB.
@@ -2355,14 +2328,14 @@ dropInvIentoryItem
 	asl
 	ldx		#$0a						; Start from the last inventory slot
 dropItemLoop
-	cmp		invSlotLo,x					; Compare target LSB value to
+	cmp		invSlotLo0,x					; Compare target LSB value to
 										; current inventory slot
 	bne		checkNextItem				; If not a match, try the next slot
 	cpx		selectedItemSlot
 	beq		checkNextItem
 	dec		inventoryItemCount			; reduce number of inventory items
 	lda		##<emptySprite				; place empty sprite in inventory
-	sta		invSlotLo,x
+	sta		invSlotLo0,x
 	cpy		#$05						; If item index is less than 5,
 										; skip clearing pickup flag
 	bcc		finishItemRemoval
@@ -2386,7 +2359,7 @@ checkNextItem
 clearInventorySlot
 	lda		#ID_INVENTORY_EMPTY			; load blank space
 	ldx		selectedItemSlot			; get slot at current position
-	sta		invSlotLo,x					; put empy item in current slot
+	sta		invSlotLo0,x					; put empy item in current slot
 	ldx		selectedInventoryId			; is the current object
 	cpx		#ID_INVENTORY_KEY			; the key?
 	bcc		handleInventoryRemove		; If not jump to handler
@@ -2517,7 +2490,7 @@ nextItemIndex:
 	bcc		selectNextItem
 	ldx		#$00						; wrap around to the beginning
 selectNextItem:
-	lda		invSlotLo,x					; get inventory graphic LSB value
+	lda		invSlotLo0,x					; get inventory graphic LSB value
 	beq		nextItemIndex				; branch if nothing in the inventory location
 	stx		selectedItemSlot			; set inventory index
 	lsr
@@ -2652,7 +2625,7 @@ p0SpriteHeightData
 	.byte $01						; Mesa Field
 	.byte $10						; Valley of Poison
 
-objectPosXTable
+p0PosXTable
 	.byte	$78,$4c,$5d,$4c,$4f,$4c,$12,$4c
 	.byte	$4c,$4c,$4c,$12,$12
 
@@ -2696,7 +2669,7 @@ snakeMoveTableLSB
 snakePosXOffsetTable:
 	.byte	$fe,$fa,$02,$06
 
-roomSpecialTable
+p0DrawStartTable
 	.byte	$00,$00,$18,$04,$03,$03,$85,$85,$3b,$85,$85
 
 m0PosXTable
@@ -2862,7 +2835,7 @@ placeItemInInventory
 getSpaceForItem
 	ldx		#$0a							; start from last inventory slot (10)
 invSearchLoop
-	ldy		invSlotLo,x						; get the LSB for the inventory graphic
+	ldy		invSlotLo0,x						; get the LSB for the inventory graphic
 	beq		addItem							; branch if current slot is free
 	dex
 	dex										; Move to the previous slot
@@ -2875,7 +2848,7 @@ addItem
 	asl										; multiply object number by 8 for gfx
 	asl										;...
 	asl										;...
-	sta		invSlotLo,x						; place graphic LSB in inventory
+	sta		invSlotLo0,x						; place graphic LSB in inventory
 	lda		inventoryItemCount				; get number of inventory items
 	bne		updateInventory					; branch if Indy carrying items
 	stx		selectedItemSlot				; set index to newly picked up item
@@ -2947,14 +2920,14 @@ isItemTaken:
 	rts
 
 
-updateRoomEventState
+updateSwarmState
 	and		#$1f
 	tax
-	lda		swarmEventCounter
+	lda		swarmSpawnCounter
 	cpx		#$0c
 	bcs		doneRoomEventState
 	adc		swarmEventCounterTable,x
-	sta		swarmEventCounter
+	sta		swarmSpawnCounter
 doneRoomEventState
 	rts
 
@@ -2978,27 +2951,27 @@ clearZeroPage
 	;
 	; The game displays the Copyright Notice ("(c) 1982 Atari Inc") inside the
 	; Inventory Strip at the very beginning of the game or after a reset.
-	; It manually populates the `inventoryGfxPtrs` with the Copyright_X sprites.
+	; It manually populates the `inventoryGfxPtrs` with the Copyright_X spritetexts.
 	; -------------------------------------------------------------------------
 	lda		#>emptySprite					; blank inventory
-	sta		invSlotHi						; slot 1
-	sta		invSlotHi2						; slot 2
-	sta		invSlotHi3						; slot 3
-	sta		invSlotHi4						; slot 4
-	sta		invSlotHi5						; slot 5
-	sta		invSlotHi6						; slot 6
+	sta		invSlotHi0						; slot 1
+	sta		invSlotHi1						; slot 2
+	sta		invSlotHi2						; slot 3
+	sta		invSlotHi3						; slot 4
+	sta		invSlotHi4						; slot 5
+	sta		invSlotHi5						; slot 6
 
 	;fill with copyright text
 	lda		#<copyrightGfx0
-	sta		invSlotLo
+	sta		invSlotLo0
 	lda		#<copyrightGfx1
-	sta		invSlotLo2
+	sta		invSlotLo1
 	lda		#<copyrightGfx2
-	sta		invSlotLo4
-	lda		#<copyrightGfx3
 	sta		invSlotLo3
+	lda		#<copyrightGfx3
+	sta		invSlotLo2
 	lda		#<copyrightGfx4
-	sta		invSlotLo5
+	sta		invSlotLo4
 	lda		#ID_ARK_ROOM					; set "ark elevator room" (room 13)
 	sta		currentRoomId					; as current room
 	lsr										; A = ID_ARK_ROOM / 2 (becomes 6)
@@ -3008,17 +2981,17 @@ clearZeroPage
 
 initGameVars:
 	lda		#<invCoinsSprite
-	sta		invSlotLo						; place coins in Indy's inventory
+	sta		invSlotLo0						; place coins in Indy's inventory
 	lsr										; divide by 8 to get the inventory id
 	lsr
 	lsr
 	sta		selectedInventoryId				; set the current selected inventory id
 	inc		inventoryItemCount				; increment number of inventory items
 	lda		#<emptySprite
-	sta		invSlotLo2						; clear the remainder of Indy's inventory
+	sta		invSlotLo1						; clear the remainder of Indy's inventory
+	sta		invSlotLo2
 	sta		invSlotLo3
 	sta		invSlotLo4
-	sta		invSlotLo5
 	lda		#INIT_SCORE						; set initial adventurePoints
 	sta		adventurePoints
 	lda		#<indyStandSprite				; set Indy's initial sprite (standing)
@@ -3733,19 +3706,19 @@ updateInventoryMenu
 
 drawInventoryItems
 	ldy		temp0						; Load Y with index.
-	lda		(invSlotLo),y				; Load inv item 1.
+	lda		(invSlotLo0),y				; Load inv item 1.
 	sta		GRP0						; Store GRP0.
 	sta		WSYNC
 ;---------------------------------------
-	lda		(invSlotLo2),y				; Load inv item 2.
+	lda		(invSlotLo1),y				; Load inv item 2.
 	sta		GRP1						; Store GRP1.
-	lda		(invSlotLo3),y				; Load inv item 3.
+	lda		(invSlotLo2),y				; Load inv item 3.
 	sta		GRP0						; Store GRP0
-	lda		(invSlotLo4),y				; Load inv item 4.
+	lda		(invSlotLo3),y				; Load inv item 4.
 	sta		temp1						; Save to temp.
-	lda		(invSlotLo5),y				; Load inv item 5.
+	lda		(invSlotLo4),y				; Load inv item 5.
 	tax									; Save to X.
-	lda		(invSlotLo6),y				; Load inv item 6.
+	lda		(invSlotLo5),y				; Load inv item 6.
 	tay									; Save to Y
 	lda		temp1						; Restore item 4.
 	sta		GRP1						; Store GRP1
@@ -3882,7 +3855,7 @@ updateTimepieceSprite
 
 storeTimepieceSprite
 	ldx		selectedItemSlot			; Get the current slot for the timepiece.
-	sta		invSlotLo,x					; Update the graphics pointer (Low Byte).
+	sta		invSlotLo0,x					; Update the graphics pointer (Low Byte).
 
 resetInventoryState
 	lda		#$00						; Clear A.
@@ -4014,7 +3987,7 @@ checkInvCycle
 	and		#MAX_INVENTORY_ITEMS
 	beq		finishInvCycle				; branch if Indy not carrying items
 	ldx		selectedItemSlot
-	lda		invSlotLo,x					; get inventory graphic LSB value
+	lda		invSlotLo0,x					; get inventory graphic LSB value
 	cmp		#<timepiece1200
 	bcc		checkInvItemChoice			; branch if the item is not open clock sprite
 	lda		#<closedTimepieceSprite		; close the timepiece
@@ -4022,7 +3995,7 @@ checkInvCycle
 checkInvItemChoice
 	bit		SWCHA						; check joystick values
 	bmi		checkInvCycleLeft			; branch if left joystick not pushed right
-	sta		invSlotLo,x					; set inventory graphic LSB value
+	sta		invSlotLo0,x					; set inventory graphic LSB value
 
 checkInvCycleRight
 	inx
@@ -4032,13 +4005,13 @@ checkInvCycleRight
 	ldx		#$00						; Wrap around to first slot if > 10
 
 continueInvCycleRight
-	ldy		invSlotLo,x					; get inventory graphic LSB value
+	ldy		invSlotLo0,x					; get inventory graphic LSB value
 	beq		checkInvCycleRight			; If empty (0), skip and keep searching Right
 	bne		setSelectedInvSlot			; Found an item, select it
 
 checkInvCycleLeft
 	bvs		finishInvCycle				; branch if left joystick not pushed left
-	sta		invSlotLo,x
+	sta		invSlotLo0,x
 
 cycleInvLeft
 	dex
@@ -4047,7 +4020,7 @@ cycleInvLeft
 	ldx		#$0a						; Wrap around to last slot if < 0
 
 continueInvCycleLeft
-	ldy		invSlotLo,x
+	ldy		invSlotLo0,x
 	beq		cycleInvLeft				; If empty (0), skip and keep searching Left
 
 setSelectedInvSlot
@@ -4445,10 +4418,10 @@ faceThiefLeft:
 		lda		p0PosY						; Load Thief Y
 		cmp		#$4a						; Check Bound.
 		bcs		swarmOffscreen				; If >= $4A, Skip.
-		ldy		swarmEventCounter			; Load swarm spawn counter.
+		ldy		swarmSpawnCounter			; Load swarm spawn counter.
 		beq		swarmOffscreen				; If 0, Skip.
 		dey									; Decrement.
-		sty		swarmEventCounter			; Update counter.
+		sty		swarmSpawnCounter			; Update counter.
 		ldy		#$8e						; Default Y.
 		adc		#$03						; Add 3 to thief Y location
 		sta		m0PosY						; Set swarm Y near Thief.

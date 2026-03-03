@@ -455,78 +455,96 @@ resetPressed
 ; ******************************************************************
     
 scatterTheItems SUBROUTINE
-    jsr     nextRandom			; get a random value
-    and     #$07				; make it from 0 to 7
-    cmp     #$06				
-    bcs     scatterTheItems		; keep value from 0 to 5
-    sta     tmpRandomValue			; save in temp.
-    ldx     #$04				; loop x from 4 down to 0
+; This subroutine randomizes the locations of the 5 game items:
+; - 3 urn pieces (indices 0-2)
+; - Master key (index 3)
+; - Scepter (index 4)
+; It ensures items are not placed in the player's starting room/floor (room 2, floor 1)
+; to prevent immediate pickup. Locations are stored in randFloorLoc, objectRoomLocations, randPosX, randPosY.
+    jsr     nextRandom			; Generate a random value for room offset
+    and     #$07				; Mask to 0-7
+    cmp     #$06				; If >=6, retry to keep 0-5
+    bcs     scatterTheItems		; Loop back if too high
+    sta     tmpRandomValue			; Store the valid offset (0-5)
+    ldx     #$04				; Start loop for 5 items (x=4 down to 0)
 .randomizeLoop
-    jsr     nextRandom			; get a random value
-    and     #$03				; make it from 0 to 3
-    sta     randFloorLoc,x	; setup objects on random floor numbers
-    tay 
-    txa
+    jsr     nextRandom			; Get another random value
+    and     #$03				; Mask to floor number 0-3 (floors 1-4)
+    sta     randFloorLoc,x	; Store random floor for this item
+    tay                         ; Y = floor number
+    txa                         ; A = item index (4 to 0)
 .valueNotOK
     clc
-    adc     tmpRandomValue			; add rnd(0->5) to rnd(0->3) to get rnd(0->8)
-    cmp     #$06
+    adc     tmpRandomValue			; Add the random offset to item index
+    cmp     #$06                ; If result >=6, wrap around
     bcc     .lessThanSix
-    sbc     #$06				; keep it from 0 to 5
+    sbc     #$06				; Subtract 6 to wrap (keeps 0-5)
 .lessThanSix
-    cmp     playerCurrentRoom		; if A different from current room #
-    bne     .valueIsOK			;
-    cpy     playerCurrentFloor  	; and Y differnt from current floor #
-    bne     .valueIsOK			; accept value
-    lda     #$05
-    bne     .valueNotOK			; otherwise start with 5 and do it again (unconditional)
+    cmp     playerCurrentRoom		; Check if this room matches player's start (room 2)
+    bne     .valueIsOK			; If not, check floor
+    cpy     playerCurrentFloor  	; Check if floor matches player's start (floor 1)
+    bne     .valueIsOK			; If floor also different, accept
+    lda     #$05                ; If same room/floor, force recalc with offset 5
+    bne     .valueNotOK			; Retry calculation (unconditional)
 .valueIsOK
-    sta     randomRoomLocations,x 
-    sta     objectRoomLocations,x	; setup objects in random rooms
-    tay 
-    lda     randomLocationsTableH,y
-    sta     randPosX,x		; and random horiz positions
-    lda     randomLocationsTableV,y
-    sta     randPosY,x		; and random vert positions
-    dex
-    bpl     .randomizeLoop
-    rts
+    sta     randomRoomLocations,x ; Store the calculated room number
+    sta     objectRoomLocations,x	; Also store in active object locations
+    tay                         ; Y = room number for position lookup
+    lda     randomLocationsTableH,y ; Get horizontal position from table
+    sta     randPosX,x		; Store random X position
+    lda     randomLocationsTableV,y ; Get vertical position from table
+    sta     randPosY,x		; Store random Y position
+    dex                         ; Next item
+    bpl     .randomizeLoop      ; Loop until x < 0
+    rts                         ; Return
 
 ; ******************************************************************
     
 resetNotPressed SUBROUTINE
-    ror
-    bcc     .selectPressed
-    ldx     #$01
-    stx     selectSwitchDebounce
+; This subroutine is called when the reset switch is not pressed (from readSwitches).
+; It handles the select switch logic for cycling through game selections (1-9).
+; The select switch is debounced to prevent rapid changes.
+    ror                             ; Rotate again to check select switch bit into carry
+    bcc     .selectPressed          ; If select pressed (carry clear), handle it
+    ldx     #$01                    ; Select not pressed: set debounce counter to 1
+    stx     selectSwitchDebounce    ; (prevents immediate select detection)
 .selectNotPressed
-    rts
+    rts                             ; Return without changing selection
 .selectPressed
-    dec     selectSwitchDebounce
-    bne     .selectNotPressed
-    lda     #$2d
-    sta     selectSwitchDebounce
-    inc     gameSelection
+    dec     selectSwitchDebounce    ; Decrement debounce counter
+    bne     .selectNotPressed       ; If not zero, still debouncing, return
+    lda     #$2d                    ; Debounce period expired: reload counter to $2d
+    sta     selectSwitchDebounce    ; (about 45 frames at 60fps for next press)
+    inc     gameSelection           ; Increment game selection (0-8 for games 1-9)
     lda     gameSelection
-    cmp     #$09
-    bne     .notGame9
-    lda     #$00
+    cmp     #$09                    ; Check if exceeded 8 (game 9)
+    bne     .notGame9               ; If not, keep current
+    lda     #$00                    ; Wrap around to game 1 (selection 0)
 .notGame9
-    sta     gameSelection
+    sta     gameSelection           ; Store updated selection
 setSelectionVariables
-    jsr     unlightTorch
-    lda     #$40
+; Subroutine to initialize/reset variables when game selection changes.
+; Resets torch, game state, timers, and clears collision/creature data.
+    jsr     unlightTorch            ; Extinguish any active torch
+    lda     #$40                    ; Set game state to selection mode (bit 6 set)
     sta     gameState
-    lda     #$10
+    lda     #$10                    ; Reset color cycling timer
     sta     colorCycTimer
-    lda     #0
+    lda     #0                      ; Clear various game variables
     sta     collisionIndex
     sta     rollingEyesTimer
     sta     creaturesInRoom
-    rts
+    rts                             ; Return
 
 ; ******************************************************************
     
+
+;-----------------------------------------------------------
+; checkForWinning
+;-----------------------------------------------------------
+; Checks win conditions: player on lowest floor, at exit door, carrying completed urn.
+; Handles torch timer countdown (20 seconds), flickering, and win state setup.
+;-----------------------------------------------------------
 checkForWinning SUBROUTINE
     bit     roomStairsStatus
     bpl     .countDownTorch
@@ -577,6 +595,12 @@ unlightTorch
 ; ******************************************************************
     
 
+;-----------------------------------------------------------
+; handlePlayerMovement
+;-----------------------------------------------------------
+; Updates player's absolute Y position based on scroll Y for playfield positioning.
+; Calls updatePlayerDelta to handle movement deltas and doorway flags.
+;-----------------------------------------------------------
 handlePlayerMovement SUBROUTINE
     jsr     updatePlayerDelta
     lda     #0
@@ -1147,29 +1171,46 @@ itemIDTable
 ; ******************************************************************
     
 handlePlayfieldScrolling SUBROUTINE
+; This subroutine adjusts a Y position value for playfield scrolling.
+; It takes the input Y position in A, adds the player's absolute Y position,
+; then subtracts the player's scroll Y to get the screen-relative Y coordinate.
+; Used for positioning items or sprites relative to the scrolled playfield.
+; Returns the adjusted Y position in A.
     clc
-    adc     playerAbsPosY
+    adc     playerAbsPosY          ; Add player's absolute vertical position
     sec
-    sbc     playerScrollY
-    rts
+    sbc     playerScrollY          ; Subtract player's scroll Y for screen offset
+    rts                            ; Return adjusted Y position
 
 ; ******************************************************************
     
 setInvItemPTRs SUBROUTINE
-    txa
-    cpx     #$02
-    bcc     .keyOrScepter
-    lda     roomStairsStatus,x
+; Sets the graphic pointer for an item sprite based on item index in X.
+; For items 0-1 (key, scepter?), uses a fixed offset; for 2+ (urn pieces?), uses roomStairsStatus,x.
+; Shifts the value left 3 times (multiply by 8) to get base offset, adds H_FONT for height offset.
+; Returns low byte in A, high byte in X (pointing to creatureGraphics page).
+; Used to select the correct sprite graphic for items.
+    txa                             ; A = item index
+    cpx     #$02                    ; Check if item is key or scepter (0-1)
+    bcc     .keyOrScepter           ; If yes, use fixed logic
+    lda     roomStairsStatus,x      ; Else, load from room status (perhaps animation or type)
 .keyOrScepter
+    asl                             ; Multiply by 8 (shift left 3)
     asl
     asl
-    asl
-    adc     #H_FONT
-    ldx     #>creatureGraphics
-    rts
+    adc     #H_FONT                 ; Add font height offset
+    ldx     #>creatureGraphics      ; High byte of graphics table
+    rts                             ; Return low byte in A, high in X
 
 ; ******************************************************************
     
+
+;-----------------------------------------------------------
+; checkItemVisibility
+;-----------------------------------------------------------
+; Iterates through items to find one visible on current floor and in torch light.
+; Sets up sprite graphics and position if found; hides sprite otherwise.
+;-----------------------------------------------------------
 checkItemVisibility SUBROUTINE
     ldx     itemLastSeen
 iterateItemsLoop
